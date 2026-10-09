@@ -47,6 +47,7 @@ def create_feed_router(
                 article,
                 Category.name.label("category_name"),
                 user_model.full_name.label("author_name"),
+                user_model.role.label("author_role"),
                 func.array_agg(Tag.name).filter(Tag.id.is_not(None)).label("tag_names"),
             )
             .outerjoin(Category, article.category_id == Category.id)
@@ -54,7 +55,7 @@ def create_feed_router(
             .outerjoin(ArticleTag, ArticleTag.article_id == article.id)
             .outerjoin(Tag, Tag.id == ArticleTag.tag_id)
             .where(article.published_at.is_not(None))
-            .group_by(article.id, Category.name, user_model.full_name)
+            .group_by(article.id, Category.name, user_model.full_name, user_model.role)
         )
         if category:
             statement = statement.where(Category.slug == category)
@@ -122,8 +123,11 @@ def create_feed_router(
             count_statement = count_statement.where(
                 article_model.published_at >= datetime.now(timezone.utc) - timedelta(hours=24)
             )
-        items = [
-            ArticleFeedItem(
+        items = []
+        for row in rows:
+            author_role = row.author_role
+            author_role = getattr(author_role, "value", author_role)
+            items.append(ArticleFeedItem(
                 id=row[0].id,
                 title=row[0].title,
                 slug=row[0].slug,
@@ -134,13 +138,13 @@ def create_feed_router(
                 read_time_min=row[0].read_time_min,
                 views_count=row[0].views_count,
                 likes_count=row[0].likes_count,
+                comments_count=getattr(row[0], "comments_count", None),
                 published_at=row[0].published_at,
                 category=row.category_name,
                 author=row.author_name,
+                author_role=str(author_role) if author_role is not None else None,
                 tags=row.tag_names or [],
-            )
-            for row in rows
-        ]
+            ))
         return ArticleFeedPage(
             items=items,
             total=db.scalar(count_statement) or 0,
