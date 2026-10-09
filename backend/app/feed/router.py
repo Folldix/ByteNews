@@ -6,6 +6,7 @@ creating duplicate platform models or application configuration.
 """
 
 from collections.abc import Callable
+from datetime import datetime, timedelta, timezone
 from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -75,6 +76,9 @@ def create_feed_router(
                 document.op("@@")(func.plainto_tsquery("simple", query))
             )
         if sort == "popular":
+            statement = statement.where(
+                article.published_at >= datetime.now(timezone.utc) - timedelta(hours=24)
+            )
             statement = statement.order_by(article.views_count.desc(), article.published_at.desc())
         else:
             statement = statement.order_by(article.published_at.desc(), article.id)
@@ -114,13 +118,19 @@ def create_feed_router(
                 document.op("@@")(func.plainto_tsquery("simple", query))
             )
         count_statement = count_statement.where(article_model.published_at.is_not(None))
+        if sort == "popular":
+            count_statement = count_statement.where(
+                article_model.published_at >= datetime.now(timezone.utc) - timedelta(hours=24)
+            )
         items = [
             ArticleFeedItem(
                 id=row[0].id,
                 title=row[0].title,
                 slug=row[0].slug,
                 lead=row[0].lead,
+                cover_image_url=getattr(row[0], "cover_image_url", None),
                 is_hero=row[0].is_hero,
+                is_photo_reportage=getattr(row[0], "is_photo_reportage", False),
                 read_time_min=row[0].read_time_min,
                 views_count=row[0].views_count,
                 likes_count=row[0].likes_count,
@@ -203,7 +213,16 @@ def create_feed_router(
 
     @router.get("/tags", response_model=CatalogPage)
     def list_tags(db: Session = Depends(get_db)) -> CatalogPage:
-        rows = db.scalars(select(Tag).order_by(Tag.name)).all()
-        return CatalogPage(items=[CatalogItem(id=row.id, name=row.name, slug=row.slug) for row in rows])
+        usage_count = func.count(ArticleTag.article_id).label("usage_count")
+        rows = db.execute(
+            select(Tag, usage_count)
+            .outerjoin(ArticleTag, ArticleTag.tag_id == Tag.id)
+            .group_by(Tag.id)
+            .order_by(usage_count.desc(), Tag.name)
+            .limit(24)
+        ).all()
+        return CatalogPage(
+            items=[CatalogItem(id=row[0].id, name=row[0].name, slug=row[0].slug) for row in rows]
+        )
 
     return router
