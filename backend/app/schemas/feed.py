@@ -9,13 +9,17 @@ class ArticleFeedItem(BaseModel):
     title: str
     slug: str
     lead: str | None = None
+    cover_image_url: str | None = None
     is_hero: bool = False
+    is_photo_reportage: bool = False
     read_time_min: int = 1
     views_count: int = 0
     likes_count: int = 0
+    comments_count: int | None = None
     published_at: datetime | None = None
     category: str | None = None
     author: str | None = None
+    author_role: str | None = None
     tags: list[str] = Field(default_factory=list)
 
 
