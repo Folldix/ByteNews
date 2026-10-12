@@ -21,7 +21,7 @@ const OPTIONS: ReactionOption[] = [
   {
     kind: "useful",
     label: "Корисно",
-    iconSrc: "/icons/reactions/check.png",
+    iconSrc: "/icons/reactions/check.svg",
     iconWidth: 17.73,
     iconHeight: 8.49,
     activeClass: "border-[#00D492] bg-[#D0FAE5] font-bold text-[#004F3B]",
@@ -29,7 +29,7 @@ const OPTIONS: ReactionOption[] = [
   {
     kind: "fire",
     label: "Вогонь",
-    iconSrc: "/icons/reactions/fire.png",
+    iconSrc: "/icons/reactions/fire.svg",
     iconWidth: 11.67,
     iconHeight: 15.83,
     activeClass: "border-[#FF637E] bg-[#FFE4E6] font-bold text-[#8B0836]",
@@ -37,7 +37,7 @@ const OPTIONS: ReactionOption[] = [
   {
     kind: "insight",
     label: "Інсайт",
-    iconSrc: "/icons/reactions/bulb.png",
+    iconSrc: "/icons/reactions/bulb.svg",
     iconWidth: 10,
     iconHeight: 16,
     activeClass: "border-[#FFB900] bg-[#FEF3C6] font-bold text-[#7B3306]",
@@ -45,7 +45,7 @@ const OPTIONS: ReactionOption[] = [
   {
     kind: "controversial",
     label: "Спірно",
-    iconSrc: "/icons/reactions/question.png",
+    iconSrc: "/icons/reactions/question.svg",
     iconWidth: 16.67,
     iconHeight: 16.67,
     activeClass: "border-[#C27AFF] bg-[#F3E8FF] font-bold text-[#59168B]",
