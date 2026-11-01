@@ -14,6 +14,8 @@ from sqlalchemy import distinct, func, select
 from sqlalchemy.orm import Session
 
 from app.models.feed import ArticleTag, Category, FlashNews, Tag
+from app.models.article import ArticleStatus
+from app.models.community import Comment
 from app.schemas.feed import (
     ArticleFeedItem,
     ArticleFeedPage,
@@ -42,19 +44,26 @@ def create_feed_router(
         query: str | None = None,
     ):
         article = article_model
+        comment_count = (
+            select(func.count(Comment.id))
+            .where(Comment.article_id == article.id)
+            .correlate(article)
+            .scalar_subquery()
+        )
         statement = (
             select(
                 article,
                 Category.name.label("category_name"),
                 user_model.full_name.label("author_name"),
                 user_model.role.label("author_role"),
+                comment_count.label("comments_count"),
                 func.array_agg(Tag.name).filter(Tag.id.is_not(None)).label("tag_names"),
             )
             .outerjoin(Category, article.category_id == Category.id)
             .outerjoin(user_model, article.author_id == user_model.id)
             .outerjoin(ArticleTag, ArticleTag.article_id == article.id)
             .outerjoin(Tag, Tag.id == ArticleTag.tag_id)
-            .where(article.published_at.is_not(None))
+            .where(article.status == ArticleStatus.PUBLISHED, article.published_at.is_not(None))
             .group_by(article.id, Category.name, user_model.full_name, user_model.role)
         )
         if category:
@@ -70,11 +79,8 @@ def create_feed_router(
         if query:
             # PostgreSQL FTS over both title and lead; plainto_tsquery treats
             # user input as plain text and avoids accepting raw tsquery syntax.
-            document = func.to_tsvector(
-                "simple", article.title + " " + func.coalesce(article.lead, "")
-            )
             statement = statement.where(
-                document.op("@@")(func.plainto_tsquery("simple", query))
+                article.search_vector.op("@@")(func.plainto_tsquery("simple", query))
             )
         if sort == "popular":
             statement = statement.where(
@@ -112,13 +118,13 @@ def create_feed_router(
         if category:
             count_statement = count_statement.where(Category.slug == category)
         if query:
-            document = func.to_tsvector(
-                "simple", article_model.title + " " + func.coalesce(article_model.lead, "")
-            )
             count_statement = count_statement.where(
-                document.op("@@")(func.plainto_tsquery("simple", query))
+                article_model.search_vector.op("@@")(func.plainto_tsquery("simple", query))
             )
-        count_statement = count_statement.where(article_model.published_at.is_not(None))
+        count_statement = count_statement.where(
+            article_model.status == ArticleStatus.PUBLISHED,
+            article_model.published_at.is_not(None),
+        )
         if sort == "popular":
             count_statement = count_statement.where(
                 article_model.published_at >= datetime.now(timezone.utc) - timedelta(hours=24)
@@ -138,7 +144,7 @@ def create_feed_router(
                 read_time_min=row[0].read_time_min,
                 views_count=row[0].views_count,
                 likes_count=row[0].likes_count,
-                comments_count=getattr(row[0], "comments_count", None),
+                comments_count=row.comments_count,
                 published_at=row[0].published_at,
                 category=row.category_name,
                 author=row.author_name,
