@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import {
   UserProfile,
   apiLogin,
@@ -20,6 +20,7 @@ interface AuthContextType {
   login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   upgradeToReporter: (profile: { handle: string; role_title: string; topics: string[] }) => Promise<void>;
+  setBookmarksCount: (count: number) => void;
   logout: () => void;
   openAuthModal: () => void;
   closeAuthModal: () => void;
@@ -117,6 +118,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(updated);
   };
 
+  const setBookmarksCount = useCallback((count: number) => {
+    setUser((current) => current ? { ...current, bookmarks_count: count } : current);
+  }, []);
+
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
 
@@ -130,6 +135,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         upgradeToReporter,
+        setBookmarksCount,
         logout,
         openAuthModal,
         closeAuthModal,

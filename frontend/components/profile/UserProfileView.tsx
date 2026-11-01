@@ -18,11 +18,13 @@ import {
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { ReporterVerificationModal } from "../auth/ReporterVerificationModal";
+import { useBookmarks } from "../../context/BookmarksContext";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
 
 export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
   const { user, setActiveView, logout, openAuthModal } = useAuth();
+  const { openDrawer } = useBookmarks();
   const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showReporterModal, setShowReporterModal] = useState(false);
@@ -331,6 +333,8 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 { label: "Матеріали у закладках", value: user.bookmarks_count },
               ].map((metric) => <div key={metric.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><p className="text-xs text-slate-500">{metric.label}</p><p className="mt-2 font-mono text-2xl font-bold text-slate-900">{metric.value.toLocaleString("uk-UA")}</p></div>)}
             </div>
+          ) : activeTab === "bookmarks" ? (
+            <div className="py-8 text-center"><p className="text-sm text-slate-500">Перегляньте збережені матеріали у вашому списку.</p><button type="button" onClick={openDrawer} className="mt-4 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700">Відкрити закладки</button></div>
           ) : (
             <div className="py-12 text-center text-sm text-slate-500">Дані для цієї вкладки з’являться після підключення відповідного розділу.</div>
           )}
