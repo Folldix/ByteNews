@@ -1,5 +1,6 @@
 from functools import lru_cache
 
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,6 +8,8 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://bytenews:bytenews@localhost:5432/bytenews"
     cors_origins: list[str] = ["http://localhost:3000"]
     rss_interval_minutes: int = 10
+    # JSON array: [{"name":"Example Tech","feed_url":"https://example.com/feed.xml","category_slug":"development"}]
+    rss_sources: list[dict[str, str]] = Field(default_factory=list)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

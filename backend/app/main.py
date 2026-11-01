@@ -15,7 +15,7 @@ from app.models import Article, User
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     with SessionLocal() as session:
-        seed_feed_catalog(session)
+        seed_feed_catalog(session, settings.rss_sources)
 
     scheduler = create_scheduler(SessionLocal, interval_minutes=settings.rss_interval_minutes)
     scheduler.start()
