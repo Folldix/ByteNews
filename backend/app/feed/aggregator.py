@@ -45,38 +45,40 @@ class _ReadableText(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
-        self._drop_depth = 0
+        self._suppressed_elements: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = {key.lower(): value or "" for key, value in attrs}
         identity = f"{attributes.get('id', '')} {attributes.get('class', '')}"
         style = attributes.get("style", "").replace(" ", "").lower()
         hidden = "hidden" in attributes or "display:none" in style or "visibility:hidden" in style
-        if self._drop_depth:
+        if self._suppressed_elements:
             if tag not in self._VOID_TAGS:
-                self._drop_depth += 1
+                self._suppressed_elements.append(tag)
             return
         if tag in self._DROP_TAGS or _AD_MARKER.search(identity) or hidden:
-            self._drop_depth = 0 if tag in self._VOID_TAGS else 1
+            if tag not in self._VOID_TAGS:
+                self._suppressed_elements.append(tag)
             return
         if tag in {"p", "div", "li", "br", "h1", "h2", "h3", "blockquote"}:
             self.parts.append(" ")
 
     def handle_endtag(self, tag: str) -> None:
-        if self._drop_depth:
-            if tag not in self._VOID_TAGS:
-                self._drop_depth -= 1
+        if self._suppressed_elements:
+            if tag in self._suppressed_elements:
+                index = len(self._suppressed_elements) - 1 - self._suppressed_elements[::-1].index(tag)
+                del self._suppressed_elements[index:]
             return
         if tag in {"p", "div", "li", "br", "h1", "h2", "h3", "blockquote"}:
             self.parts.append(" ")
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         # Self-closing elements cannot open a suppressed block.
-        if not self._drop_depth:
+        if not self._suppressed_elements:
             self.handle_starttag(tag, attrs)
 
     def handle_data(self, data: str) -> None:
-        if not self._drop_depth:
+        if not self._suppressed_elements:
             self.parts.append(data)
 
 
