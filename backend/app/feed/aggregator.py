@@ -26,6 +26,7 @@ from app.models.feed import FlashNews, RSSSource
 
 logger = logging.getLogger(__name__)
 FETCH_TIMEOUT_SECONDS = 15
+MAX_FEED_BYTES = 10 * 1024 * 1024
 DEFAULT_INTERVAL_MINUTES = 10
 MAX_TITLE_LENGTH = 500
 MAX_SUMMARY_LENGTH = 20_000
@@ -36,37 +37,48 @@ class _ReadableText(HTMLParser):
     """Extract visible text while discarding scripts, embeds, and ad blocks."""
 
     _DROP_TAGS = {"script", "style", "noscript", "iframe", "object", "svg", "template"}
+    _VOID_TAGS = {
+        "area", "base", "br", "col", "embed", "hr", "img", "input", "link",
+        "meta", "param", "source", "track", "wbr",
+    }
 
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.parts: list[str] = []
-        self._drop_depth = 0
+        self._suppressed_elements: list[str] = []
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = {key.lower(): value or "" for key, value in attrs}
         identity = f"{attributes.get('id', '')} {attributes.get('class', '')}"
         style = attributes.get("style", "").replace(" ", "").lower()
         hidden = "hidden" in attributes or "display:none" in style or "visibility:hidden" in style
-        if self._drop_depth:
-            if tag in self._DROP_TAGS:
-                self._drop_depth += 1
+        if self._suppressed_elements:
+            if tag not in self._VOID_TAGS:
+                self._suppressed_elements.append(tag)
             return
         if tag in self._DROP_TAGS or _AD_MARKER.search(identity) or hidden:
-            self._drop_depth = 1
+            if tag not in self._VOID_TAGS:
+                self._suppressed_elements.append(tag)
             return
         if tag in {"p", "div", "li", "br", "h1", "h2", "h3", "blockquote"}:
             self.parts.append(" ")
 
     def handle_endtag(self, tag: str) -> None:
-        if self._drop_depth:
-            if tag in self._DROP_TAGS:
-                self._drop_depth -= 1
+        if self._suppressed_elements:
+            if tag in self._suppressed_elements:
+                index = len(self._suppressed_elements) - 1 - self._suppressed_elements[::-1].index(tag)
+                del self._suppressed_elements[index:]
             return
         if tag in {"p", "div", "li", "br", "h1", "h2", "h3", "blockquote"}:
             self.parts.append(" ")
 
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        # Self-closing elements cannot open a suppressed block.
+        if not self._suppressed_elements:
+            self.handle_starttag(tag, attrs)
+
     def handle_data(self, data: str) -> None:
-        if not self._drop_depth:
+        if not self._suppressed_elements:
             self.parts.append(data)
 
 
@@ -104,7 +116,10 @@ def _entry_url(raw_url: str, feed_url: str) -> str | None:
 def _parse_source(source: RSSSource) -> feedparser.FeedParserDict:
     request = Request(source.feed_url, headers={"User-Agent": "ByteNews RSS Aggregator/1.0"})
     with urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
-        return feedparser.parse(response.read())
+        payload = response.read(MAX_FEED_BYTES + 1)
+    if len(payload) > MAX_FEED_BYTES:
+        raise ValueError(f"RSS feed exceeds the {MAX_FEED_BYTES}-byte limit")
+    return feedparser.parse(payload)
 
 
 def collect_source(db: Session, source: RSSSource) -> int:

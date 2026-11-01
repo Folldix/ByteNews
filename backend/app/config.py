@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from pydantic import field_validator
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -18,6 +19,8 @@ class Settings(BaseSettings):
         if len(value.encode("utf-8")) < 32:
             raise ValueError("JWT_SECRET_KEY must contain at least 32 bytes")
         return value
+    # JSON array: [{"name":"Example Tech","feed_url":"https://example.com/feed.xml","category_slug":"development"}]
+    rss_sources: list[dict[str, str]] = Field(default_factory=list)
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
