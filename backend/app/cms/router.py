@@ -205,17 +205,18 @@ async def create_article(
         category_id=payload.category_id,
         author_id=user.id,
         published_at=published_at,
+        blocks=[
+            ArticleBlock(
+                block_type=block.block_type,
+                order_index=index,
+                content_payload=_block_payload(block),
+            )
+            for index, block in enumerate(payload.blocks)
+        ],
+        tag_links=[],
     )
     db.add(article)
     await db.flush()
-    article.blocks.extend(
-        ArticleBlock(
-            block_type=block.block_type,
-            order_index=index,
-            content_payload=_block_payload(block),
-        )
-        for index, block in enumerate(payload.blocks)
-    )
     await _replace_tags(db, article, payload.tags)
     article.read_time_min = _reading_time(article)
     try:
@@ -249,8 +250,9 @@ async def update_article(
             setattr(article, field, values[field])
         elif field in values and field in {"lead", "cover_image_url", "cover_caption"}:
             setattr(article, field, None)
-    if "blocks" in values and values["blocks"] is not None:
-        await _replace_blocks(db, article, values["blocks"])
+    blocks = payload.blocks
+    if "blocks" in values and blocks is not None:
+        await _replace_blocks(db, article, blocks)
     if "tags" in values and values["tags"] is not None:
         await _replace_tags(db, article, values["tags"])
     article.status = new_status
