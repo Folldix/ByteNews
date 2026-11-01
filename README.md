@@ -1,30 +1,35 @@
 # ByteNews
 
-**ByteNews** — це веб-платформа для публікації та читання технологічних новин, аналітики й авторських матеріалів української IT-спільноти.
+ByteNews is a Ukrainian technology news and engineering analysis platform for
+developers, DevOps engineers and IT professionals.
 
-## Технологічний стек (Frontend)
+## Stack
 
-- **Фреймворк:** Next.js 15 (App Router)
-- **Мова:** TypeScript, React 19
-- **Стилізація:** Tailwind CSS v4
-- **Шрифти:** Unbounded, IBM Plex Sans, JetBrains Mono
+- **Frontend:** Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4
+- **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.x, Alembic
+- **Database:** PostgreSQL 16
 
-## Реалізовані базові модулі (Core UI & Auth)
+## Local development
 
-- **Навігаційна шапка (`Header`) та підвал (`Footer`)** з підтримкою станів авторизованого користувача та швидких дій.
-- **Система авторизації (`AuthContext`, `AuthModal`)** — модальне вікно входу й реєстрації з валідацією полів та клієнтом для взаємодії з API.
-- **Профіль автора (`UserProfileView`)** — картка профілю зі статистикою, перемиканням вкладок (`Опубліковані статті`, `Чернетки`, `Збережене`, `Налаштування`) та формою налаштування даних користувача.
-- **Набір компонентів та графічних ресурсів** — векторні іконки (`Icons.tsx`), фонова сітка (`BackgroundGrid.tsx`) та каталог аватарок (`lib/avatars.ts`).
+Start PostgreSQL and the API as described in [backend/README.md](backend/README.md).
+Then start the frontend:
 
-## Швидкий старт
-
-```bash
-cd frontend
-npm install
+```powershell
+Copy-Item frontend/.env.local.example frontend/.env.local
+Set-Location frontend
+npm ci
 npm run dev
 ```
 
-Після запуску додаток буде доступний за адресою `http://localhost:3000`.
+The app runs at `http://localhost:3000`; the API runs at
+`http://localhost:8000`. Frontend requests use `NEXT_PUBLIC_API_BASE_URL`.
 
----
-*Документація проєкту буде доповнюватись у процесі інтеграції наступних модулів.*
+## Main route composition
+
+The home route composes the shared Header, auth modal, feed, profile view and
+Footer. Header search and category controls share state with the feed, while
+the profile view remains reachable through the auth context.
+
+Database tables for identity, CMS, discovery and community are defined from
+one SQLAlchemy metadata registry. Apply schema changes with Alembic from the
+`backend` directory; the initial revision is `0001_initial`.
