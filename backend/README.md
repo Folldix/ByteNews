@@ -57,5 +57,8 @@ Identity routes are `POST /api/v1/auth/register`, `POST /api/v1/auth/login`,
 /api/v1/users/upgrade-role`. Use `get_current_user` and `require_roles(...)`
 from `app.auth.dependencies` to protect future private routes.
 
+Reader/community routes include article detail, nested comments, reaction
+state/update, active poll/vote, and authenticated bookmark list/add/remove.
+
 Run future schema changes as new Alembic revisions. Do not edit the initial
 revision after it has been applied to a shared database.
