@@ -5,6 +5,7 @@ import { Search, Mail, User, Bookmark, LayoutGrid } from "lucide-react";
 import { Icon } from "./Icon";
 import { useAuth } from "../context/AuthContext";
 import { useFeedFilters } from "../context/FeedContext";
+import { useBookmarks } from "../context/BookmarksContext";
 
 // Список рубрик новинного порталу
 const CATEGORIES = [
@@ -20,6 +21,7 @@ const CATEGORIES = [
 export function Header() {
   const { user, openAuthModal, setActiveView, activeView } = useAuth();
   const { category, query, setCategory, setTag, setQuery } = useFeedFilters();
+  const { count: bookmarkCount, openDrawer } = useBookmarks();
   const [searchText, setSearchText] = useState(query);
   useEffect(() => setSearchText(query), [query]);
 
@@ -118,14 +120,14 @@ export function Header() {
               {/* Кнопка закладок */}
               <button 
                 type="button"
-                onClick={() => setActiveView("bookmarks")}
+                onClick={openDrawer}
                 className="h-[34px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
               >
                 <Bookmark className="w-[14px] h-[16px] text-[#1e293b]" />
                 <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
                   Закладки
                 </span>
-                  {user.bookmarks_count > 0 && <span className="grid min-w-5 place-items-center rounded-full bg-emerald-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">{user.bookmarks_count}</span>}
+                  {bookmarkCount > 0 && <span className="grid min-w-5 place-items-center rounded-full bg-emerald-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">{bookmarkCount}</span>}
               </button>
 
               {/* Кнопка дайджесту */}

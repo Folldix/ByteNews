@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getArticles, getCategories, getFlashNews, getTags } from "./feed-api";
 import { useFeedFilters } from "../../context/FeedContext";
+import { useBookmarks } from "../../context/BookmarksContext";
+import { CommunityPoll } from "../community/CommunityPoll";
 import type { Article, CatalogItem, FlashNews, Page } from "./types";
 
 const DEFAULT_CATEGORIES: CatalogItem[] = [
@@ -144,6 +146,7 @@ function Trending({ items, bookmarked, onBookmark }: { items: Article[]; bookmar
 
 export function FeedHome() {
   const { category, tag, query, setCategory, setTag, setQuery } = useFeedFilters();
+  const { items: bookmarkedItems, toggleBookmark: toggleSavedBookmark } = useBookmarks();
   const [categories, setCategories] = useState<CatalogItem[]>(DEFAULT_CATEGORIES);
   const [topics, setTopics] = useState<CatalogItem[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
@@ -155,7 +158,6 @@ export function FeedHome() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [selectedFlash, setSelectedFlash] = useState<FlashNews | null>(null);
-  const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setReady(true);
@@ -188,13 +190,12 @@ export function FeedHome() {
     return () => controller.abort();
   }, [category, tag, query, ready]);
 
+  const bookmarked = useMemo(() => new Set(bookmarkedItems.map((item) => item.article.id)), [bookmarkedItems]);
+  const articleById = useMemo(() => new Map([...articles, ...popular].map((item) => [item.id, item])), [articles, popular]);
   const toggleBookmark = useCallback((id: string) => {
-    setBookmarked((current) => {
-      const next = new Set(current);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }, []);
+    const article = articleById.get(id);
+    if (article) void toggleSavedBookmark(article).catch(() => undefined);
+  }, [articleById, toggleSavedBookmark]);
 
   const hero = useMemo(() => articles.find((item) => item.is_hero) ?? articles[0] ?? null, [articles]);
   const listArticles = useMemo(() => hero ? articles.filter((item) => item.id !== hero.id) : articles, [articles, hero]);
@@ -250,7 +251,7 @@ export function FeedHome() {
             </section>
           </div>
 
-          <aside className="grid gap-5 md:grid-cols-2 xl:sticky xl:top-6 xl:grid-cols-1"><Trending items={popular} bookmarked={bookmarked} onBookmark={toggleBookmark} /><Timeline items={flashNews} onSelect={setSelectedFlash} /><section className="rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-800">ByteNews / Open feed</p><h2 className="mt-2 text-base font-bold tracking-tight text-slate-900">Новини для ваших інструментів</h2><p className="mt-2 text-sm leading-6 text-slate-600">Публічний JSON-фід доступний для інтеграції з іншими сервісами.</p><code className="mt-4 block overflow-x-auto rounded-xl bg-slate-950 px-3 py-3 font-mono text-[10px] text-emerald-200">GET /api/v1/public/feed</code></section></aside>
+          <aside className="grid gap-5 md:grid-cols-2 xl:sticky xl:top-6 xl:grid-cols-1"><Trending items={popular} bookmarked={bookmarked} onBookmark={toggleBookmark} /><CommunityPoll /><Timeline items={flashNews} onSelect={setSelectedFlash} /><section className="rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-800">ByteNews / Open feed</p><h2 className="mt-2 text-base font-bold tracking-tight text-slate-900">Новини для ваших інструментів</h2><p className="mt-2 text-sm leading-6 text-slate-600">Публічний JSON-фід доступний для інтеграції з іншими сервісами.</p><code className="mt-4 block overflow-x-auto rounded-xl bg-slate-950 px-3 py-3 font-mono text-[10px] text-emerald-200">GET /api/v1/public/feed</code></section></aside>
         </div>
       </div>
       <FlashNewsModal item={selectedFlash} onClose={() => setSelectedFlash(null)} />

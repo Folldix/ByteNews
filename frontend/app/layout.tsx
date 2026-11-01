@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "../context/AuthContext";
+import { BookmarksProvider } from "../context/BookmarksContext";
+import { FeedProvider } from "../context/FeedContext";
 import { Background } from "../components/Background";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -42,7 +44,7 @@ export default function RootLayout({
     >
       <body className="font-sans bg-[#f8fafc] text-[#0f172a] antialiased min-h-screen flex flex-col relative selection:bg-[#059669]/10 selection:text-[#059669]">
         <Background />
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider><FeedProvider><BookmarksProvider>{children}</BookmarksProvider></FeedProvider></AuthProvider>
       </body>
     </html>
   );

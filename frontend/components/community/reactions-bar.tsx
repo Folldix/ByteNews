@@ -58,7 +58,7 @@ type ReactionsBarProps = {
   // Яку реакцію користувач уже поставив (або null, якщо ще ніяку)
   initialSelected?: ReactionKind | null;
   // Викликається після кліку. Сюди пізніше підключу запит до бекенду
-  onReact?: (kind: ReactionKind | null) => Promise<void> | void;
+  onReact?: (kind: ReactionKind | null) => Promise<{ counts: ReactionCounts; selected: ReactionKind | null } | void> | { counts: ReactionCounts; selected: ReactionKind | null } | void;
 };
 
 export function ReactionsBar({
@@ -86,7 +86,11 @@ export function ReactionsBar({
     setSelected(nextSelected);
 
     try {
-      await onReact?.(nextSelected);
+      const serverState = await onReact?.(nextSelected);
+      if (serverState) {
+        setCounts(serverState.counts);
+        setSelected(serverState.selected);
+      }
     } catch {
       setCounts(previousCounts);
       setSelected(previousSelected);
