@@ -5,6 +5,7 @@ from enum import Enum as PyEnum
 from uuid import UUID, uuid4
 
 from sqlalchemy import DateTime, Enum, ForeignKey, String, Text, Uuid, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -37,6 +38,7 @@ class User(Base):
         server_default=UserRole.READER.value,
     )
     role_title: Mapped[str | None] = mapped_column(String(150))
+    reporter_topics: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list, server_default="[]")
     bio: Mapped[str | None] = mapped_column(Text)
     avatar_url: Mapped[str | None] = mapped_column(String(2048))
     location: Mapped[str | None] = mapped_column(String(150))
