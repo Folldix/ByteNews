@@ -44,21 +44,26 @@ function BookmarkButton({ active, onClick, label = "Зберегти в закл
   );
 }
 
+function categoryBadgeTone(category: string | null) {
+  const value = category?.toLowerCase() ?? "";
+  if (value.includes("інтелект")) return "border-emerald-200 bg-emerald-50 text-emerald-800";
+  if (value.includes("розроб")) return "border-sky-200 bg-sky-50 text-sky-800";
+  if (value.includes("кібер")) return "border-rose-200 bg-rose-50 text-rose-800";
+  if (value.includes("game")) return "border-orange-200 bg-orange-50 text-orange-800";
+  if (value.includes("заліз") || value.includes("чіп")) return "border-cyan-200 bg-cyan-50 text-cyan-800";
+  if (value.includes("стартап")) return "border-violet-200 bg-violet-50 text-violet-800";
+  return "border-slate-200 bg-slate-50 text-slate-700";
+}
+
 function ArticleCover({ article, large = false }: { article: Article; large?: boolean }) {
   return (
-    <div className={`relative isolate overflow-hidden bg-slate-900 ${large ? "aspect-[16/8] rounded-2xl sm:aspect-[16/7]" : "aspect-[16/9] rounded-xl"}`}>
+    <div className={`relative isolate overflow-hidden bg-slate-100 ${large ? "aspect-[16/7] rounded-2xl" : "aspect-[16/9] rounded-xl"}`}>
       {article.cover_image_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={article.cover_image_url} alt="" className="absolute inset-0 z-0 size-full object-cover" />
+        <img src={article.cover_image_url} alt="" className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-[1.02]" />
       ) : (
-        <div className="absolute inset-0 z-0 bg-[radial-gradient(ellipse_at_72%_35%,rgba(45,212,191,.48),transparent_24%),radial-gradient(ellipse_at_30%_75%,rgba(59,130,246,.32),transparent_40%),linear-gradient(135deg,#0f172a,#13243b_52%,#0f766e)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_35%,rgba(45,212,191,.48),transparent_24%),radial-gradient(ellipse_at_30%_75%,rgba(59,130,246,.32),transparent_40%),linear-gradient(135deg,#0f172a,#13243b_52%,#0f766e)]" />
       )}
-      <div className="absolute inset-0 z-10 bg-gradient-to-t from-slate-950/75 via-slate-950/5 to-transparent" />
-      <div className="absolute bottom-4 left-4 z-20 flex flex-wrap gap-2 sm:bottom-5 sm:left-5">
-        <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-[.16em] text-white backdrop-blur">{article.category ?? "Технології"}</span>
-        {article.is_photo_reportage && <span className="rounded-full bg-emerald-300 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-slate-950">Фоторепортаж</span>}
-      </div>
-      <span className="absolute right-4 top-4 z-20 rounded-full border border-white/20 bg-slate-950/35 px-3 py-1 font-mono text-xs text-white backdrop-blur">{article.read_time_min} хв читання</span>
     </div>
   );
 }
@@ -80,12 +85,16 @@ function ArticleMeta({ article }: { article: Article }) {
 function ArticleCard({ article, bookmarked, onBookmark }: { article: Article; bookmarked: boolean; onBookmark: () => void }) {
   return (
     <article className="group rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg sm:p-4">
-      <a href={`/articles/${article.slug}`} className="block"><ArticleCover article={article} /></a>
-      <div className="px-1 pb-1 pt-4">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <span className="font-mono text-[10px] font-semibold uppercase tracking-[.15em] text-emerald-700">{article.category ?? "Технології"} <span className="text-slate-300">/</span> {article.read_time_min} хв</span>
-          <BookmarkButton active={bookmarked} onClick={onBookmark} />
+      <div className="mb-3 flex items-center justify-between gap-3 px-1">
+        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+          <span className={`rounded-full border px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wide ${categoryBadgeTone(article.category)}`}>{article.category ?? "Технології"}</span>
+          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-mono text-[9px] text-slate-500"><span aria-hidden="true">◷</span>{article.read_time_min} хв</span>
+          {article.is_photo_reportage && <span className="rounded-full bg-violet-50 px-2.5 py-1 font-mono text-[9px] font-bold text-violet-700">Фоторепортаж</span>}
         </div>
+        <BookmarkButton active={bookmarked} onClick={onBookmark} />
+      </div>
+      <a href={`/articles/${article.slug}`} className="block"><ArticleCover article={article} /></a>
+      <div className="px-1 pb-1 pt-3">
         <a href={`/articles/${article.slug}`} className="text-lg font-bold leading-snug tracking-[-.025em] text-slate-900 decoration-emerald-400 decoration-2 underline-offset-4 group-hover:underline">{article.title}</a>
         {article.lead && <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{article.lead}</p>}
         {article.tags.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{article.tags.slice(0, 3).map((tag) => <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 font-mono text-[10px] text-slate-500">#{tag}</span>)}</div>}
@@ -136,10 +145,10 @@ function Timeline({ items, onSelect }: { items: FlashNews[]; onSelect: (item: Fl
 
 function Trending({ items, bookmarked, onBookmark }: { items: Article[]; bookmarked: Set<string>; onBookmark: (id: string) => void }) {
   return (
-    <section className="rounded-2xl border border-slate-800 bg-slate-950 p-5 text-white shadow-[0_12px_35px_-22px_rgba(15,23,42,.8)]">
-      <p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-300">Редакційний радар</p><h2 className="mt-1 text-lg font-bold tracking-tight">Найбільше читають <span className="font-mono text-xs font-medium text-slate-400">/ 24 год</span></h2>
-      <ol className="mt-3 divide-y divide-white/10">{items.slice(0, 3).map((item, index) => <li key={item.id} className="flex gap-3 py-3.5"><span className="font-mono text-xl font-light leading-8 text-emerald-300/70">0{index + 1}</span><div className="min-w-0 flex-1"><div className="flex items-start justify-between gap-2"><span className="font-mono text-[9px] uppercase tracking-[.13em] text-slate-400">{item.category ?? "Новини"} <span className="px-1">·</span>{relativeTime(item.published_at)}</span><button aria-label="Зберегти матеріал" aria-pressed={bookmarked.has(item.id)} onClick={() => onBookmark(item.id)} className="shrink-0 text-slate-500 transition hover:text-emerald-300">{bookmarked.has(item.id) ? "◆" : "◇"}</button></div><a href={`/articles/${item.slug}`} className="mt-1 block text-sm font-semibold leading-5 text-slate-100 hover:text-emerald-200">{item.title}</a><p className="mt-1 font-mono text-[10px] text-slate-500">{item.views_count.toLocaleString("uk-UA")} переглядів</p></div></li>)}</ol>
-      {items.length === 0 && <p className="py-4 text-sm text-slate-400">Щойно опубліковані матеріали скоро з’являться тут.</p>}
+    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)]">
+      <div className="flex items-end justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-slate-400">🔥 Найбільше читають</p><h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900">Тренди дня</h2></div><span className="shrink-0 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700">за 24 год</span></div>
+      <ol className="mt-3 divide-y divide-slate-100">{items.slice(0, 3).map((item, index) => <li key={item.id} className="flex gap-3 py-3.5"><span className="font-mono text-xl font-light leading-8 text-slate-300">0{index + 1}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><span className="truncate font-mono text-[9px] uppercase tracking-[.13em] text-slate-400">{item.category ?? "Новини"}</span><button aria-label={bookmarked.has(item.id) ? "Прибрати із закладок" : "Зберегти матеріал"} aria-pressed={bookmarked.has(item.id)} onClick={() => onBookmark(item.id)} className="shrink-0 text-slate-400 transition hover:text-emerald-700">{bookmarked.has(item.id) ? "◆" : "◇"}</button></div><a href={`/articles/${item.slug}`} className="mt-1 block text-sm font-semibold leading-5 text-slate-800 hover:text-emerald-800">{item.title}</a><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] text-slate-400"><span>{relativeTime(item.published_at)}</span><span>{item.views_count.toLocaleString("uk-UA")} переглядів</span>{item.comments_count != null && <span>{item.comments_count} коментарів</span>}</div></div></li>)}</ol>
+      {items.length === 0 && <p className="py-4 text-sm leading-6 text-slate-500">Щойно опубліковані матеріали скоро з’являться тут.</p>}
     </section>
   );
 }
@@ -215,25 +224,20 @@ export function FeedHome() {
 
   return (
     <main className="min-h-screen bg-[#f6f8fa] text-slate-900">
-      <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-7 sm:px-6 lg:px-10 lg:pt-10">
-        <div className="mb-6 flex items-end justify-between gap-4 border-b border-slate-200 pb-5">
-          <div><p className="font-mono text-[10px] font-bold uppercase tracking-[.2em] text-emerald-700">ByteNews <span className="text-slate-300">/</span> Feed & discovery</p><h1 className="mt-2 text-3xl font-extrabold tracking-[-.05em] sm:text-4xl">Технології <span className="text-slate-400">у фокусі.</span></h1></div>
-          <span className="hidden rounded-full border border-slate-200 bg-white px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-slate-500 sm:inline-flex">Щоденний інженерний дайджест</span>
-        </div>
-
+      <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6 lg:px-10 lg:pt-7">
         <div className="grid items-start gap-7 xl:grid-cols-[minmax(0,1fr)_350px]">
           <div className="min-w-0">
             <section aria-labelledby="hero-heading" className="mb-8">
               <div className="mb-3 flex items-center justify-between"><h2 id="hero-heading" className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-slate-500"><span className="mr-2 text-emerald-600">●</span>Головна новина <span className="px-1 text-slate-300">&</span> тренди дня</h2><span className="font-mono text-[10px] text-slate-400">01 / TODAY</span></div>
-              {hero ? <article className="overflow-hidden rounded-[26px] border border-slate-200/80 bg-white p-3 shadow-[0_18px_55px_-42px_rgba(15,23,42,.5)] sm:p-5">
-                <div className="grid gap-5 lg:grid-cols-[1.1fr_.9fr] lg:items-center"><ArticleCover article={hero} large />
-                  <div className="px-1 pb-2 lg:px-3"><div className="mb-3 flex items-start justify-between gap-4"><div className="flex flex-wrap gap-2"><span className="rounded-full bg-emerald-50 px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-800">{hero.category ?? "Технології"}</span><span className="rounded-full bg-slate-100 px-3 py-1 font-mono text-[10px] font-medium text-slate-500">{hero.read_time_min} хв читання</span></div><BookmarkButton active={bookmarked.has(hero.id)} onClick={() => toggleBookmark(hero.id)} /></div>
-                    <a href={`/articles/${hero.slug}`}><h3 className="text-2xl font-extrabold leading-[1.12] tracking-[-.04em] text-slate-950 sm:text-3xl">{hero.title}</h3></a>
-                    {hero.lead && <p className="mt-3 line-clamp-4 text-sm leading-6 text-slate-600">{hero.lead}</p>}
-                    {hero.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{hero.tags.slice(0, 4).map((topic) => <button key={topic} onClick={() => setTag(slugForTag(topic))} className="rounded-md border border-slate-200 px-2 py-1 font-mono text-[10px] text-slate-500 hover:border-emerald-300 hover:text-emerald-800">#{topic}</button>)}</div>}
-                    <div className="mt-5"><ArticleMeta article={hero} /></div>
-                    <a href={`/articles/${hero.slug}`} className="mt-5 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-xs font-bold text-white transition hover:bg-emerald-700">Читати <span aria-hidden="true">↗</span></a>
-                  </div>
+              {hero ? <article className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white p-3 shadow-[0_14px_40px_-32px_rgba(15,23,42,.42)] sm:p-5">
+                <div className="mb-4 flex items-center justify-between gap-3"><div className="flex flex-wrap items-center gap-2"><span className={`rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${categoryBadgeTone(hero.category)}`}>{hero.category ?? "Технології"}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-mono text-[10px] text-slate-600"><span aria-hidden="true">◷</span>{hero.read_time_min} хв читання</span>{hero.is_photo_reportage && <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 font-mono text-[10px] font-bold text-violet-700">Фоторепортаж</span>}</div><BookmarkButton active={bookmarked.has(hero.id)} onClick={() => toggleBookmark(hero.id)} />
+                </div>
+                <a href={`/articles/${hero.slug}`} className="block"><ArticleCover article={hero} large /></a>
+                <div className="px-1 pb-1 pt-4 sm:px-2 sm:pt-5">
+                  <a href={`/articles/${hero.slug}`}><h3 className="text-2xl font-extrabold leading-[1.12] tracking-[-.04em] text-slate-950 sm:text-[30px]">{hero.title}</h3></a>
+                  {hero.lead && <p className="mt-3 max-w-4xl line-clamp-3 text-sm leading-6 text-slate-600">{hero.lead}</p>}
+                  {hero.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{hero.tags.slice(0, 5).map((topic) => <button key={topic} onClick={() => setTag(slugForTag(topic))} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-600 hover:border-emerald-300 hover:text-emerald-800">#{topic}</button>)}</div>}
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4"><ArticleMeta article={hero} /><a href={`/articles/${hero.slug}`} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700">Читати <span aria-hidden="true">↗</span></a></div>
                 </div>
               </article> : <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">{loading ? "Завантажуємо головну новину…" : "Головна новина з’явиться після першої публікації."}</div>}
             </section>

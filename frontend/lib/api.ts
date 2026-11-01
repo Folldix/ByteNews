@@ -6,6 +6,7 @@ export interface UserArticle {
   title: string;
   slug: string;
   summary: string;
+  cover_image_url: string | null;
   category_name: string;
   read_time_min: number;
   views_count: number;

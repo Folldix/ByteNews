@@ -68,6 +68,7 @@ class UserArticle(BaseModel):
     title: str
     slug: str
     summary: str
+    cover_image_url: str | None = None
     category_name: str
     read_time_min: int
     views_count: int

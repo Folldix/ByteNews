@@ -90,6 +90,7 @@ async def _profile(db: AsyncSession, user: User, *, public: bool = False) -> Use
             title=row[0].title,
             slug=row[0].slug,
             summary=row[0].lead or "",
+            cover_image_url=row[0].cover_image_url,
             category_name=row.category_name,
             read_time_min=row[0].read_time_min,
             views_count=row[0].views_count,
