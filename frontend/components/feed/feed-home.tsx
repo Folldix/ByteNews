@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getArticles, getCategories, getFlashNews, getTags } from "./feed-api";
+import { useFeedFilters } from "../../context/FeedContext";
 import type { Article, CatalogItem, FlashNews, Page } from "./types";
 
 const DEFAULT_CATEGORIES: CatalogItem[] = [
@@ -142,16 +143,13 @@ function Trending({ items, bookmarked, onBookmark }: { items: Article[]; bookmar
 }
 
 export function FeedHome() {
+  const { category, tag, query, setCategory, setTag, setQuery } = useFeedFilters();
   const [categories, setCategories] = useState<CatalogItem[]>(DEFAULT_CATEGORIES);
   const [topics, setTopics] = useState<CatalogItem[]>([]);
   const [articles, setArticles] = useState<Article[]>([]);
   const [popular, setPopular] = useState<Article[]>([]);
   const [flashNews, setFlashNews] = useState<FlashNews[]>([]);
   const [total, setTotal] = useState(0);
-  const [category, setCategory] = useState("");
-  const [tag, setTag] = useState("");
-  const [query, setQuery] = useState("");
-  const [draftQuery, setDraftQuery] = useState("");
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -160,9 +158,6 @@ export function FeedHome() {
   const [bookmarked, setBookmarked] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    const initialQuery = new URLSearchParams(window.location.search).get("q")?.trim() ?? "";
-    setQuery(initialQuery);
-    setDraftQuery(initialQuery);
     setReady(true);
   }, []);
 
@@ -225,10 +220,6 @@ export function FeedHome() {
           <span className="hidden rounded-full border border-slate-200 bg-white px-3 py-2 font-mono text-[10px] uppercase tracking-wider text-slate-500 sm:inline-flex">Щоденний інженерний дайджест</span>
         </div>
 
-        <nav aria-label="Рубрики" className="-mx-4 mb-7 overflow-x-auto px-4 scrollbar-none sm:mx-0 sm:px-0"><div className="flex min-w-max gap-2">
-          {categories.map((item) => <button key={item.id} onClick={() => { setCategory(item.slug); setTag(""); }} className={`rounded-full border px-4 py-2.5 text-xs font-semibold transition ${category === item.slug && !tag ? "border-slate-900 bg-slate-900 text-white" : "border-slate-200 bg-white text-slate-600 hover:border-slate-400 hover:text-slate-900"}`}>{item.name}</button>)}
-        </div></nav>
-
         <div className="grid items-start gap-7 xl:grid-cols-[minmax(0,1fr)_350px]">
           <div className="min-w-0">
             <section aria-labelledby="hero-heading" className="mb-8">
@@ -250,10 +241,9 @@ export function FeedHome() {
 
             <section aria-labelledby="articles-heading">
               <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[.16em] text-slate-400">Каталог публікацій <span className="px-1">/</span>{activeCategory}</p><div className="mt-1 flex items-center gap-2"><h2 id="articles-heading" className="text-2xl font-extrabold tracking-[-.04em]">{query ? `Результати пошуку` : activeCategory}</h2><span className="grid min-w-7 place-items-center rounded-full bg-slate-200 px-2 py-1 font-mono text-[10px] font-bold text-slate-600">{total}</span></div></div>
-                <form onSubmit={(event) => { event.preventDefault(); setQuery(draftQuery.trim()); }} className="flex w-full max-w-sm items-center rounded-full border border-slate-200 bg-white p-1.5 focus-within:border-emerald-400"><label htmlFor="feed-search" className="sr-only">Пошук статей</label><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="ml-2 size-4 text-slate-400" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path strokeLinecap="round" d="m16 16 4.5 4.5"/></svg><input id="feed-search" value={draftQuery} onChange={(event) => setDraftQuery(event.target.value)} placeholder="Пошук у стрічці…" className="min-w-0 flex-1 bg-transparent px-2 py-1.5 text-xs outline-none placeholder:text-slate-400"/><button className="rounded-full bg-slate-900 px-4 py-2 text-[10px] font-bold text-white hover:bg-emerald-700">Знайти</button></form>
               </div>
               {error && <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}. Перевірте доступність API та адресу `NEXT_PUBLIC_API_BASE_URL`.</div>}
-              {loading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/></div> : articles.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><span className="font-mono text-[10px] font-bold uppercase tracking-[.2em] text-emerald-700">Нічого не знайдено</span><h3 className="mt-2 text-xl font-bold tracking-tight">Спробуйте інший запит або рубрику</h3><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{query ? `За запитом «${query}» поки немає публікацій. Перевірте написання або очистьте пошук.` : "У цій рубриці ще немає публікацій. Загляньте трохи згодом."}</p><button onClick={() => { setQuery(""); setDraftQuery(""); setCategory(""); setTag(""); }} className="mt-5 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-900">Показати всі новини</button></div> : <>
+              {loading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/></div> : articles.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><span className="font-mono text-[10px] font-bold uppercase tracking-[.2em] text-emerald-700">Нічого не знайдено</span><h3 className="mt-2 text-xl font-bold tracking-tight">Спробуйте інший запит або рубрику</h3><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{query ? `За запитом «${query}» поки немає публікацій. Перевірте написання або очистьте пошук.` : "У цій рубриці ще немає публікацій. Загляньте трохи згодом."}</p><button onClick={() => { setQuery(""); setCategory(""); setTag(""); }} className="mt-5 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-900">Показати всі новини</button></div> : <>
                 <div className="grid gap-4 md:grid-cols-2">{listArticles.map((article) => <ArticleCard key={article.id} article={article} bookmarked={bookmarked.has(article.id)} onBookmark={() => toggleBookmark(article.id)} />)}</div>
                 {articles.length < total && <div className="mt-6 text-center"><button disabled={loadingMore} onClick={loadMore} className="rounded-full border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-700 transition hover:border-slate-900 disabled:opacity-50">{loadingMore ? "Завантажуємо…" : "Завантажити ще"} <span className="ml-2 font-mono text-slate-400">{Math.max(total - articles.length, 0)}+</span></button></div>}
               </>}

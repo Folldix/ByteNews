@@ -1,6 +1,6 @@
 """Initial catalog values used by the category bar and topic discovery."""
 
-from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from app.models.feed import Category, Tag
@@ -27,17 +27,15 @@ DEFAULT_TAGS = (
 
 
 def seed_feed_catalog(db: Session) -> None:
-    """Insert the initial feed categories and topic tags without overwriting edits."""
-    category_slugs = set(db.scalars(select(Category.slug)))
-    tag_slugs = set(db.scalars(select(Tag.slug)))
-    changed = False
-    for name, slug in DEFAULT_CATEGORIES:
-        if slug not in category_slugs:
-            db.add(Category(name=name, slug=slug))
-            changed = True
-    for name, slug in DEFAULT_TAGS:
-        if slug not in tag_slugs:
-            db.add(Tag(name=name, slug=slug))
-            changed = True
-    if changed:
-        db.commit()
+    """Insert the initial catalog once; safe if API workers start together."""
+    db.execute(
+        insert(Category)
+        .values([{"name": name, "slug": slug} for name, slug in DEFAULT_CATEGORIES])
+        .on_conflict_do_nothing()
+    )
+    db.execute(
+        insert(Tag)
+        .values([{"name": name, "slug": slug} for name, slug in DEFAULT_TAGS])
+        .on_conflict_do_nothing()
+    )
+    db.commit()

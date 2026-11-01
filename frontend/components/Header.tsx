@@ -1,24 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Mail, User, Bookmark, LayoutGrid } from "lucide-react";
 import { Icon } from "./Icon";
 import { useAuth } from "../context/AuthContext";
+import { useFeedFilters } from "../context/FeedContext";
 
 // Список рубрик новинного порталу
 const CATEGORIES = [
-  "Всі новини",
-  "Штучний Інтелект",
-  "Розробка",
-  "Кібербезпека",
-  "GameDev & 3D",
-  "Залізо & Чіпи",
-  "Стартапи & Ринок",
+  { name: "Всі новини", slug: "" },
+  { name: "Штучний Інтелект", slug: "ai" },
+  { name: "Розробка", slug: "development" },
+  { name: "Кібербезпека", slug: "cybersecurity" },
+  { name: "GameDev & 3D", slug: "gamedev-3d" },
+  { name: "Залізо & Чіпи", slug: "hardware-chips" },
+  { name: "Стартапи & Ринок", slug: "startups-market" },
 ];
 
 export function Header() {
   const { user, openAuthModal, setActiveView, activeView } = useAuth();
-  const [activeCategory, setActiveCategory] = useState("Всі новини");
+  const { category, query, setCategory, setTag, setQuery } = useFeedFilters();
+  const [searchText, setSearchText] = useState(query);
+  useEffect(() => setSearchText(query), [query]);
 
   const isAuthenticated = !!user;
   const isReporter = user?.role === "reporter";
@@ -49,14 +52,23 @@ export function Header() {
           </button>
 
           {/* Блок пошуку */}
-          <div className="flex-1 h-[40px] bg-white border border-[#e2e8f0] rounded-[12px] px-[22px] flex items-center gap-[7px]">
-            <Search className="w-[18px] h-[18px] text-[#94a3b8] shrink-0" />
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              setQuery(searchText.trim());
+            }}
+            className="flex-1 h-[40px] bg-white border border-[#e2e8f0] rounded-[12px] px-[22px] flex items-center gap-[7px]"
+          >
+            <Search className="w-[18px] h-[18px] text-[#94a3b8] shrink-0" aria-hidden="true" />
             <input
               type="text"
+              value={searchText}
+              onChange={(event) => setSearchText(event.target.value)}
               placeholder="Пошук новин, технологій, тегів..."
+              aria-label="Пошук новин, технологій і тегів"
               className="w-full bg-transparent font-mono font-medium text-[13px] text-[#0f172a] placeholder:text-[#94a3b8] focus:outline-none"
             />
-          </div>
+          </form>
 
           {/* Панель дій користувача (Гість або Авторизований) */}
           {!isAuthenticated ? (
@@ -158,20 +170,23 @@ export function Header() {
 
         {/* Ряд фільтрів за рубриками */}
         <div className="border-t border-[#e2e8f0] py-[8px] flex items-center gap-[4px] overflow-x-auto">
-          {CATEGORIES.map((category) => {
-            const isActive = activeCategory === category;
+          {CATEGORIES.map((item) => {
+            const isActive = category === item.slug;
             return (
               <button
-                key={category}
+                key={item.slug || "all"}
                 type="button"
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  setCategory(item.slug);
+                  setTag("");
+                }}
                 className={`px-[12px] py-[4px] rounded-full font-mono font-bold text-[12px] transition cursor-pointer shrink-0 ${
                   isActive
                     ? "bg-[#0f172a] text-white"
                     : "text-[#475569] hover:bg-slate-100"
                 }`}
               >
-                {category}
+                {item.name}
               </button>
             );
           })}
