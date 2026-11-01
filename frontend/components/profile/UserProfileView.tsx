@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ArrowLeft,
   LogOut,
@@ -17,13 +17,17 @@ import {
   Eye,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { ReporterVerificationModal } from "../auth/ReporterVerificationModal";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
 
-export function UserProfileView() {
+export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
   const { user, setActiveView, logout, openAuthModal } = useAuth();
-  const [activeTab, setActiveTab] = useState<ProfileTab>("articles");
+  const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
   const [copiedLink, setCopiedLink] = useState(false);
+  const [showReporterModal, setShowReporterModal] = useState(false);
+
+  useEffect(() => setActiveTab(initialTab), [initialTab]);
 
   // Якщо користувач гість, показуємо заглушку з кнопкою входу
   if (!user) {
@@ -154,13 +158,14 @@ export function UserProfileView() {
 
               <div className="flex items-center gap-1.5 pt-1 text-[11px] sm:text-[12px] font-mono text-slate-500">
                 <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                <span>У спільноті з березня 2023</span>
+                <span>У спільноті з {user.joined_date}</span>
               </div>
             </div>
           </div>
 
           {/* Кнопки дій справа (вертикальна колонка) */}
           <div className="flex flex-col items-end gap-2.5 shrink-0 self-start md:self-auto">
+            {user.role === "reader" && <button type="button" onClick={() => setShowReporterModal(true)} className="h-[38px] px-4 rounded-[12px] bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[12px] font-bold transition">Стати автором</button>}
             <button
               type="button"
               className="h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
@@ -198,7 +203,7 @@ export function UserProfileView() {
               Публікацій
             </div>
             <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
-              {user.articles?.length || user.articles_count} статей
+              {user.articles_count} статей
             </div>
           </div>
 
@@ -207,7 +212,7 @@ export function UserProfileView() {
               Охоплення
             </div>
             <div className="text-[18px] sm:text-[20px] font-extrabold text-[#059669]">
-              {(user.total_views || 7230).toLocaleString("uk-UA")}
+              {user.total_views.toLocaleString("uk-UA")}
             </div>
           </div>
 
@@ -216,7 +221,7 @@ export function UserProfileView() {
               Збережено у закладки
             </div>
             <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
-              {user.bookmarks_count || 2} матеріалів
+              {user.bookmarks_count} матеріалів
             </div>
           </div>
 
@@ -226,7 +231,7 @@ export function UserProfileView() {
             </div>
             <div className="text-[15px] sm:text-[16px] font-extrabold text-[#059669] flex items-center gap-1.5 mt-1 truncate">
               <ShieldCheck className="w-4 h-4 text-[#10b981] shrink-0" />
-              <span>Автор + Читач</span>
+              <span>{user.role === "reporter" || user.role === "admin" ? "Автор + Читач" : "Читач"}</span>
             </div>
           </div>
         </div>
@@ -260,15 +265,15 @@ export function UserProfileView() {
 
         {/* Вміст вкладок: опубліковані статті або порожній блок для вкладок без даних */}
         <div className="mt-6">
-          {activeTab === "articles" ? (
+          {activeTab === "articles" || activeTab === "drafts" ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-mono text-slate-500 pb-2 border-b border-slate-100">
-                <span>Показано матеріали автора {user.full_name}</span>
+                <span>{activeTab === "drafts" ? "Чернетки автора" : `Публікації автора ${user.full_name}`}</span>
                 <span>Сортування: За датою публікації</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {user.articles.map((article) => (
+                {user.articles.filter((article) => activeTab === "drafts" ? article.status === "draft" : article.status !== "draft").map((article) => (
                   <article
                     key={article.id}
                     className="relative overflow-hidden rounded-2xl p-5 border border-slate-200/80 hover:border-emerald-500/50 hover:shadow-md transition-all duration-300 bg-white group flex flex-col justify-between"
@@ -283,7 +288,7 @@ export function UserProfileView() {
                           {article.category_name}
                         </span>
                         <span>•</span>
-                        <span>{article.published_at}</span>
+                        <span>{article.published_at ? new Date(article.published_at).toLocaleDateString("uk-UA") : "Чернетка"}</span>
                         <span>•</span>
                         <span className="flex items-center gap-1 text-slate-400">
                           <Clock className="w-3 h-3" />
@@ -316,14 +321,23 @@ export function UserProfileView() {
                   </article>
                 ))}
               </div>
+              {user.articles.filter((article) => activeTab === "drafts" ? article.status === "draft" : article.status !== "draft").length === 0 && <p className="rounded-xl border border-dashed border-slate-200 px-5 py-10 text-center text-sm text-slate-500">{activeTab === "drafts" ? "Чернеток поки немає." : "Опублікованих статей поки немає."}</p>}
+            </div>
+          ) : activeTab === "analytics" ? (
+            <div className="grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "Опубліковані статті", value: user.articles_count },
+                { label: "Перегляди статей", value: user.total_views },
+                { label: "Матеріали у закладках", value: user.bookmarks_count },
+              ].map((metric) => <div key={metric.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><p className="text-xs text-slate-500">{metric.label}</p><p className="mt-2 font-mono text-2xl font-bold text-slate-900">{metric.value.toLocaleString("uk-UA")}</p></div>)}
             </div>
           ) : (
-            /* Вкладки, в яких поки нічого немає, залишено пустими */
-            <div className="py-12" />
+            <div className="py-12 text-center text-sm text-slate-500">Дані для цієї вкладки з’являться після підключення відповідного розділу.</div>
           )}
         </div>
 
       </div>
+      {showReporterModal && <ReporterVerificationModal onClose={() => setShowReporterModal(false)} />}
     </div>
   );
 }

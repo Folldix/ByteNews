@@ -3,83 +3,118 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   UserProfile,
-  DEMO_AUTHOR_PROFILE,
   apiLogin,
   apiRegister,
+  apiRefresh,
+  apiLogout,
+  apiUpgradeRole,
 } from "../lib/api";
+
+type View = "feed" | "profile" | "bookmarks";
 
 interface AuthContextType {
   user: UserProfile | null;
   isAuthenticated: boolean;
-  activeView: "feed" | "profile";
+  activeView: View;
   isAuthModalOpen: boolean;
-  login: (email: string, password?: string) => Promise<void>;
-  register: (name: string, email: string, password?: string) => Promise<void>;
+  login: (email: string, password: string, rememberMe: boolean) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
+  upgradeToReporter: (profile: { handle: string; role_title: string; topics: string[] }) => Promise<void>;
   logout: () => void;
-  loginAsDemoAuthor: () => void;
   openAuthModal: () => void;
   closeAuthModal: () => void;
-  setActiveView: (view: "feed" | "profile") => void;
+  setActiveView: (view: View) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function readStoredToken(key: string) {
+  try {
+    return localStorage.getItem(key) || sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
-  const [activeView, setActiveView] = useState<"feed" | "profile">("feed");
+  const [activeView, setActiveView] = useState<View>("feed");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Відновлення сесії з localStorage при першому завантаженні
+  // Restore and rotate a persisted session before exposing the authenticated view.
   useEffect(() => {
+    let localRefresh: string | null = null;
+    let sessionRefresh: string | null = null;
     try {
-      const savedUser = localStorage.getItem("bytenews_user");
-      if (savedUser) {
-        setUser(JSON.parse(savedUser));
-      }
+      localRefresh = localStorage.getItem("bytenews_refresh_token");
+      sessionRefresh = sessionStorage.getItem("bytenews_refresh_token");
     } catch {
-      // Ігноруємо помилки SSR або парсингу
+      return;
     }
+    const refreshToken = localRefresh || sessionRefresh;
+    if (!refreshToken) return;
+    let active = true;
+    apiRefresh(refreshToken)
+      .then((pair) => {
+        if (!active) return;
+        setUser(pair.user);
+        const storage = localRefresh ? localStorage : sessionStorage;
+        storage.setItem("bytenews_access_token", pair.access_token);
+        storage.setItem("bytenews_refresh_token", pair.refresh_token);
+      })
+      .catch(() => {
+        try {
+          localStorage.removeItem("bytenews_access_token");
+          localStorage.removeItem("bytenews_refresh_token");
+          sessionStorage.removeItem("bytenews_access_token");
+          sessionStorage.removeItem("bytenews_refresh_token");
+        } catch { /* Storage can be disabled by the browser. */ }
+      });
+    return () => { active = false; };
   }, []);
 
-  const login = async (email: string, password?: string) => {
-    const res = await apiLogin(email, password);
-    setUser(res.user);
+  const storePair = (pair: Awaited<ReturnType<typeof apiLogin>>, rememberMe: boolean) => {
+    setUser(pair.user);
     try {
-      localStorage.setItem("bytenews_user", JSON.stringify(res.user));
-      localStorage.setItem("bytenews_token", res.token);
-    } catch {}
+      const storage = rememberMe ? localStorage : sessionStorage;
+      const otherStorage = rememberMe ? sessionStorage : localStorage;
+      otherStorage.removeItem("bytenews_access_token");
+      otherStorage.removeItem("bytenews_refresh_token");
+      storage.setItem("bytenews_access_token", pair.access_token);
+      storage.setItem("bytenews_refresh_token", pair.refresh_token);
+    } catch { /* Keep the current session in memory when browser storage is unavailable. */ }
+  };
+
+  const login = async (email: string, password: string, rememberMe: boolean) => {
+    const pair = await apiLogin(email, password);
+    storePair(pair, rememberMe);
     setIsAuthModalOpen(false);
   };
 
-  const register = async (name: string, email: string, password?: string) => {
-    const res = await apiRegister(name, email, password);
-    setUser(res.user);
-    try {
-      localStorage.setItem("bytenews_user", JSON.stringify(res.user));
-      localStorage.setItem("bytenews_token", res.token);
-    } catch {}
+  const register = async (name: string, email: string, password: string) => {
+    const pair = await apiRegister(name, email, password);
+    storePair(pair, true);
     setIsAuthModalOpen(false);
   };
 
   const logout = () => {
+    const refreshToken = readStoredToken("bytenews_refresh_token");
+    if (refreshToken) void apiLogout(refreshToken);
     setUser(null);
     setActiveView("feed");
     try {
-      localStorage.removeItem("bytenews_user");
-      localStorage.removeItem("bytenews_token");
-    } catch {}
+      localStorage.removeItem("bytenews_access_token");
+      localStorage.removeItem("bytenews_refresh_token");
+      sessionStorage.removeItem("bytenews_access_token");
+      sessionStorage.removeItem("bytenews_refresh_token");
+    } catch { /* Nothing else to clear when storage is unavailable. */ }
   };
 
-  const loginAsDemoAuthor = () => {
-    setUser(DEMO_AUTHOR_PROFILE);
-    try {
-      localStorage.setItem(
-        "bytenews_user",
-        JSON.stringify(DEMO_AUTHOR_PROFILE)
-      );
-      localStorage.setItem("bytenews_token", "demo-jwt-token");
-    } catch {}
-    setIsAuthModalOpen(false);
+  const upgradeToReporter = async (profile: { handle: string; role_title: string; topics: string[] }) => {
+    const token = readStoredToken("bytenews_access_token");
+    if (!token) throw new Error("Сесія завершилася. Увійдіть знову.");
+    const updated = await apiUpgradeRole(token, profile);
+    setUser(updated);
   };
 
   const openAuthModal = () => setIsAuthModalOpen(true);
@@ -94,8 +129,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthModalOpen,
         login,
         register,
+        upgradeToReporter,
         logout,
-        loginAsDemoAuthor,
         openAuthModal,
         closeAuthModal,
         setActiveView,
