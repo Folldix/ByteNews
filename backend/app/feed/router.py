@@ -55,7 +55,7 @@ def create_feed_router(
                 article,
                 Category.name.label("category_name"),
                 user_model.full_name.label("author_name"),
-                user_model.role.label("author_role"),
+                user_model.role_title.label("author_role"),
                 comment_count.label("comments_count"),
                 func.array_agg(Tag.name).filter(Tag.id.is_not(None)).label("tag_names"),
             )

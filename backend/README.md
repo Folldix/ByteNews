@@ -22,7 +22,16 @@ uvicorn app.main:app --reload --port 8000
 The API is available at `http://localhost:8000`; the health check is
 `/health`. Feed routes are under `/api/v1`. The app seeds the six project
 categories and example tags after the database has been migrated, then starts
-the RSS scheduler in FastAPI's lifespan and stops it at shutdown.
+the RSS scheduler in FastAPI's lifespan and stops it at shutdown. RSS feeds are
+configured through `RSS_SOURCES` as a JSON array of `{name, feed_url,
+category_slug}` objects. For example:
+
+```dotenv
+RSS_SOURCES=[{"name":"Example Tech","feed_url":"https://example.com/feed.xml","category_slug":"development"}]
+```
+
+Sources are inserted idempotently at startup; remove or deactivate source rows
+in the database to stop polling a feed.
 
 ## Shared schema
 
