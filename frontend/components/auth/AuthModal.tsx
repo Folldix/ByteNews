@@ -10,14 +10,15 @@ export function AuthModal() {
     closeAuthModal,
     login,
     register,
-    loginAsDemoAuthor,
   } = useAuth();
 
   const [activeTab, setActiveTab] = useState<"signin" | "register">("signin");
   const [showPassword, setShowPassword] = useState(false);
   const [showRegPassword, setShowRegPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
-  const [agreeTerms, setAgreeTerms] = useState(true);
+  const [agreeTerms, setAgreeTerms] = useState(false);
+  const [authError, setAuthError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   // Поля входу
   const [email, setEmail] = useState("");
@@ -38,18 +39,29 @@ export function AuthModal() {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    await login(email, password);
+    setAuthError("");
+    setSubmitting(true);
+    try {
+      await login(email, password, rememberMe);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Не вдалося увійти.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!regName.trim() || !regEmail.trim()) return;
-    await register(regName.trim(), regEmail.trim(), regPassword);
-  };
-
-  const handleSocialLogin = () => {
-    // Вхід під тестовим акаунтом для перевірки
-    loginAsDemoAuthor();
+    setAuthError("");
+    setSubmitting(true);
+    try {
+      await register(regName.trim(), regEmail.trim(), regPassword);
+    } catch (error) {
+      setAuthError(error instanceof Error ? error.message : "Не вдалося створити обліковий запис.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleForgotSubmit = (e: React.FormEvent) => {
@@ -134,6 +146,7 @@ export function AuthModal() {
 
         {/* 3. Основний вміст */}
         <div className="px-[24px] py-[20px]">
+          {authError && <p role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-800">{authError}</p>}
           {isForgotPassword ? (
             /* --- Екран відновлення паролю --- */
             forgotSubmitted ? (
@@ -142,10 +155,10 @@ export function AuthModal() {
                   ✓
                 </div>
                 <h3 className="font-sans font-bold text-[16px] text-[#0f172a]">
-                  Інструкції надіслано на {forgotEmail}!
+                  Відновлення пароля ще не підключене
                 </h3>
                 <p className="font-sans text-[13px] text-[#64748b]">
-                  Перевірте свою поштову скриньку для зміни паролю.
+                  Для входу скористайтеся формою email і пароля. Зверніться до команди, щоб відновити доступ.
                 </p>
                 <button
                   type="button"
@@ -292,7 +305,7 @@ export function AuthModal() {
               {/* Головна кнопка Google (398x40px, білий фон, рамка, оригінальний логотип) */}
               <button
                 type="button"
-                onClick={handleSocialLogin}
+                onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
                 className="w-full h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[10px] text-[13px] font-sans font-semibold text-[#334155] transition cursor-pointer shadow-xs"
               >
                 <Icon name="google" className="w-[18px] h-[18px] shrink-0" />
@@ -303,7 +316,7 @@ export function AuthModal() {
               <div className="grid grid-cols-3 gap-[8px]">
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="github" className="w-[16px] h-[16px] text-[#0f172a]" />
@@ -312,7 +325,7 @@ export function AuthModal() {
 
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="apple" className="w-[14px] h-[16px] text-[#0f172a]" />
@@ -321,7 +334,7 @@ export function AuthModal() {
 
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="telegram" className="w-[18px] h-[18px]" />
@@ -446,7 +459,7 @@ export function AuthModal() {
               {/* Google */}
               <button
                 type="button"
-                onClick={handleSocialLogin}
+                onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
                 className="w-full h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[10px] text-[13px] font-sans font-semibold text-[#334155] transition cursor-pointer shadow-xs"
               >
                 <Icon name="google" className="w-[18px] h-[18px] shrink-0" />
@@ -457,7 +470,7 @@ export function AuthModal() {
               <div className="grid grid-cols-3 gap-[8px]">
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="github" className="w-[16px] h-[16px] text-[#0f172a]" />
@@ -466,7 +479,7 @@ export function AuthModal() {
 
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="apple" className="w-[14px] h-[16px] text-[#0f172a]" />
@@ -475,7 +488,7 @@ export function AuthModal() {
 
                 <button
                   type="button"
-                  onClick={handleSocialLogin}
+                  onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
                   className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="telegram" className="w-[18px] h-[18px]" />

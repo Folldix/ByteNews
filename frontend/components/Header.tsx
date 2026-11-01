@@ -41,7 +41,7 @@ export function Header() {
             <div className="w-[36px] h-[36px] rounded-[10px] bg-[#0f172a] flex items-center justify-center">
               <Icon name="logo" className="w-[18px] h-[12px] text-white" />
             </div>
-            <div className="flex flex-col gap-[2px]">
+            <div className="hidden flex-col gap-[2px] sm:flex">
               <span className="font-sans font-extrabold text-[20px] leading-[22px] text-[#0f172a]">
                 Byte<span className="text-[#059669]">News</span>
               </span>
@@ -57,7 +57,7 @@ export function Header() {
               event.preventDefault();
               setQuery(searchText.trim());
             }}
-            className="flex-1 h-[40px] bg-white border border-[#e2e8f0] rounded-[12px] px-[22px] flex items-center gap-[7px]"
+            className="flex min-w-0 flex-1 h-[40px] bg-white border border-[#e2e8f0] rounded-[12px] px-3 sm:px-[22px] items-center gap-[7px]"
           >
             <Search className="w-[18px] h-[18px] text-[#94a3b8] shrink-0" aria-hidden="true" />
             <input
@@ -73,7 +73,7 @@ export function Header() {
           {/* Панель дій користувача (Гість або Авторизований) */}
           {!isAuthenticated ? (
             /* Стан гостя */
-            <div className="flex items-center gap-[10px]">
+            <div className="hidden items-center gap-[10px] sm:flex">
               {/* Кнопка Дайджест */}
               <button 
                 type="button"
@@ -100,9 +100,9 @@ export function Header() {
             </div>
           ) : (
             /* Стан авторизованого користувача */
-            <div className="flex items-center gap-[10px]">
+            <div className="hidden items-center gap-[10px] sm:flex">
               {/* Кнопка стрічки (лише на сторінці профілю) */}
-              {activeView === "profile" && (
+              {activeView !== "feed" && (
                 <button 
                   type="button"
                   onClick={() => setActiveView("feed")}
@@ -118,12 +118,14 @@ export function Header() {
               {/* Кнопка закладок */}
               <button 
                 type="button"
+                onClick={() => setActiveView("bookmarks")}
                 className="h-[34px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
               >
                 <Bookmark className="w-[14px] h-[16px] text-[#1e293b]" />
                 <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
                   Закладки
                 </span>
+                  {user.bookmarks_count > 0 && <span className="grid min-w-5 place-items-center rounded-full bg-emerald-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">{user.bookmarks_count}</span>}
               </button>
 
               {/* Кнопка дайджесту */}

@@ -11,7 +11,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import distinct, func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.feed import ArticleTag, Category, FlashNews, Tag
 from app.models.article import ArticleStatus
@@ -36,7 +36,7 @@ def create_feed_router(
     router = APIRouter(prefix="/api/v1", tags=["feed"])
 
     def article_statement(
-        db: Session,
+        db: AsyncSession,
         *,
         category: str | None,
         tag: str | None,
@@ -91,8 +91,8 @@ def create_feed_router(
             statement = statement.order_by(article.published_at.desc(), article.id)
         return statement
 
-    def read_page(
-        db: Session,
+    async def read_page(
+        db: AsyncSession,
         *,
         category: str | None,
         tag: str | None,
@@ -102,7 +102,7 @@ def create_feed_router(
         query: str | None = None,
     ) -> ArticleFeedPage:
         statement = article_statement(db, category=category, tag=tag, sort=sort, query=query)
-        rows = db.execute(statement.limit(limit).offset(offset)).all()
+        rows = (await db.execute(statement.limit(limit).offset(offset))).all()
         count_statement = select(func.count(distinct(article_model.id))).select_from(article_model)
         count_statement = count_statement.outerjoin(
             Category, article_model.category_id == Category.id
@@ -153,36 +153,36 @@ def create_feed_router(
             ))
         return ArticleFeedPage(
             items=items,
-            total=db.scalar(count_statement) or 0,
+            total=(await db.scalar(count_statement)) or 0,
             limit=limit,
             offset=offset,
         )
 
     @router.get("/articles", response_model=ArticleFeedPage)
-    def list_articles(
+    async def list_articles(
         category: str | None = None,
         tag: str | None = None,
         sort: Literal["latest", "popular"] = "latest",
         limit: int = Query(default=20, ge=1, le=100),
         offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
     ) -> ArticleFeedPage:
-        return read_page(db, category=category, tag=tag, sort=sort, limit=limit, offset=offset)
+        return await read_page(db, category=category, tag=tag, sort=sort, limit=limit, offset=offset)
 
     @router.get("/articles/search", response_model=ArticleFeedPage)
-    def search_articles(
+    async def search_articles(
         q: str = Query(min_length=1, max_length=200),
         category: str | None = None,
         tag: str | None = None,
         sort: Literal["latest", "popular"] = "latest",
         limit: int = Query(default=20, ge=1, le=100),
         offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
     ) -> ArticleFeedPage:
         query = q.strip()
         if not query:
             raise HTTPException(status_code=422, detail="Search query cannot be blank")
-        return read_page(
+        return await read_page(
             db,
             category=category,
             tag=tag,
@@ -193,14 +193,14 @@ def create_feed_router(
         )
 
     @router.get("/flash-news", response_model=FlashNewsPage)
-    def list_flash_news(
+    async def list_flash_news(
         limit: int = Query(default=30, ge=1, le=100),
         offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
     ) -> FlashNewsPage:
         statement = select(FlashNews).order_by(FlashNews.published_at.desc(), FlashNews.id)
-        items = db.scalars(statement.limit(limit).offset(offset)).all()
-        total = db.scalar(select(func.count()).select_from(FlashNews)) or 0
+        items = (await db.scalars(statement.limit(limit).offset(offset))).all()
+        total = (await db.scalar(select(func.count()).select_from(FlashNews))) or 0
         return FlashNewsPage(
             items=[FlashNewsItem.model_validate(item) for item in items],
             total=total,
@@ -209,28 +209,28 @@ def create_feed_router(
         )
 
     @router.get("/public/feed", response_model=ArticleFeedPage)
-    def public_feed(
+    async def public_feed(
         limit: int = Query(default=20, ge=1, le=100),
         offset: int = Query(default=0, ge=0),
-        db: Session = Depends(get_db),
+        db: AsyncSession = Depends(get_db),
     ) -> ArticleFeedPage:
-        return read_page(db, category=None, tag=None, sort="latest", limit=limit, offset=offset)
+        return await read_page(db, category=None, tag=None, sort="latest", limit=limit, offset=offset)
 
     @router.get("/categories", response_model=CatalogPage)
-    def list_categories(db: Session = Depends(get_db)) -> CatalogPage:
-        rows = db.scalars(select(Category).order_by(Category.name)).all()
+    async def list_categories(db: AsyncSession = Depends(get_db)) -> CatalogPage:
+        rows = (await db.scalars(select(Category).order_by(Category.name))).all()
         return CatalogPage(items=[CatalogItem(id=row.id, name=row.name, slug=row.slug) for row in rows])
 
     @router.get("/tags", response_model=CatalogPage)
-    def list_tags(db: Session = Depends(get_db)) -> CatalogPage:
+    async def list_tags(db: AsyncSession = Depends(get_db)) -> CatalogPage:
         usage_count = func.count(ArticleTag.article_id).label("usage_count")
-        rows = db.execute(
+        rows = (await db.execute(
             select(Tag, usage_count)
             .outerjoin(ArticleTag, ArticleTag.tag_id == Tag.id)
             .group_by(Tag.id)
             .order_by(usage_count.desc(), Tag.name)
             .limit(24)
-        ).all()
+        )).all()
         return CatalogPage(
             items=[CatalogItem(id=row[0].id, name=row[0].name, slug=row[0].slug) for row in rows]
         )

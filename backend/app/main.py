@@ -5,10 +5,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.db.session import SessionLocal, get_db
+from app.db.session import SessionLocal, engine, get_db
 from app.feed.aggregator import create_scheduler
 from app.feed.router import create_feed_router
 from app.feed.seeds import seed_feed_catalog
+from app.auth.router import router as auth_router
 from app.models import Article, User
 
 
@@ -24,6 +25,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         yield
     finally:
         scheduler.shutdown(wait=False)
+        await engine.dispose()
 
 
 app = FastAPI(title="ByteNews API", version="1.0.0", lifespan=lifespan)
@@ -35,6 +37,7 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type"],
 )
 app.include_router(create_feed_router(get_db=get_db, article_model=Article, user_model=User))
+app.include_router(auth_router)
 
 
 @app.get("/health", tags=["system"])
