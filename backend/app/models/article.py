@@ -99,7 +99,9 @@ class Article(Base):
         back_populates="article", cascade="all, delete-orphan", passive_deletes=True
     )
     tags: Mapped[list["Tag"]] = relationship(secondary="article_tags", viewonly=True)
-    comments: Mapped[list["Comment"]] = relationship(back_populates="article")
+    comments: Mapped[list["Comment"]] = relationship(
+        back_populates="article", cascade="all, delete-orphan", passive_deletes=True
+    )
     bookmarks: Mapped[list["Bookmark"]] = relationship(
         back_populates="article", cascade="all, delete-orphan", passive_deletes=True
     )
