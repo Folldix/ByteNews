@@ -64,7 +64,7 @@ def create_feed_router(
             .outerjoin(ArticleTag, ArticleTag.article_id == article.id)
             .outerjoin(Tag, Tag.id == ArticleTag.tag_id)
             .where(article.status == ArticleStatus.PUBLISHED, article.published_at.is_not(None))
-            .group_by(article.id, Category.name, user_model.full_name, user_model.role)
+            .group_by(article.id, Category.name, user_model.full_name, user_model.role_title)
         )
         if category:
             statement = statement.where(Category.slug == category)
