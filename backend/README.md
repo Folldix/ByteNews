@@ -57,6 +57,27 @@ Identity routes are `POST /api/v1/auth/register`, `POST /api/v1/auth/login`,
 /api/v1/users/upgrade-role`. Use `get_current_user` and `require_roles(...)`
 from `app.auth.dependencies` to protect future private routes.
 
+## CMS and media
+
+Reporter and administrator accounts can create articles with
+`POST /api/v1/articles`, list their own drafts and publications with
+`GET /api/v1/articles/mine`, edit an article with `GET
+/api/v1/articles/{id}/edit` and `PUT /api/v1/articles/{id}`, and delete their
+own articles with `DELETE /api/v1/articles/{id}`. Administrators can manage
+articles from any author. The API validates each block payload by its block
+type, replaces block order in one transaction, and creates or reuses topic
+tags. New articles are drafts by default; a publication timestamp is set when
+an article is published and cleared if it returns to draft.
+
+`POST /api/v1/media/upload` accepts JPEG, PNG, GIF, and WebP files from
+reporters and administrators. Both the declared MIME type and file signature
+are checked. `MEDIA_MAX_BYTES` sets the upload limit (8 MiB by default), and
+`MEDIA_STORAGE_PATH` sets the local storage directory (defaults to `uploads`
+relative to the backend working directory). The API serves saved files from
+`/uploads/` and returns an absolute URL. Set `MEDIA_PUBLIC_BASE_URL` when the
+API is exposed through a proxy or CDN. Persist this directory on a mounted
+volume in container deployments.
+
 Reader/community routes include article detail, nested comments, reaction
 state/update, active poll/vote, and authenticated bookmark list/add/remove.
 
