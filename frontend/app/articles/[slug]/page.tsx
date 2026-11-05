@@ -7,7 +7,6 @@ import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 import { AuthModal } from "../../../components/auth/AuthModal";
 import { BookmarksDrawer } from "../../../components/community/BookmarksDrawer";
-import { CommunityPoll } from "../../../components/community/CommunityPoll";
 import { CommentsSection } from "../../../components/community/CommentsSection";
 import { ReactionsBar } from "../../../components/community/reactions-bar";
 import { FontSizeControl } from "../../../components/community/font-size-control";
@@ -148,7 +147,7 @@ export default function ArticlePage() {
               <div className="mt-7"><ReactionsBar key={article.id} initialCounts={article.reaction_counts} initialSelected={article.my_reaction} onReact={handleReaction}/></div>
               <CommentsSection articleId={article.id}/>
             </article>
-            {!zenMode && <aside className="lg:col-span-4 grid gap-5 lg:sticky lg:top-24"><CommunityPoll/><section className="rounded-2xl border border-slate-200 bg-white p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">Автор</p><h2 className="mt-2 text-base font-bold text-slate-900">{article.author}</h2><p className="mt-1 text-sm text-slate-500">{article.author_role ?? "Автор ByteNews"}</p><div className="mt-4 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.views_count.toLocaleString("uk-UA")}</p><p className="text-[10px] text-slate-400">переглядів</p></div><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.comments_count}</p><p className="text-[10px] text-slate-400">коментарів</p></div></div></section></aside>}
+            {!zenMode && <aside className="lg:col-span-4 grid gap-5 lg:sticky lg:top-24"><section className="rounded-2xl border border-slate-200 bg-white p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">Автор</p><h2 className="mt-2 text-base font-bold text-slate-900">{article.author}</h2><p className="mt-1 text-sm text-slate-500">{article.author_role ?? "Автор ByteNews"}</p><div className="mt-4 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.views_count.toLocaleString("uk-UA")}</p><p className="text-[10px] text-slate-400">переглядів</p></div><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.comments_count}</p><p className="text-[10px] text-slate-400">коментарів</p></div></div></section></aside>}
           </div>
           {error && <p role="alert" className="fixed bottom-20 right-4 z-40 rounded-xl bg-rose-700 px-4 py-3 text-xs text-white shadow-lg">{error}</p>}
         </>}
