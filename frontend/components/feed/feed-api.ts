@@ -17,51 +17,137 @@ export const FALLBACK_TAGS: CatalogItem[] = [
   { id: "typescript", name: "TypeScript", slug: "typescript" },
   { id: "linux", name: "Linux", slug: "linux" },
   { id: "zeroday", name: "ZeroDay", slug: "zeroday" },
-  { id: "openai", name: "OpenAI", slug: "openai" },
-  { id: "rust", name: "Rust", slug: "rust" },
-  { id: "gpu", name: "GPU", slug: "gpu" },
+  { id: "unrealengine", name: "UnrealEngine", slug: "unrealengine" },
+  { id: "blackwell", name: "Blackwell", slug: "blackwell" },
+  { id: "monolith", name: "Monolith", slug: "monolith" },
+];
+
+export const FALLBACK_POPULAR: Article[] = [
+  {
+    id: "pop-1",
+    title: "OpenAI готує реліз GPT-5 з нативною підтримкою мультимодальних агентів",
+    slug: "openai-gpt-5-multimodal-agents",
+    lead: "Аналіз витоків та технічних специфікацій майбутньої флагманської моделі OpenAI з динамічним розподілом обчислень.",
+    cover_image_url: null,
+    is_hero: false,
+    is_photo_reportage: false,
+    read_time_min: 5,
+    views_count: 3150,
+    likes_count: 120,
+    comments_count: 34,
+    published_at: new Date(Date.now() - 3600_000).toISOString(),
+    time_label: "1 год тому",
+    category: "ШІ",
+    author: "Олександр Коваленко",
+    author_role: "Head of AI",
+    tags: ["OpenAI", "Claude"],
+  },
+  {
+    id: "pop-2",
+    title: "Огляд архітектури NVIDIA Blackwell: що зміниться для локального інференсу",
+    slug: "nvidia-blackwell-architecture-overview",
+    lead: "Тестування тензорних ядер п'ятого покоління та оновленого рушія Transformer Engine у робочих станціях.",
+    cover_image_url: null,
+    is_hero: false,
+    is_photo_reportage: false,
+    read_time_min: 7,
+    views_count: 2840,
+    likes_count: 95,
+    comments_count: 29,
+    published_at: new Date(Date.now() - 3 * 3600_000).toISOString(),
+    time_label: "3 год тому",
+    category: "Залізо",
+    author: "Ігор Василенко",
+    author_role: "Hardware Lead",
+    tags: ["Blackwell", "GPU"],
+  },
+  {
+    id: "pop-3",
+    title: "Чому ми відмовилися від мікросервісів на користь модульного моноліту",
+    slug: "why-we-abandoned-microservices-for-modular-monolith",
+    lead: "Практичний досвід спрощення інфраструктури, скорочення часу деплою та вирішення проблем із розподіленими транзакціями.",
+    cover_image_url: null,
+    is_hero: false,
+    is_photo_reportage: false,
+    read_time_min: 8,
+    views_count: 2190,
+    likes_count: 88,
+    comments_count: 64,
+    published_at: new Date(Date.now() - 22 * 3600_000).toISOString(),
+    time_label: "Вчора, 18:20",
+    category: "Розробка",
+    author: "Максим Шевченко",
+    author_role: "Backend Architect",
+    tags: ["Monolith", "TypeScript"],
+  },
 ];
 
 export const FALLBACK_FLASH_NEWS: FlashNews[] = [
   {
     id: "fn-1",
-    title: "OpenAI презентувала оновлення інференсу для швидшого виконання математичних задач",
-    summary: "Оновлення фокусується на оптимізації латентності та паралельному виконанні кроків міркування.",
-    source_name: "TechCrunch",
-    url: "https://techcrunch.com",
-    published_at: new Date(Date.now() - 15 * 60_000).toISOString(),
+    title: "TSMC почала тестове виробництво 2-нм чіпів на заводі в Баошані",
+    summary: "Новий техпроцес N2 використовує архітектуру транзисторів GAAFET (Gate-All-Around) для зменшення витоку струму.",
+    source_name: "Залізо",
+    url: "https://digitimes.com",
+    published_at: new Date().toISOString(),
+    time_label: "12:45",
+    category: "Залізо",
+    is_important: false,
   },
   {
     id: "fn-2",
-    title: "Anthropic відкрила підтримку користувацьких MCP-серверів у хмарному інтерфейсі",
-    summary: "Розробники тепер можуть інтегрувати власні джерела даних безпосередньо у робочі простори Claude.",
-    source_name: "The Verge",
-    url: "https://theverge.com",
-    published_at: new Date(Date.now() - 45 * 60_000).toISOString(),
+    title: "Виявлено критичну вразливість нульового дня в популярному пакеті",
+    summary: "Вразливість дозволяє віддалене виконання коду через некоректну валідацію вхідних даних у мережевому парсері.",
+    source_name: "Безпека",
+    url: "https://bleepingcomputer.com",
+    published_at: new Date().toISOString(),
+    time_label: "11:32",
+    category: "Безпека",
+    is_important: true,
   },
   {
     id: "fn-3",
-    title: "Ядро Linux 6.14 оптимізувало роботу з гетерогенними NPU-прискорювачами",
-    summary: "Новий диспетчер пам'яті суттєво знижує накладні витрати на копіювання буферів між CPU та NPU.",
-    source_name: "Phoronix",
-    url: "https://phoronix.com",
-    published_at: new Date(Date.now() - 90 * 60_000).toISOString(),
+    title: "Реліз Docker Desktop 4.30 з нативною підтримкою Wasm-контейнерів",
+    summary: "Оновлений рушій дозволяє запускати WebAssembly-модулі поруч зі стандартними OCI-образами без додаткових плагінів.",
+    source_name: "Розробка",
+    url: "https://docker.com",
+    published_at: new Date().toISOString(),
+    time_label: "10:15",
+    category: "Розробка",
+    is_important: false,
   },
   {
     id: "fn-4",
-    title: "NVIDIA представила новий набір інструментів cuQuantum для прискорення симуляцій",
-    summary: "Швидкість обчислень зросла на 35% порівняно з попередньою ревізією драйверів.",
-    source_name: "AnandTech",
-    url: "https://anandtech.com",
-    published_at: new Date(Date.now() - 150 * 60_000).toISOString(),
+    title: "Mistral AI залучив додаткові €600 млн інвестицій при оцінці в €6 млрд",
+    summary: "Кошти підуть на розширення європейської обчислювальної інфраструктури та розробку нових відкритих мовних моделей.",
+    source_name: "Стартапи",
+    url: "https://techcrunch.com",
+    published_at: new Date().toISOString(),
+    time_label: "09:05",
+    category: "Стартапи",
+    is_important: false,
   },
   {
     id: "fn-5",
-    title: "GitHub розширив автоматичний захист від витоку секретних ключів та API-токенів",
-    summary: "Превентивне сканування тепер спрацьовує ще до завершення операції push у репозиторій.",
-    source_name: "BleepingComputer",
-    url: "https://bleepingcomputer.com",
-    published_at: new Date(Date.now() - 240 * 60_000).toISOString(),
+    title: "GitHub Copilot Workspace тепер доступний для всіх розробників у бета-режимі",
+    summary: "Середовище дозволяє переходити від опису задачі в Issue до готового PR з покроковим планом реалізації.",
+    source_name: "ШІ",
+    url: "https://github.blog",
+    published_at: new Date(Date.now() - 24 * 3600_000).toISOString(),
+    time_label: "Вчора",
+    category: "ШІ",
+    is_important: false,
+  },
+  {
+    id: "fn-6",
+    title: "Unity анонсувала нову систему ціноутворення після критики спільноти",
+    summary: "Компанія скасувала спірний Runtime Fee та повертається до класичної підписної моделі для ігрових студій.",
+    source_name: "Ігри",
+    url: "https://gamesindustry.biz",
+    published_at: new Date(Date.now() - 26 * 3600_000).toISOString(),
+    time_label: "Вчора",
+    category: "Ігри",
+    is_important: false,
   },
 ];
 
@@ -79,11 +165,13 @@ export const FALLBACK_ARTICLES: Article[] = [
     likes_count: 142,
     comments_count: 18,
     published_at: new Date(Date.now() - 2 * 3600_000).toISOString(),
+    time_label: "2 год тому",
     category: "Штучний Інтелект",
     author: "Олександр Коваленко",
     author_role: "Head of AI",
-    tags: ["Claude", "OpenAI", "React"],
+    tags: ["Claude", "React", "TypeScript"],
   },
+  ...FALLBACK_POPULAR,
   {
     id: "art-ts",
     title: "Глибокий розбір TypeScript 5.8: як нові перевірки типів прискорюють компіляцію на 40%",
@@ -97,6 +185,7 @@ export const FALLBACK_ARTICLES: Article[] = [
     likes_count: 98,
     comments_count: 12,
     published_at: new Date(Date.now() - 5 * 3600_000).toISOString(),
+    time_label: "5 год тому",
     category: "Розробка",
     author: "Олександр Коваленко",
     author_role: "Head of AI",
@@ -115,6 +204,7 @@ export const FALLBACK_ARTICLES: Article[] = [
     likes_count: 85,
     comments_count: 9,
     published_at: new Date(Date.now() - 8 * 3600_000).toISOString(),
+    time_label: "8 год тому",
     category: "Кібербезпека",
     author: "Тарас Мельник",
     author_role: "Security Engineer",
@@ -133,28 +223,11 @@ export const FALLBACK_ARTICLES: Article[] = [
     likes_count: 73,
     comments_count: 14,
     published_at: new Date(Date.now() - 12 * 3600_000).toISOString(),
+    time_label: "12 год тому",
     category: "Розробка",
     author: "Максим Шевченко",
     author_role: "Backend Architect",
-    tags: ["Rust", "Linux"],
-  },
-  {
-    id: "art-gpu",
-    title: "Архітектура чіпів нового покоління: чому HBM4 вимагає перегляду топології материнських плат",
-    slug: "next-gen-gpu-hbm4-architecture",
-    lead: "Технічний аналіз змін у літографії та шинах передачі даних при переході на пам'ять високої пропускної здатності стандарту HBM4.",
-    cover_image_url: null,
-    is_hero: false,
-    is_photo_reportage: false,
-    read_time_min: 10,
-    views_count: 1980,
-    likes_count: 64,
-    comments_count: 7,
-    published_at: new Date(Date.now() - 18 * 3600_000).toISOString(),
-    category: "Залізо & Чіпи",
-    author: "Ігор Василенко",
-    author_role: "Hardware Lead",
-    tags: ["GPU", "Hardware"],
+    tags: ["Linux", "TypeScript"],
   },
   {
     id: "art-game",
@@ -169,10 +242,11 @@ export const FALLBACK_ARTICLES: Article[] = [
     likes_count: 51,
     comments_count: 6,
     published_at: new Date(Date.now() - 24 * 3600_000).toISOString(),
+    time_label: "Вчора",
     category: "GameDev & 3D",
     author: "Денис Бойко",
     author_role: "3D Graphics Programmer",
-    tags: ["GPU", "GameDev"],
+    tags: ["UnrealEngine", "Blackwell"],
   },
 ];
 
@@ -222,16 +296,26 @@ export async function getArticles(options: {
   } catch (err: unknown) {
     if (options.signal?.aborted) throw err;
 
+    if (options.sort === "popular" && !options.category && !options.tag && !options.query) {
+      const limit = options.limit ?? 3;
+      return {
+        items: FALLBACK_POPULAR.slice(0, limit),
+        total: FALLBACK_POPULAR.length,
+        limit,
+        offset: options.offset ?? 0,
+      };
+    }
+
     let items = [...FALLBACK_ARTICLES];
 
     if (options.category) {
       const catLower = options.category.toLowerCase();
       items = items.filter((a) => {
         const cat = a.category?.toLowerCase() || "";
-        if (catLower === "ai" && cat.includes("інтелект")) return true;
+        if (catLower === "ai" && (cat.includes("інтелект") || cat === "ші")) return true;
         if (catLower === "development" && cat.includes("розроб")) return true;
-        if (catLower === "cybersecurity" && cat.includes("кібер")) return true;
-        if (catLower === "gamedev-3d" && (cat.includes("game") || cat.includes("3d"))) return true;
+        if (catLower === "cybersecurity" && (cat.includes("кібер") || cat.includes("безпек"))) return true;
+        if (catLower === "gamedev-3d" && (cat.includes("game") || cat.includes("3d") || cat.includes("ігр"))) return true;
         if (catLower === "hardware-chips" && (cat.includes("заліз") || cat.includes("чіп"))) return true;
         if (catLower === "startups-market" && (cat.includes("стартап") || cat.includes("ринок"))) return true;
         return cat.includes(catLower);
