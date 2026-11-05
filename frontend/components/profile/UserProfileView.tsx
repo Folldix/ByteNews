@@ -146,7 +146,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
         <button
           type="button"
           onClick={() => setActiveView("feed")}
-          className="group flex items-center gap-2 text-xs font-mono font-bold text-[#475569] hover:text-[#0f172a] transition-colors cursor-pointer py-1"
+          className="group flex items-center gap-[8px] text-xs font-mono font-bold text-[#475569] hover:text-[#0f172a] transition-colors duration-150 ease-out cursor-pointer py-1"
         >
           <svg
             width="18"
@@ -154,17 +154,16 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
             viewBox="0 0 18 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="shrink-0 transition-transform duration-200 ease-out group-hover:-translate-x-1"
+            className="shrink-0 stroke-[#475569] group-hover:stroke-[#0f172a] transition-all duration-150 ease-out group-hover:-translate-x-[2px]"
           >
             <path
               d="M17 5H1M1 5L5 1M1 5L5 9"
-              stroke="currentColor"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
           </svg>
-          <span className="inline-block transition-transform duration-200 ease-out group-hover:-translate-x-1">
+          <span className="transition-colors duration-150 ease-out">
             Назад до головної стрічки
           </span>
         </button>
