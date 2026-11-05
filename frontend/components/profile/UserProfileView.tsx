@@ -20,6 +20,8 @@ import {
   CheckCircle2,
   ThumbsUp,
   UserPen,
+  ArrowUpDown,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useBookmarks } from "../../context/BookmarksContext";
@@ -29,6 +31,47 @@ import { ArticleCard } from "../feed/ArticleCard";
 import type { Article } from "../feed/types";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
+
+type SortOption = "date-desc" | "date-asc" | "views-desc" | "comments-desc";
+
+const SORT_OPTIONS: { id: SortOption; label: string; shortLabel: string }[] = [
+  { id: "date-desc", label: "За датою публікації (новіші)", shortLabel: "За датою (нові)" },
+  { id: "date-asc", label: "За датою публікації (давніші)", shortLabel: "За датою (старі)" },
+  { id: "views-desc", label: "За кількістю переглядів", shortLabel: "За переглядами" },
+  { id: "comments-desc", label: "За кількістю коментарів", shortLabel: "За коментарями" },
+];
+
+function parseArticleDate(dateStr: string | null | undefined): number {
+  if (!dateStr) return 0;
+  const parsed = Date.parse(dateStr);
+  if (!isNaN(parsed)) return parsed;
+
+  const months: Record<string, number> = {
+    січня: 0,
+    лютого: 1,
+    березня: 2,
+    квітня: 3,
+    травня: 4,
+    червня: 5,
+    липня: 6,
+    серпня: 7,
+    вересня: 8,
+    жовтня: 9,
+    листопада: 10,
+    грудня: 11,
+  };
+
+  const parts = dateStr.trim().toLowerCase().split(/\s+/);
+  if (parts.length >= 3) {
+    const day = parseInt(parts[0], 10);
+    const month = months[parts[1]];
+    const year = parseInt(parts[2], 10);
+    if (!isNaN(day) && month !== undefined && !isNaN(year)) {
+      return new Date(year, month, day).getTime();
+    }
+  }
+  return 0;
+}
 
 export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
   const { user, setActiveView, openAuthModal } = useAuth();
@@ -41,6 +84,26 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
   const [copiedLink, setCopiedLink] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [sortOption, setSortOption] = useState<SortOption>("date-desc");
+  const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+
+  const sortedArticles = React.useMemo(() => {
+    if (!user?.articles) return [];
+    const published = user.articles.filter((a) => a.status !== "draft");
+    return [...published].sort((a, b) => {
+      switch (sortOption) {
+        case "date-asc":
+          return parseArticleDate(a.published_at) - parseArticleDate(b.published_at);
+        case "views-desc":
+          return (b.views_count || 0) - (a.views_count || 0);
+        case "comments-desc":
+          return (b.comments_count || 0) - (a.comments_count || 0);
+        case "date-desc":
+        default:
+          return parseArticleDate(b.published_at) - parseArticleDate(a.published_at);
+      }
+    });
+  }, [user?.articles, sortOption]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -468,48 +531,103 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
           {/* ВКЛАДКА 1: Опубліковані статті (тільки для автора) */}
           {isReporter && activeTab === "articles" && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-xs font-mono text-slate-500 pb-2 border-b border-slate-100">
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-500 pb-2.5 border-b border-slate-100">
                 <span>Показано матеріали автора {user.full_name}</span>
-                <span>Сортування: За датою публікації</span>
+
+                {/* Кнопка вибору критерію сортування */}
+                <div className="relative inline-block text-left">
+                  <button
+                    type="button"
+                    onClick={() => setIsSortDropdownOpen((prev) => !prev)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-white border border-[#e2e8f0] text-slate-700 hover:text-slate-900 hover:border-slate-300 font-mono text-xs font-medium shadow-xs transition-colors cursor-pointer active:scale-[0.98]"
+                    title="Змінити критерій сортування"
+                  >
+                    <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+                    <span>
+                      Сортування:{" "}
+                      <strong className="font-bold text-[#0f172a]">
+                        {SORT_OPTIONS.find((o) => o.id === sortOption)?.shortLabel || "За датою"}
+                      </strong>
+                    </span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-200 ${
+                        isSortDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isSortDropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-20 cursor-default"
+                        onClick={() => setIsSortDropdownOpen(false)}
+                      />
+                      <div className="absolute right-0 mt-1.5 w-60 rounded-[14px] bg-white border border-[#e2e8f0] shadow-lg py-1.5 z-30 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
+                        <div className="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
+                          Критерій сортування
+                        </div>
+                        {SORT_OPTIONS.map((option) => {
+                          const isSelected = sortOption === option.id;
+                          return (
+                            <button
+                              key={option.id}
+                              type="button"
+                              onClick={() => {
+                                setSortOption(option.id);
+                                setIsSortDropdownOpen(false);
+                              }}
+                              className={`w-full text-left px-3.5 py-2 flex items-center justify-between transition-colors cursor-pointer ${
+                                isSelected
+                                  ? "bg-slate-50 text-[#059669] font-bold"
+                                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
+                              }`}
+                            >
+                              <span>{option.label}</span>
+                              {isSelected && <Check className="w-3.5 h-3.5 text-[#059669]" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {user.articles
-                  ?.filter((article) => article.status !== "draft")
-                  .map((article) => {
-                    const feedArticle: Article = {
-                      id: article.id,
-                      title: article.title,
-                      slug: article.slug,
-                      lead: article.summary,
-                      cover_image_url: article.cover_image_url,
-                      is_hero: false,
-                      is_photo_reportage: false,
-                      read_time_min: article.read_time_min,
-                      views_count: article.views_count,
-                      likes_count: 0,
-                      comments_count: article.comments_count,
-                      published_at: article.published_at,
-                      category: article.category_name,
-                      author: user.full_name,
-                      author_role: user.role_title || "IT-репортер",
-                      author_avatar: user.avatar_url,
-                      tags: ["Технології", "Розробка"],
-                      time_label: article.published_at || undefined,
-                    };
-                    const isBookmarked = bookmarkedItems.some((b) => b.article.id === article.id);
-                    return (
-                      <ArticleCard
-                        key={article.id}
-                        article={feedArticle}
-                        bookmarked={isBookmarked}
-                        onBookmark={() => toggleBookmark(feedArticle)}
-                      />
-                    );
-                  })}
+                {sortedArticles.map((article) => {
+                  const feedArticle: Article = {
+                    id: article.id,
+                    title: article.title,
+                    slug: article.slug,
+                    lead: article.summary,
+                    cover_image_url: article.cover_image_url,
+                    is_hero: false,
+                    is_photo_reportage: false,
+                    read_time_min: article.read_time_min,
+                    views_count: article.views_count,
+                    likes_count: 0,
+                    comments_count: article.comments_count,
+                    published_at: article.published_at,
+                    category: article.category_name,
+                    author: user.full_name,
+                    author_role: user.role_title || "IT-репортер",
+                    author_avatar: user.avatar_url,
+                    tags: ["Технології", "Розробка"],
+                    time_label: article.published_at || undefined,
+                  };
+                  const isBookmarked = bookmarkedItems.some((b) => b.article.id === article.id);
+                  return (
+                    <ArticleCard
+                      key={article.id}
+                      article={feedArticle}
+                      bookmarked={isBookmarked}
+                      onBookmark={() => toggleBookmark(feedArticle)}
+                    />
+                  );
+                })}
               </div>
 
-              {(!user.articles || user.articles.filter((a) => a.status !== "draft").length === 0) && (
+              {sortedArticles.length === 0 && (
                 <div className="rounded-2xl border border-dashed border-slate-200 p-12 text-center space-y-3 bg-white/70">
                   <FileText className="w-8 h-8 text-slate-400 mx-auto" />
                   <h3 className="text-base font-bold text-slate-800 font-mono">Ще немає опублікованих репортажів</h3>
