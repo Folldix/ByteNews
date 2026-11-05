@@ -130,9 +130,19 @@ export async function apiLogin(
       body: JSON.stringify({ email, password }),
     });
   } catch {
-    // Якщо бекенд не запущений (мережева помилка) — повертаємо демо-профіль
+    // Якщо бекенд не запущений (мережева помилка / демо-режим):
+    // Якщо введено email автора alex@bytenews.ua — віддаємо профіль автора.
+    // За замовчуванням (тестовий вхід або звичайний email) — віддаємо профіль читача,
+    // щоб користувач бачив інтерфейс читача та міг стати автором через кнопку "Стати автором".
+    const isAlexAuthor = email?.toLowerCase().includes("alex");
+    const demoProfile: UserProfile = isAlexAuthor
+      ? { ...DEMO_AUTHOR_PROFILE, email: email || DEMO_AUTHOR_PROFILE.email }
+      : {
+          ...DEMO_READER_PROFILE,
+          email: email || DEMO_READER_PROFILE.email,
+        };
     return {
-      user: { ...DEMO_AUTHOR_PROFILE, email: email || DEMO_AUTHOR_PROFILE.email },
+      user: demoProfile,
       access_token: "demo-access-token",
       refresh_token: "demo-refresh-token",
       token_type: "bearer",

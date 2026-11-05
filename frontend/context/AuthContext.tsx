@@ -104,7 +104,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const upgradeToReporter = async (profile: { handle: string; role_title: string; topics: string[] }) => {
     const token = readStoredToken("bytenews_access_token");
     if (!token) throw new Error("Сесія завершилася. Увійдіть знову.");
-    const updated = await apiUpgradeRole(token, profile);
+    let updated = await apiUpgradeRole(token, profile);
+    if (user) {
+      updated = {
+        ...updated,
+        full_name: user.full_name,
+        avatar_url: user.avatar_url,
+        avatar_initials: user.avatar_initials,
+        bio: user.bio,
+        location: user.location,
+        email: user.email,
+        handle: profile.handle || user.handle,
+        role_title: profile.role_title || "IT-репортер спільноти",
+        reporter_topics: profile.topics,
+      };
+    }
     setUser(updated);
     try {
       if (localStorage.getItem("bytenews_refresh_token")) {

@@ -2,8 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import {
-  ArrowLeft,
-  LogOut,
   PenTool,
   Share2,
   Check,
@@ -22,7 +20,6 @@ import {
   CheckCircle2,
   ThumbsUp,
   UserPen,
-  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { useBookmarks } from "../../context/BookmarksContext";
@@ -33,7 +30,7 @@ import { ArticleCard } from "../feed/ArticleCard";
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
 
 export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
-  const { user, setActiveView, logout, openAuthModal, switchRole } = useAuth();
+  const { user, setActiveView, openAuthModal } = useAuth();
   const { items: bookmarkedItems, toggleBookmark } = useBookmarks();
 
   const isReporter = user?.role === "reporter" || user?.role === "admin";
@@ -144,26 +141,38 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
 
   return (
     <div className="space-y-6">
-      {/* 1. Верхня панель навігації */}
-      <div className="flex items-center justify-between pb-1 border-b border-[#e2e8f0]">
+      {/* 1. Верхня панель навігації: Назад + зміна акаунту */}
+      <div className="flex items-center justify-between pb-2 border-b border-[#e2e8f0]">
         <button
           type="button"
           onClick={() => setActiveView("feed")}
-          className="group flex items-center gap-2 text-xs font-mono text-slate-600 hover:text-slate-900 transition-colors cursor-pointer py-1"
+          className="group flex items-center gap-2 text-xs font-mono font-bold text-[#475569] hover:text-[#0f172a] transition-colors cursor-pointer py-1"
         >
-          <ArrowLeft className="w-4 h-4 shrink-0 transition-transform duration-200" />
-          <span className="inline-block transition-transform duration-200 ease-out group-hover:translate-x-1.5">
-            Назад до головної стрічки
-          </span>
+          <svg
+            width="18"
+            height="10"
+            viewBox="0 0 18 10"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="shrink-0 transition-transform duration-200 group-hover:-translate-x-1"
+          >
+            <path
+              d="M17 5H1M1 5L5 1M1 5L5 9"
+              stroke="#475569"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <span>Назад до головної стрічки</span>
         </button>
 
         <button
           type="button"
-          onClick={logout}
-          className="flex items-center gap-1.5 text-xs font-mono text-rose-600 hover:text-rose-700 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl transition cursor-pointer"
+          onClick={openAuthModal}
+          className="text-xs font-sans font-normal text-[#64748b] hover:text-[#059669] transition-colors cursor-pointer py-1"
         >
-          <LogOut className="w-3.5 h-3.5" />
-          <span>Вийти з акаунта</span>
+          Змінити акаунт
         </button>
       </div>
 
@@ -294,17 +303,6 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 )}
               </button>
             </div>
-
-            {/* Швидке перемикання статусу Читач / Автор (для демонстрації) */}
-            <button
-              type="button"
-              onClick={() => switchRole(isReporter ? "reader" : "reporter")}
-              title="Перемкнути роль для перевірки обох сценаріїв"
-              className="mt-1 h-[28px] px-2.5 rounded-[10px] bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-600 font-mono text-[11px] font-semibold transition flex items-center gap-1.5 cursor-pointer self-start md:self-end"
-            >
-              <RefreshCw className="w-3 h-3 text-slate-500" />
-              <span>Роль: {isReporter ? "Автор (клік -> Читач)" : "Читач (клік -> Автор)"}</span>
-            </button>
           </div>
 
         </div>
