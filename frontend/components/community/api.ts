@@ -85,24 +85,24 @@ export const getArticle = async (slug: string): Promise<ArticleRead> => {
       id: "art-demo",
       title: decodedSlug === "typescript-5-8-deep-dive"
         ? "Глибокий розбір TypeScript 5.8: як нові перевірки типів прискорюють компіляцію на 40%"
-        : "Чому нова архітектура Claude 3.7 Sonnet змінює правила гри в генерації коду",
+        : "Anthropic представила Claude 3.7 Sonnet: гібридне мислення та новий еталон кодингу",
       slug: decodedSlug,
       lead: decodedSlug === "typescript-5-8-deep-dive"
         ? "Огляд оптимізацій типізації, прапорця --isolatedDeclarations та нових можливостей звуження типів у складних генериках."
-        : "Аналіз гібридного міркування, бенчмарків SWE-bench та практичного досвіду інтеграції нової моделі в реальні пайплайни розробки.",
-      cover_image_url: null,
+        : "Нова модель поєднує миттєві відповіді для повсякденних задач із керованим ланцюжком роздумів для складного архітектурного рефакторингу та змагального програмування.",
+      cover_image_url: decodedSlug === "typescript-5-8-deep-dive" ? null : "/images/hero-claude.png",
       cover_caption: null,
       is_hero: true,
       is_photo_reportage: false,
-      read_time_min: decodedSlug === "typescript-5-8-deep-dive" ? 8 : 6,
-      views_count: decodedSlug === "typescript-5-8-deep-dive" ? 3110 : 4120,
+      read_time_min: decodedSlug === "typescript-5-8-deep-dive" ? 8 : 4,
+      views_count: decodedSlug === "typescript-5-8-deep-dive" ? 3110 : 4280,
       likes_count: 142,
-      comments_count: 18,
-      published_at: "14 жовтня 2026",
+      comments_count: decodedSlug === "typescript-5-8-deep-dive" ? 18 : 48,
+      published_at: "25 хв тому",
       category: decodedSlug === "typescript-5-8-deep-dive" ? "Розробка" : "Штучний Інтелект",
       author: "Олександр Коваленко",
-      author_role: "Head of AI",
-      tags: decodedSlug === "typescript-5-8-deep-dive" ? ["TypeScript", "React"] : ["Claude", "OpenAI", "React"],
+      author_role: "Head of AI Engineering",
+      tags: decodedSlug === "typescript-5-8-deep-dive" ? ["TypeScript", "React"] : ["AI", "LLM", "Claude", "Кодинг", "Benchmark"],
       blocks: [
         {
           id: "b-1",
@@ -233,4 +233,4 @@ export const getBookmarks = () => request<{ items: SavedArticle[]; total: number
 
 export const setBookmark = (articleId: string, bookmarked: boolean) => request<{ bookmarked: boolean }>(`/articles/${articleId}/bookmark`, {
   method: bookmarked ? "PUT" : "DELETE",
-});
+}).catch(() => ({ bookmarked }));

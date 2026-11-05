@@ -42,51 +42,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [activeView, setActiveView] = useState<View>("feed");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Відновлення сесії з localStorage/sessionStorage перед запитом до бекенду
+  // Додаток завжди запускається в стані Гостя (user = null) за макетом
   useEffect(() => {
-    let localRefresh: string | null = null;
-    let sessionRefresh: string | null = null;
-    let savedUserStr: string | null = null;
     try {
-      localRefresh = localStorage.getItem("bytenews_refresh_token");
-      sessionRefresh = sessionStorage.getItem("bytenews_refresh_token");
-      savedUserStr = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+      localStorage.removeItem("bytenews_access_token");
+      localStorage.removeItem("bytenews_refresh_token");
+      localStorage.removeItem("bytenews_user");
+      sessionStorage.removeItem("bytenews_access_token");
+      sessionStorage.removeItem("bytenews_refresh_token");
+      sessionStorage.removeItem("bytenews_user");
     } catch {
-      return;
+      // Storage can be disabled in some environments
     }
-
-    if (savedUserStr) {
-      try {
-        setUser(JSON.parse(savedUserStr));
-      } catch { /* Ignore JSON parse error */ }
-    }
-
-    const refreshToken = localRefresh || sessionRefresh;
-    if (!refreshToken) return;
-    let active = true;
-
-    apiRefresh(refreshToken)
-      .then((pair) => {
-        if (!active) return;
-        setUser(pair.user);
-        const storage = localRefresh ? localStorage : sessionStorage;
-        storage.setItem("bytenews_access_token", pair.access_token);
-        storage.setItem("bytenews_refresh_token", pair.refresh_token);
-        storage.setItem("bytenews_user", JSON.stringify(pair.user));
-      })
-      .catch(() => {
-        // Якщо токен не демо і бекенд відповів реальною помилкою авторизації
-        if (refreshToken === "demo-refresh-token") return;
-        try {
-          localStorage.removeItem("bytenews_access_token");
-          localStorage.removeItem("bytenews_refresh_token");
-          localStorage.removeItem("bytenews_user");
-          sessionStorage.removeItem("bytenews_access_token");
-          sessionStorage.removeItem("bytenews_refresh_token");
-          sessionStorage.removeItem("bytenews_user");
-        } catch { /* Storage can be disabled by the browser. */ }
-      });
-    return () => { active = false; };
+    setUser(null);
   }, []);
 
   const storePair = (pair: Awaited<ReturnType<typeof apiLogin>>, rememberMe: boolean) => {
