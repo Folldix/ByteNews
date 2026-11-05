@@ -74,7 +74,7 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
       </div>
 
       {/* Підвал картки */}
-      <div className="border-t border-[#e2e8f0] pt-[14px] flex items-center justify-between w-full">
+      <div className="border-t border-[#e2e8f0] pt-[14px] flex items-center justify-between w-full mt-auto">
         {/* Ліворуч: блок автора */}
         <button
           type="button"
@@ -89,6 +89,12 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
               alt={article.author ?? "Олексій Коваленко"}
               loading="lazy"
               decoding="async"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.endsWith("/images/avatar-1.png")) {
+                  target.src = "/images/avatar-1.png";
+                }
+              }}
               className="size-full object-cover"
             />
           </div>

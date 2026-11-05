@@ -34,7 +34,7 @@ export function HeroArticleCard({
   }
 
   return (
-    <article className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0]/90 rounded-[24px] p-[24px] sm:p-[32px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0px_18px_36px_-6px_rgba(15,23,42,0.08)] hover:border-[#cbd5e1] transition-all duration-200 ease-out flex flex-col gap-[24px] justify-between h-full">
+    <article className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0]/90 rounded-[24px] p-[24px] sm:p-[32px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0px_18px_36px_-6px_rgba(15,23,42,0.08)] hover:border-[#cbd5e1] transition-all duration-200 ease-out flex flex-col gap-[20px] sm:gap-[24px] h-full">
       {/* Верхній рядок із бейджами та закладкою */}
       <div className="bg-white flex items-center justify-between p-[10px] rounded-[16px] w-full shrink-0">
         <div className="flex gap-[8px] items-center">
@@ -54,7 +54,7 @@ export function HeroArticleCard({
       </div>
 
       {/* Обкладинка + Заголовок */}
-      <a href={`/articles/${hero.slug}`} className="cursor-pointer flex flex-col gap-[24px] items-start w-full group">
+      <a href={`/articles/${hero.slug}`} className="cursor-pointer flex flex-col gap-[20px] sm:gap-[24px] items-start w-full group">
         <ArticleCover article={hero} large />
         <h3 className="font-extrabold text-[#0f172a] text-[26px] sm:text-[30px] leading-[1.25] tracking-[-0.6px] text-left w-full group-hover:text-[#059669] transition-colors">
           {hero.title}
@@ -70,7 +70,7 @@ export function HeroArticleCard({
 
       {/* Теги */}
       {hero.tags.length > 0 && (
-        <div className="flex gap-[6px] items-center flex-wrap py-[10px] w-full">
+        <div className="flex gap-[6px] items-center flex-wrap py-[6px] w-full">
           {hero.tags.map((topic) => (
             <button
               key={topic}
@@ -84,8 +84,8 @@ export function HeroArticleCard({
         </div>
       )}
 
-      {/* Підвал картки */}
-      <div className="border-t border-[#e2e8f0] flex items-center justify-between pb-[10px] pt-[24px] px-[10px] w-full">
+      {/* Підвал картки з фіксацією внизу (mt-auto) */}
+      <div className="border-t border-[#e2e8f0] flex items-center justify-between pb-[10px] pt-[20px] sm:pt-[24px] px-[10px] w-full mt-auto">
         <button
           type="button"
           onClick={onProfileClick}
@@ -99,6 +99,12 @@ export function HeroArticleCard({
               alt={hero.author ?? "Олександр Коваленко"}
               loading="eager"
               decoding="async"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.endsWith("/images/avatar-kovalenko.png")) {
+                  target.src = "/images/avatar-kovalenko.png";
+                }
+              }}
               className="size-full object-cover"
             />
           </div>
