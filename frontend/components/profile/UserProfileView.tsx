@@ -285,7 +285,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                       <div>
                         {/* Категорія, дата та час читання */}
                         <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-2.5">
-                          <span className="font-bold text-[#059669] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                          <span className="inline-flex items-center justify-center font-bold text-[#059669] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 leading-none">
                             {article.category_name}
                           </span>
                           <span>•</span>
