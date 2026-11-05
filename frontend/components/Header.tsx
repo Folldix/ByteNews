@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { Search, Mail, User, Bookmark, LayoutGrid } from "lucide-react";
 import { Icon } from "./Icon";
 import { useAuth } from "../context/AuthContext";
@@ -19,14 +20,22 @@ const CATEGORIES = [
 ];
 
 export function Header() {
+  const router = useRouter();
+  const pathname = usePathname();
   const { user, openAuthModal, setActiveView, activeView } = useAuth();
   const { category, query, setCategory, setTag, setQuery } = useFeedFilters();
-  const { count: bookmarkCount, openDrawer } = useBookmarks();
+  const { openDrawer } = useBookmarks();
   const [searchText, setSearchText] = useState(query);
   useEffect(() => setSearchText(query), [query]);
 
   const isAuthenticated = !!user;
   const isReporter = user?.role === "reporter";
+
+  const navigateToHomeIfElsewhere = () => {
+    if (pathname !== "/") {
+      router.push("/");
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#e2e8f0]">
@@ -37,7 +46,10 @@ export function Header() {
           {/* Логотип бренду */}
           <button
             type="button"
-            onClick={() => setActiveView("feed")}
+            onClick={() => {
+              setActiveView("feed");
+              navigateToHomeIfElsewhere();
+            }}
             className="flex items-center gap-[8px] shrink-0 text-left cursor-pointer"
           >
             <div className="w-[36px] h-[36px] rounded-[10px] bg-[#0f172a] flex items-center justify-center">
@@ -58,6 +70,7 @@ export function Header() {
             onSubmit={(event) => {
               event.preventDefault();
               setQuery(searchText.trim());
+              navigateToHomeIfElsewhere();
             }}
             className="flex min-w-0 flex-1 h-[40px] bg-white border border-[#e2e8f0] rounded-[12px] px-3 sm:px-[22px] items-center gap-[7px]"
           >
@@ -104,10 +117,13 @@ export function Header() {
             /* Стан авторизованого користувача */
             <div className="hidden items-center gap-[10px] sm:flex">
               {/* Кнопка стрічки (лише на сторінці профілю) */}
-              {activeView !== "feed" && (
+              {activeView === "profile" && (
                 <button 
                   type="button"
-                  onClick={() => setActiveView("feed")}
+                  onClick={() => {
+                    setActiveView("feed");
+                    navigateToHomeIfElsewhere();
+                  }}
                   className="h-[36px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
                 >
                   <LayoutGrid className="w-[18px] h-[18px] text-[#059669]" />
@@ -127,7 +143,6 @@ export function Header() {
                 <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
                   Закладки
                 </span>
-                  {bookmarkCount > 0 && <span className="grid min-w-5 place-items-center rounded-full bg-emerald-100 px-1.5 py-0.5 font-mono text-[10px] font-bold text-emerald-800">{bookmarkCount}</span>}
               </button>
 
               {/* Кнопка дайджесту */}
@@ -144,7 +159,10 @@ export function Header() {
               {/* Профіль користувача */}
               <button
                 type="button"
-                onClick={() => setActiveView("profile")}
+                onClick={() => {
+                  setActiveView("profile");
+                  navigateToHomeIfElsewhere();
+                }}
                 title="Перейти в особистий кабінет"
                 className="h-[46px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[8px] hover:bg-slate-50 transition cursor-pointer text-left"
               >
@@ -183,6 +201,7 @@ export function Header() {
                 onClick={() => {
                   setCategory(item.slug);
                   setTag("");
+                  navigateToHomeIfElsewhere();
                 }}
                 className={`px-[12px] py-[4px] rounded-full font-mono font-bold text-[12px] transition cursor-pointer shrink-0 ${
                   isActive

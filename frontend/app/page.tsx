@@ -6,17 +6,12 @@ import { Footer } from "../components/Footer";
 import { AuthModal } from "../components/auth/AuthModal";
 import { UserProfileView } from "../components/profile/UserProfileView";
 import { useAuth } from "../context/AuthContext";
-import { FeedProvider } from "../context/FeedContext";
 import { Bookmark, LayoutGrid, UserRound } from "lucide-react";
 import { useBookmarks } from "../context/BookmarksContext";
 import { BookmarksDrawer } from "../components/community/BookmarksDrawer";
 
 export default function HomePage() {
-  return (
-    <FeedProvider>
-      <HomeShell />
-    </FeedProvider>
-  );
+  return <HomeShell />;
 }
 
 function HomeShell() {

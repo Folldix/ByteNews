@@ -223,10 +223,10 @@ export function FeedHome() {
   const slugForTag = (name: string) => topics.find((item) => item.name.toLowerCase() === name.toLowerCase())?.slug ?? name.toLowerCase().trim().replace(/\s+/g, "-");
 
   return (
-    <main className="min-h-screen bg-[#f6f8fa] text-slate-900">
-      <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6 lg:px-10 lg:pt-7">
-        <div className="grid items-start gap-7 xl:grid-cols-[minmax(0,1fr)_350px]">
-          <div className="min-w-0">
+    <main className="min-h-screen text-slate-900">
+      <div className="max-w-[1296px] mx-auto px-4 pb-16 pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 items-start gap-6">
+          <div className="min-w-0 lg:col-span-8">
             <section aria-labelledby="hero-heading" className="mb-8">
               <div className="mb-3 flex items-center justify-between"><h2 id="hero-heading" className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-slate-500"><span className="mr-2 text-emerald-600">●</span>Головна новина <span className="px-1 text-slate-300">&</span> тренди дня</h2><span className="font-mono text-[10px] text-slate-400">01 / TODAY</span></div>
               {hero ? <article className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white p-3 shadow-[0_14px_40px_-32px_rgba(15,23,42,.42)] sm:p-5">
@@ -255,7 +255,7 @@ export function FeedHome() {
             </section>
           </div>
 
-          <aside className="grid gap-5 md:grid-cols-2 xl:sticky xl:top-6 xl:grid-cols-1"><Trending items={popular} bookmarked={bookmarked} onBookmark={toggleBookmark} /><CommunityPoll /><Timeline items={flashNews} onSelect={setSelectedFlash} /><section className="rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-800">ByteNews / Open feed</p><h2 className="mt-2 text-base font-bold tracking-tight text-slate-900">Новини для ваших інструментів</h2><p className="mt-2 text-sm leading-6 text-slate-600">Публічний JSON-фід доступний для інтеграції з іншими сервісами.</p><code className="mt-4 block overflow-x-auto rounded-xl bg-slate-950 px-3 py-3 font-mono text-[10px] text-emerald-200">GET /api/v1/public/feed</code></section></aside>
+          <aside className="lg:col-span-4 grid gap-6 md:grid-cols-2 lg:sticky lg:top-24 lg:grid-cols-1"><Trending items={popular} bookmarked={bookmarked} onBookmark={toggleBookmark} /><CommunityPoll /><Timeline items={flashNews} onSelect={setSelectedFlash} /><section className="rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-800">ByteNews / Open feed</p><h2 className="mt-2 text-base font-bold tracking-tight text-slate-900">Новини для ваших інструментів</h2><p className="mt-2 text-sm leading-6 text-slate-600">Публічний JSON-фід доступний для інтеграції з іншими сервісами.</p><code className="mt-4 block overflow-x-auto rounded-xl bg-slate-950 px-3 py-3 font-mono text-[10px] text-emerald-200">GET /api/v1/public/feed</code></section></aside>
         </div>
       </div>
       <FlashNewsModal item={selectedFlash} onClose={() => setSelectedFlash(null)} />

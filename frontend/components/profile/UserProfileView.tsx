@@ -17,17 +17,13 @@ import {
   Eye,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { ReporterVerificationModal } from "../auth/ReporterVerificationModal";
-import { useBookmarks } from "../../context/BookmarksContext";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
 
 export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
   const { user, setActiveView, logout, openAuthModal } = useAuth();
-  const { openDrawer } = useBookmarks();
   const [activeTab, setActiveTab] = useState<ProfileTab>(initialTab);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [showReporterModal, setShowReporterModal] = useState(false);
 
   useEffect(() => setActiveTab(initialTab), [initialTab]);
 
@@ -66,10 +62,12 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
     }
   };
 
+  const publishedCount = user.articles?.filter((a) => a.status !== "draft").length || 0;
+
   const tabs: { id: ProfileTab; label: string; icon: React.ReactNode }[] = [
     {
       id: "articles",
-      label: `Опубліковані статті (${user.articles?.length || 0})`,
+      label: `Опубліковані статті (${publishedCount})`,
       icon: <FileText className="w-3.5 h-3.5" />,
     },
     {
@@ -119,7 +117,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
         </button>
       </div>
 
-      {/* Головна картка профілю автора */}
+      {/* 2. Головна картка профілю автора */}
       <div className="relative overflow-hidden rounded-[24px] bg-white/90 backdrop-blur-md border border-[#e2e8f0] p-6 sm:p-7 shadow-sm">
         {/* Фонове декоративне світіння */}
         <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-emerald-200/40 blur-3xl pointer-events-none -z-0" />
@@ -167,10 +165,9 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
 
           {/* Кнопки дій справа (вертикальна колонка) */}
           <div className="flex flex-col items-end gap-2.5 shrink-0 self-start md:self-auto">
-            {user.role === "reader" && <button type="button" onClick={() => setShowReporterModal(true)} className="h-[38px] px-4 rounded-[12px] bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-[12px] font-bold transition">Стати автором</button>}
             <button
               type="button"
-              className="h-8 px-4 rounded-[9px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[10px] font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              className="h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
             >
               <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
               <span>Написати публікацію</span>
@@ -180,7 +177,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               type="button"
               onClick={handleCopyProfileLink}
               title="Скопіювати посилання на профіль"
-              className="h-7 px-3 rounded-[9px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[10px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+              className="h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
             >
               {copiedLink ? (
                 <>
@@ -267,89 +264,83 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
 
         {/* Вміст вкладок: опубліковані статті або порожній блок для вкладок без даних */}
         <div className="mt-6">
-          {activeTab === "articles" || activeTab === "drafts" ? (
+          {activeTab === "articles" ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between text-xs font-mono text-slate-500 pb-2 border-b border-slate-100">
-                <span>{activeTab === "drafts" ? "Чернетки автора" : `Публікації автора ${user.full_name}`}</span>
+                <span>Показано матеріали автора {user.full_name}</span>
                 <span>Сортування: За датою публікації</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {user.articles.filter((article) => activeTab === "drafts" ? article.status === "draft" : article.status !== "draft").map((article) => (
-                  <article
-                    key={article.id}
-                    className="relative overflow-hidden rounded-2xl p-3.5 sm:p-4 border border-slate-200/80 hover:border-emerald-500/50 hover:shadow-md transition-all duration-300 bg-white group flex flex-col justify-between"
-                  >
-                    {/* Верхня кольорова смужка */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-[#10b981] opacity-90" />
+                {user.articles
+                  .filter((article) => article.status !== "draft")
+                  .map((article) => (
+                    <article
+                      key={article.id}
+                      className="relative overflow-hidden rounded-2xl p-5 border border-slate-200/80 hover:border-emerald-500/50 hover:shadow-md transition-all duration-300 bg-white group flex flex-col justify-between"
+                    >
+                      {/* Верхня кольорова смужка */}
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-[#10b981] opacity-90" />
 
-                    <div>
-                      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 pt-1 text-[10px] font-mono text-slate-500">
-                        <span className="font-bold text-[#059669] bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-                          {article.category_name}
-                        </span>
-                        <span className="flex items-center gap-1 text-slate-400">
-                          <Clock className="w-3 h-3" />
-                          {article.read_time_min} хв читання
-                        </span>
+                      <div>
+                        {/* Категорія, дата та час читання */}
+                        <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-2.5">
+                          <span className="font-bold text-[#059669] bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            {article.category_name}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            {article.published_at
+                              ? article.published_at.includes("T")
+                                ? new Date(article.published_at).toLocaleDateString("uk-UA")
+                                : article.published_at
+                              : "Чернетка"}
+                          </span>
+                          <span>•</span>
+                          <span className="flex items-center gap-1 text-slate-400">
+                            <Clock className="w-3 h-3" />
+                            {article.read_time_min} хв читання
+                          </span>
+                        </div>
+
+                        {/* Заголовок статті */}
+                        <h3 className="font-sans font-bold text-[16px] sm:text-[17px] text-[#0f172a] group-hover:text-[#059669] transition-colors leading-snug">
+                          {article.title}
+                        </h3>
+
+                        {/* Короткий опис */}
+                        <p className="text-[13px] text-slate-600 mt-2 leading-relaxed font-sans line-clamp-3">
+                          {article.summary}
+                        </p>
                       </div>
 
-                      <div className="mb-3 block overflow-hidden rounded-xl bg-slate-100">
-                        {article.cover_image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={article.cover_image_url} alt="" className="aspect-[16/9] w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
-                        ) : (
-                          <div className="grid aspect-[16/9] place-items-center bg-[radial-gradient(ellipse_at_72%_35%,rgba(45,212,191,.42),transparent_24%),radial-gradient(ellipse_at_30%_75%,rgba(59,130,246,.28),transparent_40%),linear-gradient(135deg,#0f172a,#13243b_52%,#0f766e)]">
-                            <span className="rounded-full border border-white/25 bg-white/10 px-3 py-1 font-mono text-[10px] font-semibold uppercase tracking-wider text-white backdrop-blur">{article.category_name}</span>
-                          </div>
-                        )}
+                      {/* Підвал статті з переглядами та коментарями */}
+                      <div className="flex items-center gap-5 mt-4 pt-3 border-t border-slate-100 text-[12px] font-mono text-slate-500">
+                        <div className="flex items-center gap-1.5">
+                          <Eye className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{article.views_count.toLocaleString("uk-UA")} переглядів</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{article.comments_count} коментарів</span>
+                        </div>
                       </div>
-
-                      {/* Заголовок статті */}
-                      <h3 className="font-sans font-bold text-[15px] sm:text-[16px] text-[#0f172a] leading-snug">
-                        {article.title}
-                      </h3>
-
-                      {/* Короткий опис */}
-                      <p className="text-[13px] text-slate-600 mt-2 leading-relaxed font-sans line-clamp-3">
-                        {article.summary}
-                      </p>
-                    </div>
-
-                    {/* Підвал статті з переглядами та коментарями */}
-                    <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-4 pt-3 border-t border-slate-100 text-[10px] font-mono text-slate-500">
-                      <div className="flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{article.views_count.toLocaleString("uk-UA")} переглядів</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <MessageSquare className="w-3.5 h-3.5 text-slate-400" />
-                        <span>{article.comments_count} коментарів</span>
-                      </div>
-                      <span className="ml-auto">{article.published_at ? new Date(article.published_at).toLocaleDateString("uk-UA") : "Чернетка"}</span>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  ))}
               </div>
-              {user.articles.filter((article) => activeTab === "drafts" ? article.status === "draft" : article.status !== "draft").length === 0 && <p className="rounded-xl border border-dashed border-slate-200 px-5 py-10 text-center text-sm text-slate-500">{activeTab === "drafts" ? "Чернеток поки немає." : "Опублікованих статей поки немає."}</p>}
+              {user.articles.filter((article) => article.status !== "draft").length === 0 && (
+                <p className="rounded-xl border border-dashed border-slate-200 px-5 py-10 text-center text-sm text-slate-500">
+                  Опублікованих статей поки немає.
+                </p>
+              )}
             </div>
-          ) : activeTab === "analytics" ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              {[
-                { label: "Опубліковані статті", value: user.articles_count },
-                { label: "Перегляди статей", value: user.total_views },
-                { label: "Матеріали у закладках", value: user.bookmarks_count },
-              ].map((metric) => <div key={metric.label} className="rounded-2xl border border-slate-200 bg-slate-50 p-5"><p className="text-xs text-slate-500">{metric.label}</p><p className="mt-2 font-mono text-2xl font-bold text-slate-900">{metric.value.toLocaleString("uk-UA")}</p></div>)}
-            </div>
-          ) : activeTab === "bookmarks" ? (
-            <div className="py-8 text-center"><p className="text-sm text-slate-500">Перегляньте збережені матеріали у вашому списку.</p><button type="button" onClick={openDrawer} className="mt-4 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-700">Відкрити закладки</button></div>
           ) : (
-            <div className="py-12 text-center text-sm text-slate-500">Дані для цієї вкладки з’являться після підключення відповідного розділу.</div>
+            /* Вкладки, в яких поки нічого немає, залишено пустими */
+            <div className="py-12" />
           )}
         </div>
 
       </div>
-      {showReporterModal && <ReporterVerificationModal onClose={() => setShowReporterModal(false)} />}
     </div>
   );
 }

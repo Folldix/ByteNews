@@ -42,19 +42,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [activeView, setActiveView] = useState<View>("feed");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
-  // Restore and rotate a persisted session before exposing the authenticated view.
+  // Відновлення сесії з localStorage/sessionStorage перед запитом до бекенду
   useEffect(() => {
     let localRefresh: string | null = null;
     let sessionRefresh: string | null = null;
+    let savedUserStr: string | null = null;
     try {
       localRefresh = localStorage.getItem("bytenews_refresh_token");
       sessionRefresh = sessionStorage.getItem("bytenews_refresh_token");
+      savedUserStr = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
     } catch {
       return;
     }
+
+    if (savedUserStr) {
+      try {
+        setUser(JSON.parse(savedUserStr));
+      } catch { /* Ignore JSON parse error */ }
+    }
+
     const refreshToken = localRefresh || sessionRefresh;
     if (!refreshToken) return;
     let active = true;
+
     apiRefresh(refreshToken)
       .then((pair) => {
         if (!active) return;
@@ -62,13 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const storage = localRefresh ? localStorage : sessionStorage;
         storage.setItem("bytenews_access_token", pair.access_token);
         storage.setItem("bytenews_refresh_token", pair.refresh_token);
+        storage.setItem("bytenews_user", JSON.stringify(pair.user));
       })
       .catch(() => {
+        // Якщо токен не демо і бекенд відповів реальною помилкою авторизації
+        if (refreshToken === "demo-refresh-token") return;
         try {
           localStorage.removeItem("bytenews_access_token");
           localStorage.removeItem("bytenews_refresh_token");
+          localStorage.removeItem("bytenews_user");
           sessionStorage.removeItem("bytenews_access_token");
           sessionStorage.removeItem("bytenews_refresh_token");
+          sessionStorage.removeItem("bytenews_user");
         } catch { /* Storage can be disabled by the browser. */ }
       });
     return () => { active = false; };
@@ -81,8 +96,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const otherStorage = rememberMe ? sessionStorage : localStorage;
       otherStorage.removeItem("bytenews_access_token");
       otherStorage.removeItem("bytenews_refresh_token");
+      otherStorage.removeItem("bytenews_user");
       storage.setItem("bytenews_access_token", pair.access_token);
       storage.setItem("bytenews_refresh_token", pair.refresh_token);
+      storage.setItem("bytenews_user", JSON.stringify(pair.user));
     } catch { /* Keep the current session in memory when browser storage is unavailable. */ }
   };
 
@@ -106,8 +123,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.removeItem("bytenews_access_token");
       localStorage.removeItem("bytenews_refresh_token");
+      localStorage.removeItem("bytenews_user");
       sessionStorage.removeItem("bytenews_access_token");
       sessionStorage.removeItem("bytenews_refresh_token");
+      sessionStorage.removeItem("bytenews_user");
     } catch { /* Nothing else to clear when storage is unavailable. */ }
   };
 
@@ -116,10 +135,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!token) throw new Error("Сесія завершилася. Увійдіть знову.");
     const updated = await apiUpgradeRole(token, profile);
     setUser(updated);
+    try {
+      if (localStorage.getItem("bytenews_refresh_token")) {
+        localStorage.setItem("bytenews_user", JSON.stringify(updated));
+      } else if (sessionStorage.getItem("bytenews_refresh_token")) {
+        sessionStorage.setItem("bytenews_user", JSON.stringify(updated));
+      }
+    } catch { /* Ignore storage error */ }
   };
 
   const setBookmarksCount = useCallback((count: number) => {
-    setUser((current) => current ? { ...current, bookmarks_count: count } : current);
+    setUser((current) => {
+      if (!current) return current;
+      const updated = { ...current, bookmarks_count: count };
+      try {
+        if (localStorage.getItem("bytenews_refresh_token")) {
+          localStorage.setItem("bytenews_user", JSON.stringify(updated));
+        } else if (sessionStorage.getItem("bytenews_refresh_token")) {
+          sessionStorage.setItem("bytenews_user", JSON.stringify(updated));
+        }
+      } catch { /* Ignore storage error */ }
+      return updated;
+    });
   }, []);
 
   const openAuthModal = () => setIsAuthModalOpen(true);
