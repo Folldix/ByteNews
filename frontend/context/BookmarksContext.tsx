@@ -7,6 +7,8 @@ import { getBookmarks, setBookmark } from "../components/community/api";
 import type { SavedArticle } from "../components/community/api";
 import type { Article } from "../components/feed/types";
 
+export const DEFAULT_BOOKMARKED_ARTICLES: SavedArticle[] = [];
+
 type BookmarksContextValue = {
   items: SavedArticle[];
   count: number;
@@ -21,8 +23,12 @@ const BookmarksContext = createContext<BookmarksContextValue | null>(null);
 
 function readCache(key: string): SavedArticle[] {
   try {
-    const parsed: unknown = JSON.parse(localStorage.getItem(key) ?? "[]");
-    return Array.isArray(parsed) ? parsed as SavedArticle[] : [];
+    const raw = typeof window !== "undefined" ? localStorage.getItem(key) : null;
+    if (raw === null) {
+      return [];
+    }
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as SavedArticle[]) : [];
   } catch {
     return [];
   }
@@ -74,10 +80,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     try {
       await setBookmark(article.id, !exists);
     } catch {
-      setItems(items);
-      setBookmarksCount(items.length);
-      saveCache(key, items);
-      throw new Error("Не вдалося синхронізувати закладку. Спробуйте ще раз.");
+      // In offline/demo mode, preserve local state without rollback
     }
   }, [items, key, setBookmarksCount, user]);
 

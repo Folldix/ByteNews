@@ -136,6 +136,7 @@ async def register(payload: RegisterRequest, db: AsyncSession = Depends(get_db))
         handle=await _unique_handle(db, payload.email),
         role=UserRole.READER,
         role_title="Читач спільноти",
+        bio="Тут я скоро розкажу про себе...",
     )
     db.add(user)
     try:

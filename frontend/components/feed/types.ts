@@ -20,7 +20,9 @@ export type Article = {
   category: string | null;
   author: string | null;
   author_role: string | null;
+  author_avatar?: string | null;
   tags: string[];
+  time_label?: string;
 };
 
 export type Page<T> = {
@@ -37,4 +39,7 @@ export type FlashNews = {
   source_name: string;
   url: string;
   published_at: string;
+  time_label?: string;
+  category?: string;
+  is_important?: boolean;
 };

@@ -1,25 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { getArticles, getCategories, getFlashNews, getTags } from "./feed-api";
+import { getArticles, getCategories, getFlashNews, getTags, FALLBACK_POPULAR } from "./feed-api";
 import { useFeedFilters } from "../../context/FeedContext";
 import { useBookmarks } from "../../context/BookmarksContext";
+import { useAuth } from "../../context/AuthContext";
 import { CommunityPoll } from "../community/CommunityPoll";
+import { CATEGORIES as DEFAULT_CATEGORIES, DEFAULT_TOPICS } from "../../lib/constants";
+import { HeroArticleCard } from "./HeroArticleCard";
+import { ArticleCard } from "./ArticleCard";
+import { PopularNewsWidget } from "./PopularNewsWidget";
+import { ChronicleWidget } from "./ChronicleWidget";
+import { ReporterCabinetWidget } from "./ReporterCabinetWidget";
+import { FlashNewsModal } from "./FlashNewsModal";
 import type { Article, CatalogItem, FlashNews, Page } from "./types";
 
-const DEFAULT_CATEGORIES: CatalogItem[] = [
-  { id: "all", name: "Всі новини", slug: "" },
-  { id: "ai", name: "Штучний Інтелект", slug: "ai" },
-  { id: "development", name: "Розробка", slug: "development" },
-  { id: "security", name: "Кібербезпека", slug: "cybersecurity" },
-  { id: "gamedev", name: "GameDev & 3D", slug: "gamedev-3d" },
-  { id: "hardware", name: "Залізо & Чіпи", slug: "hardware-chips" },
-  { id: "startups", name: "Стартапи & Ринок", slug: "startups-market" },
-];
-
-const DEFAULT_TOPICS = ["Claude", "React", "TypeScript", "Linux", "ZeroDay", "OpenAI", "Rust", "GPU"];
-
-function relativeTime(value: string | null) {
+export function relativeTime(value: string | null) {
   if (!value) return "Щойно";
   const minutes = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 60_000));
   if (minutes < 1) return "Щойно";
@@ -29,131 +25,8 @@ function relativeTime(value: string | null) {
   return `${Math.floor(hours / 24)} дн тому`;
 }
 
-function BookmarkButton({ active, onClick, label = "Зберегти в закладки" }: { active: boolean; onClick: () => void; label?: string }) {
-  return (
-    <button
-      aria-label={active ? "Прибрати із закладок" : label}
-      aria-pressed={active}
-      onClick={onClick}
-      className={`grid size-10 shrink-0 place-items-center rounded-full border transition ${active ? "border-emerald-300 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white/80 text-slate-500 hover:border-slate-400 hover:text-slate-900"}`}
-    >
-      <svg viewBox="0 0 24 24" fill={active ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.7" className="size-[18px]" aria-hidden="true">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 4.75A1.75 1.75 0 0 1 8.5 3h7a1.75 1.75 0 0 1 1.75 1.75V21l-5.25-3.5L6.75 21V4.75Z" />
-      </svg>
-    </button>
-  );
-}
-
-function categoryBadgeTone(category: string | null) {
-  const value = category?.toLowerCase() ?? "";
-  if (value.includes("інтелект")) return "border-emerald-200 bg-emerald-50 text-emerald-800";
-  if (value.includes("розроб")) return "border-sky-200 bg-sky-50 text-sky-800";
-  if (value.includes("кібер")) return "border-rose-200 bg-rose-50 text-rose-800";
-  if (value.includes("game")) return "border-orange-200 bg-orange-50 text-orange-800";
-  if (value.includes("заліз") || value.includes("чіп")) return "border-cyan-200 bg-cyan-50 text-cyan-800";
-  if (value.includes("стартап")) return "border-violet-200 bg-violet-50 text-violet-800";
-  return "border-slate-200 bg-slate-50 text-slate-700";
-}
-
-function ArticleCover({ article, large = false }: { article: Article; large?: boolean }) {
-  return (
-    <div className={`relative isolate overflow-hidden bg-slate-100 ${large ? "aspect-[16/7] rounded-2xl" : "aspect-[16/9] rounded-xl"}`}>
-      {article.cover_image_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={article.cover_image_url} alt="" className="absolute inset-0 size-full object-cover transition duration-500 group-hover:scale-[1.02]" />
-      ) : (
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_72%_35%,rgba(45,212,191,.48),transparent_24%),radial-gradient(ellipse_at_30%_75%,rgba(59,130,246,.32),transparent_40%),linear-gradient(135deg,#0f172a,#13243b_52%,#0f766e)]" />
-      )}
-    </div>
-  );
-}
-
-function ArticleMeta({ article }: { article: Article }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
-      <span className="inline-flex items-center gap-2 font-medium text-slate-700">
-        <span className="grid size-7 place-items-center rounded-full bg-slate-200 font-mono text-[10px] font-bold text-slate-600">{(article.author ?? "BN").slice(0, 2).toUpperCase()}</span>
-        {article.author ?? "Редакція ByteNews"}{article.author_role && <span className="font-normal text-slate-400">/ {article.author_role}</span>}
-      </span>
-      <span>{relativeTime(article.published_at)}</span>
-      <span className="font-mono">{article.views_count.toLocaleString("uk-UA")} переглядів</span>
-      {article.comments_count != null && <span className="font-mono">{article.comments_count.toLocaleString("uk-UA")} коментарів</span>}
-    </div>
-  );
-}
-
-function ArticleCard({ article, bookmarked, onBookmark }: { article: Article; bookmarked: boolean; onBookmark: () => void }) {
-  return (
-    <article className="group rounded-2xl border border-slate-200/80 bg-white p-3 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)] transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-lg sm:p-4">
-      <div className="mb-3 flex items-center justify-between gap-3 px-1">
-        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <span className={`rounded-full border px-2.5 py-1 font-mono text-[9px] font-bold uppercase tracking-wide ${categoryBadgeTone(article.category)}`}>{article.category ?? "Технології"}</span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 font-mono text-[9px] text-slate-500"><span aria-hidden="true">◷</span>{article.read_time_min} хв</span>
-          {article.is_photo_reportage && <span className="rounded-full bg-violet-50 px-2.5 py-1 font-mono text-[9px] font-bold text-violet-700">Фоторепортаж</span>}
-        </div>
-        <BookmarkButton active={bookmarked} onClick={onBookmark} />
-      </div>
-      <a href={`/articles/${article.slug}`} className="block"><ArticleCover article={article} /></a>
-      <div className="px-1 pb-1 pt-3">
-        <a href={`/articles/${article.slug}`} className="text-lg font-bold leading-snug tracking-[-.025em] text-slate-900 decoration-emerald-400 decoration-2 underline-offset-4 group-hover:underline">{article.title}</a>
-        {article.lead && <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-600">{article.lead}</p>}
-        {article.tags.length > 0 && <div className="mt-3 flex flex-wrap gap-1.5">{article.tags.slice(0, 3).map((tag) => <span key={tag} className="rounded-md bg-slate-100 px-2 py-1 font-mono text-[10px] text-slate-500">#{tag}</span>)}</div>}
-        <div className="mt-4 border-t border-slate-100 pt-3"><ArticleMeta article={article} /></div>
-      </div>
-    </article>
-  );
-}
-
-function FlashNewsModal({ item, onClose }: { item: FlashNews | null; onClose: () => void }) {
-  useEffect(() => {
-    if (!item) return;
-    const onKeyDown = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [item, onClose]);
-  if (!item) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 p-3 backdrop-blur-sm sm:items-center" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="flash-title" className="w-full max-w-lg rounded-3xl border border-white/70 bg-white p-6 shadow-2xl sm:p-8">
-        <div className="flex items-center justify-between gap-4"><span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-rose-600"><span className="size-2 animate-pulse rounded-full bg-rose-500" />Оперативна новина</span><button onClick={onClose} aria-label="Закрити" className="grid size-9 place-items-center rounded-full bg-slate-100 text-lg text-slate-500 hover:bg-slate-200">×</button></div>
-        <p className="mt-5 font-mono text-xs text-slate-400">{item.source_name} <span className="px-1">·</span>{relativeTime(item.published_at)}</p>
-        <h2 id="flash-title" className="mt-3 text-2xl font-bold leading-tight tracking-[-.03em] text-slate-900">{item.title}</h2>
-        {item.summary && <p className="mt-4 text-sm leading-7 text-slate-600">{item.summary}</p>}
-        <a href={item.url} target="_blank" rel="noreferrer" className="mt-7 inline-flex items-center gap-2 rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700">Читати джерело <span aria-hidden="true">↗</span></a>
-      </section>
-    </div>
-  );
-}
-
-function Timeline({ items, onSelect }: { items: FlashNews[]; onSelect: (item: FlashNews) => void }) {
-  return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)]">
-      <div className="flex items-center justify-between"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-rose-600">Live desk</p><h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900">Оперативно</h2></div><span className="relative flex size-2.5"><span className="absolute inline-flex size-full animate-ping rounded-full bg-rose-400 opacity-60" /><span className="relative inline-flex size-2.5 rounded-full bg-rose-500" /></span></div>
-      <div className="mt-5 space-y-0">
-        {items.length === 0 ? <p className="py-4 text-sm leading-6 text-slate-500">Оперативні оновлення з’являться тут після надходження новин.</p> : items.map((item, index) => (
-          <button key={item.id} onClick={() => onSelect(item)} className="group relative block w-full pb-5 pl-5 text-left last:pb-0">
-            {index < items.length - 1 && <span className="absolute bottom-0 left-[5px] top-2 w-px bg-slate-200" />}
-            <span className="absolute left-0 top-1.5 size-[11px] rounded-full border-2 border-white bg-emerald-500 ring-1 ring-emerald-200" />
-            <span className="font-mono text-[10px] text-slate-400">{relativeTime(item.published_at)} <span className="px-1">·</span>{item.source_name}</span>
-            <span className="mt-1.5 block text-sm font-semibold leading-5 text-slate-800 group-hover:text-emerald-800">{item.title}</span>
-          </button>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function Trending({ items, bookmarked, onBookmark }: { items: Article[]; bookmarked: Set<string>; onBookmark: (id: string) => void }) {
-  return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)]">
-      <div className="flex items-end justify-between gap-3"><div><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-slate-400">🔥 Найбільше читають</p><h2 className="mt-1 text-lg font-bold tracking-tight text-slate-900">Тренди дня</h2></div><span className="shrink-0 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700">за 24 год</span></div>
-      <ol className="mt-3 divide-y divide-slate-100">{items.slice(0, 3).map((item, index) => <li key={item.id} className="flex gap-3 py-3.5"><span className="font-mono text-xl font-light leading-8 text-slate-300">0{index + 1}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><span className="truncate font-mono text-[9px] uppercase tracking-[.13em] text-slate-400">{item.category ?? "Новини"}</span><button aria-label={bookmarked.has(item.id) ? "Прибрати із закладок" : "Зберегти матеріал"} aria-pressed={bookmarked.has(item.id)} onClick={() => onBookmark(item.id)} className="shrink-0 text-slate-400 transition hover:text-emerald-700">{bookmarked.has(item.id) ? "◆" : "◇"}</button></div><a href={`/articles/${item.slug}`} className="mt-1 block text-sm font-semibold leading-5 text-slate-800 hover:text-emerald-800">{item.title}</a><div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 font-mono text-[9px] text-slate-400"><span>{relativeTime(item.published_at)}</span><span>{item.views_count.toLocaleString("uk-UA")} переглядів</span>{item.comments_count != null && <span>{item.comments_count} коментарів</span>}</div></div></li>)}</ol>
-      {items.length === 0 && <p className="py-4 text-sm leading-6 text-slate-500">Щойно опубліковані матеріали скоро з’являться тут.</p>}
-    </section>
-  );
-}
-
 export function FeedHome() {
+  const { setActiveView } = useAuth();
   const { category, tag, query, setCategory, setTag, setQuery } = useFeedFilters();
   const { items: bookmarkedItems, toggleBookmark: toggleSavedBookmark } = useBookmarks();
   const [categories, setCategories] = useState<CatalogItem[]>(DEFAULT_CATEGORIES);
@@ -167,6 +40,8 @@ export function FeedHome() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState("");
   const [selectedFlash, setSelectedFlash] = useState<FlashNews | null>(null);
+  const [sortBy, setSortBy] = useState<"fresh" | "popular" | "discussed">("fresh");
+  const [visibleCount, setVisibleCount] = useState(8);
 
   useEffect(() => {
     setReady(true);
@@ -174,14 +49,19 @@ export function FeedHome() {
 
   useEffect(() => {
     const controller = new AbortController();
-    Promise.all([getCategories(controller.signal), getTags(controller.signal), getArticles({ sort: "popular", limit: 3, signal: controller.signal }), getFlashNews(controller.signal)])
+    Promise.all([
+      getCategories(controller.signal),
+      getTags(controller.signal),
+      getArticles({ sort: "popular", limit: 3, signal: controller.signal }),
+      getFlashNews(controller.signal),
+    ])
       .then(([categoryPage, tagPage, popularPage, flashPage]) => {
         if (categoryPage.items.length) setCategories([{ id: "all", name: "Всі новини", slug: "" }, ...categoryPage.items]);
         setTopics(tagPage.items);
         setPopular(popularPage.items);
         setFlashNews(flashPage.items);
       })
-      .catch(() => { /* The main feed request reports API errors below. */ });
+      .catch(() => { /* Fallbacks are handled in feed-api.ts */ });
     return () => controller.abort();
   }, []);
 
@@ -191,7 +71,11 @@ export function FeedHome() {
     setLoading(true);
     setError("");
     getArticles({ category: category || undefined, tag: tag || undefined, query: query || undefined, limit: 12, signal: controller.signal })
-      .then((page: Page<Article>) => { setArticles(page.items); setTotal(page.total); })
+      .then((page: Page<Article>) => {
+        setArticles(page.items);
+        setTotal(page.total);
+        setVisibleCount(8);
+      })
       .catch((reason: unknown) => {
         if (!controller.signal.aborted) setError(reason instanceof Error ? reason.message : "Не вдалося завантажити стрічку.");
       })
@@ -200,7 +84,7 @@ export function FeedHome() {
   }, [category, tag, query, ready]);
 
   const bookmarked = useMemo(() => new Set(bookmarkedItems.map((item) => item.article.id)), [bookmarkedItems]);
-  const articleById = useMemo(() => new Map([...articles, ...popular].map((item) => [item.id, item])), [articles, popular]);
+  const articleById = useMemo(() => new Map([...articles, ...popular, ...FALLBACK_POPULAR].map((item) => [item.id, item])), [articles, popular]);
   const toggleBookmark = useCallback((id: string) => {
     const article = articleById.get(id);
     if (article) void toggleSavedBookmark(article).catch(() => undefined);
@@ -209,12 +93,32 @@ export function FeedHome() {
   const hero = useMemo(() => articles.find((item) => item.is_hero) ?? articles[0] ?? null, [articles]);
   const listArticles = useMemo(() => hero ? articles.filter((item) => item.id !== hero.id) : articles, [articles, hero]);
 
+  const sortedCatalogArticles = useMemo(() => {
+    const items = [...listArticles];
+    if (sortBy === "popular") {
+      return items.sort((a, b) => b.views_count - a.views_count);
+    }
+    if (sortBy === "discussed") {
+      return items.sort((a, b) => (b.comments_count ?? 0) - (a.comments_count ?? 0));
+    }
+    return items;
+  }, [listArticles, sortBy]);
+
+  const visibleArticles = useMemo(() => {
+    return sortedCatalogArticles.slice(0, visibleCount);
+  }, [sortedCatalogArticles, visibleCount]);
+
   async function loadMore() {
+    if (visibleCount < sortedCatalogArticles.length) {
+      setVisibleCount((prev) => prev + 8);
+      return;
+    }
     setLoadingMore(true);
     try {
       const page = await getArticles({ category: category || undefined, tag: tag || undefined, query: query || undefined, limit: 12, offset: articles.length });
       setArticles((current) => [...current, ...page.items]);
       setTotal(page.total);
+      setVisibleCount((prev) => prev + page.items.length);
     } catch { setError("Не вдалося завантажити наступну сторінку."); }
     finally { setLoadingMore(false); }
   }
@@ -222,43 +126,215 @@ export function FeedHome() {
   const activeCategory = categories.find((item) => item.slug === category)?.name ?? "Всі новини";
   const slugForTag = (name: string) => topics.find((item) => item.name.toLowerCase() === name.toLowerCase())?.slug ?? name.toLowerCase().trim().replace(/\s+/g, "-");
 
+  const topicsList = topics.length ? topics : DEFAULT_TOPICS.map((name) => ({ id: name.toLowerCase(), name, slug: name.toLowerCase() }));
+
   return (
-    <main className="min-h-screen bg-[#f6f8fa] text-slate-900">
-      <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-5 sm:px-6 lg:px-10 lg:pt-7">
-        <div className="grid items-start gap-7 xl:grid-cols-[minmax(0,1fr)_350px]">
-          <div className="min-w-0">
-            <section aria-labelledby="hero-heading" className="mb-8">
-              <div className="mb-3 flex items-center justify-between"><h2 id="hero-heading" className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-slate-500"><span className="mr-2 text-emerald-600">●</span>Головна новина <span className="px-1 text-slate-300">&</span> тренди дня</h2><span className="font-mono text-[10px] text-slate-400">01 / TODAY</span></div>
-              {hero ? <article className="overflow-hidden rounded-[24px] border border-slate-200/80 bg-white p-3 shadow-[0_14px_40px_-32px_rgba(15,23,42,.42)] sm:p-5">
-                <div className="mb-4 flex items-center justify-between gap-3"><div className="flex flex-wrap items-center gap-2"><span className={`rounded-full border px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${categoryBadgeTone(hero.category)}`}>{hero.category ?? "Технології"}</span><span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 font-mono text-[10px] text-slate-600"><span aria-hidden="true">◷</span>{hero.read_time_min} хв читання</span>{hero.is_photo_reportage && <span className="rounded-full border border-violet-200 bg-violet-50 px-3 py-1 font-mono text-[10px] font-bold text-violet-700">Фоторепортаж</span>}</div><BookmarkButton active={bookmarked.has(hero.id)} onClick={() => toggleBookmark(hero.id)} />
-                </div>
-                <a href={`/articles/${hero.slug}`} className="block"><ArticleCover article={hero} large /></a>
-                <div className="px-1 pb-1 pt-4 sm:px-2 sm:pt-5">
-                  <a href={`/articles/${hero.slug}`}><h3 className="text-2xl font-extrabold leading-[1.12] tracking-[-.04em] text-slate-950 sm:text-[30px]">{hero.title}</h3></a>
-                  {hero.lead && <p className="mt-3 max-w-4xl line-clamp-3 text-sm leading-6 text-slate-600">{hero.lead}</p>}
-                  {hero.tags.length > 0 && <div className="mt-4 flex flex-wrap gap-1.5">{hero.tags.slice(0, 5).map((topic) => <button key={topic} onClick={() => setTag(slugForTag(topic))} className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 font-mono text-[10px] font-semibold text-slate-600 hover:border-emerald-300 hover:text-emerald-800">#{topic}</button>)}</div>}
-                  <div className="mt-5 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4"><ArticleMeta article={hero} /><a href={`/articles/${hero.slug}`} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700">Читати <span aria-hidden="true">↗</span></a></div>
-                </div>
-              </article> : <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-sm text-slate-500">{loading ? "Завантажуємо головну новину…" : "Головна новина з’явиться після першої публікації."}</div>}
-            </section>
+    <main className="min-h-screen text-slate-900">
+      <div className="w-[1296px] mx-auto pb-16 pt-6">
 
-            <section aria-label="Популярні теми" className="mb-8 rounded-2xl border border-slate-200/80 bg-white px-4 py-4 sm:px-5"><div className="flex items-center gap-4"><h2 className="shrink-0 font-mono text-[10px] font-bold uppercase tracking-[.16em] text-slate-400"># Теми</h2><div className="flex min-w-0 gap-2 overflow-x-auto scrollbar-none">{(topics.length ? topics : DEFAULT_TOPICS.map((name) => ({ id: name, name, slug: name.toLowerCase() }))).map((topic) => <button key={topic.id} onClick={() => { setTag(topic.slug); setCategory(""); }} aria-pressed={tag === topic.slug} className={`shrink-0 rounded-full px-3 py-2 font-mono text-[11px] transition ${tag === topic.slug ? "bg-emerald-100 text-emerald-900" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>#{topic.name}</button>)}</div></div></section>
+        {/* 1. Верхня секція: Головна новина (8 колонок) + Найбільше читають (4 колонки) */}
+        <section aria-labelledby="hero-heading" className="mb-6">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="size-[8px] rounded-full bg-[#10b981]" />
+              <h2 id="hero-heading" className="font-mono font-bold text-[12px] leading-[1.5] text-[#0f172a] tracking-[0.6px] uppercase">
+                ГОЛОВНА НОВИНА & ТРЕНДИ ДНЯ
+              </h2>
+            </div>
+            <div className="inline-flex items-center gap-[6px]">
+              <svg viewBox="0 0 16 10" fill="none" className="w-[14px] h-[8px] text-[#059669] shrink-0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <polyline points="15 1 9.5 6.5 6 3 1 8" />
+                <polyline points="11 1 15 1 15 5" />
+              </svg>
+              <span className="font-mono font-bold text-[12px] leading-[1.5] text-[#64748b] tracking-[0.6px] uppercase">
+                ТОП-ОГЛЯД
+              </span>
+            </div>
+          </div>
 
+          <div className="grid grid-cols-12 gap-6 items-stretch">
+            {/* Ліва колонка: Головна новина (Hero) */}
+            <div className="col-span-8 flex flex-col">
+              <HeroArticleCard
+                hero={hero}
+                loading={loading}
+                bookmarked={hero ? bookmarked.has(hero.id) : false}
+                onBookmark={() => hero && toggleBookmark(hero.id)}
+                onTagClick={(topic) => setTag(slugForTag(topic))}
+                onProfileClick={() => setActiveView("profile")}
+                relativeTime={relativeTime}
+              />
+            </div>
+
+            {/* Права колонка: 1) Найбільше читають (3 картки) */}
+            <div className="col-span-4 flex flex-col">
+              <PopularNewsWidget
+                items={popular.length ? popular : FALLBACK_POPULAR}
+                bookmarked={bookmarked}
+                onBookmark={toggleBookmark}
+                relativeTime={relativeTime}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* 2. Середня секція: # Теми на всю ширину (1296px) */}
+        <section aria-label="Популярні теми" className="w-full pt-[10px] pb-[30px] flex flex-wrap items-center gap-[8px]">
+          <span className="font-mono font-bold text-[16px] text-[#10b981] tracking-[0.8px]">#</span>
+          <span className="font-mono font-bold text-[14px] text-[#94a3b8] tracking-[0.7px] mr-1">Теми:</span>
+          {topicsList.map((topic) => {
+            const isSelected = tag === topic.slug;
+            return (
+              <button
+                key={topic.id}
+                type="button"
+                onClick={() => {
+                  setTag(isSelected ? "" : topic.slug);
+                  if (!isSelected) setCategory("");
+                }}
+                aria-pressed={isSelected}
+                className={`backdrop-blur-[5px] rounded-[12px] px-[12px] py-[6px] font-mono font-medium text-[12px] tracking-[0.6px] transition cursor-pointer ${
+                  isSelected
+                    ? "bg-[#0f172a] border border-[#0f172a] text-white shadow-[0px_1px_1.5px_0px_rgba(15,23,42,0.15)]"
+                    : "bg-white/80 border border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]/80 hover:border-[#cbd5e1] hover:text-[#0f172a]"
+                }`}
+              >
+                #{topic.name}
+              </button>
+            );
+          })}
+        </section>
+
+        {/* 3. Нижня секція: Каталог публікацій (8 колонок) + Віджети (4 колонки) */}
+        <div className="grid grid-cols-12 gap-6 items-start">
+          {/* Ліва колонка: Каталог публікацій */}
+          <div className="col-span-8 min-w-0">
             <section aria-labelledby="articles-heading">
-              <div className="mb-4 flex flex-wrap items-end justify-between gap-3"><div><p className="font-mono text-[10px] font-semibold uppercase tracking-[.16em] text-slate-400">Каталог публікацій <span className="px-1">/</span>{activeCategory}</p><div className="mt-1 flex items-center gap-2"><h2 id="articles-heading" className="text-2xl font-extrabold tracking-[-.04em]">{query ? `Результати пошуку` : activeCategory}</h2><span className="grid min-w-7 place-items-center rounded-full bg-slate-200 px-2 py-1 font-mono text-[10px] font-bold text-slate-600">{total}</span></div></div>
+              {/* Шапка секції Всі новини та Перемикач */}
+              <div className="flex flex-wrap items-end justify-between border-b border-[#e2e8f0] pb-[16px] mb-[24px] gap-4">
+                {/* Ліва частина */}
+                <div className="flex flex-col gap-[4px]">
+                  <div className="flex items-center gap-[8px]">
+                    <h2 id="articles-heading" className="text-[24px] font-extrabold text-[#0f172a] leading-normal">
+                      {query ? `Результати пошуку` : (activeCategory ?? "Всі новини")}
+                    </h2>
+                    <span className="bg-[#e2e8f0]/70 rounded-full px-[10px] py-[2px] text-[14px] font-medium text-[#334155] min-w-[37px] text-center">
+                      {sortedCatalogArticles.length}
+                    </span>
+                  </div>
+                  <p className="text-[12px] font-normal text-[#64748b]">
+                    {query ? `За запитом «${query}»` : "Останні оновлення індустрії"}
+                  </p>
+                </div>
+
+                {/* Права частина: Перемикач Новин */}
+                <div className="bg-[#e2e8f0]/60 p-[4px] rounded-[12px] inline-flex items-center gap-[4px]">
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("fresh")}
+                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                      sortBy === "fresh"
+                        ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
+                        : "font-normal text-[#475569] hover:text-[#0f172a]"
+                    }`}
+                  >
+                    Свіжі
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("popular")}
+                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                      sortBy === "popular"
+                        ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
+                        : "font-normal text-[#475569] hover:text-[#0f172a]"
+                    }`}
+                  >
+                    Популярні
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("discussed")}
+                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                      sortBy === "discussed"
+                        ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
+                        : "font-normal text-[#475569] hover:text-[#0f172a]"
+                    }`}
+                  >
+                    Обговорювані
+                  </button>
+                </div>
               </div>
-              {error && <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{error}. Перевірте доступність API та адресу `NEXT_PUBLIC_API_BASE_URL`.</div>}
-              {loading ? <div className="grid gap-4 md:grid-cols-2"><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/><div className="h-72 animate-pulse rounded-2xl bg-slate-200"/></div> : articles.length === 0 ? <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center"><span className="font-mono text-[10px] font-bold uppercase tracking-[.2em] text-emerald-700">Нічого не знайдено</span><h3 className="mt-2 text-xl font-bold tracking-tight">Спробуйте інший запит або рубрику</h3><p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">{query ? `За запитом «${query}» поки немає публікацій. Перевірте написання або очистьте пошук.` : "У цій рубриці ще немає публікацій. Загляньте трохи згодом."}</p><button onClick={() => { setQuery(""); setCategory(""); setTag(""); }} className="mt-5 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-900">Показати всі новини</button></div> : <>
-                <div className="grid gap-4 md:grid-cols-2">{listArticles.map((article) => <ArticleCard key={article.id} article={article} bookmarked={bookmarked.has(article.id)} onBookmark={() => toggleBookmark(article.id)} />)}</div>
-                {articles.length < total && <div className="mt-6 text-center"><button disabled={loadingMore} onClick={loadMore} className="rounded-full border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-700 transition hover:border-slate-900 disabled:opacity-50">{loadingMore ? "Завантажуємо…" : "Завантажити ще"} <span className="ml-2 font-mono text-slate-400">{Math.max(total - articles.length, 0)}+</span></button></div>}
-              </>}
+
+              {error && (
+                <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                  {error}. Перевірте доступність API та адресу `NEXT_PUBLIC_API_BASE_URL`.
+                </div>
+              )}
+
+              {loading ? (
+                <div className="grid gap-6 grid-cols-2">
+                  <div className="h-72 animate-pulse rounded-2xl bg-slate-200" />
+                  <div className="h-72 animate-pulse rounded-2xl bg-slate-200" />
+                </div>
+              ) : sortedCatalogArticles.length === 0 ? (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-[.2em] text-emerald-700">Нічого не знайдено</span>
+                  <h3 className="mt-2 text-xl font-bold tracking-tight">Спробуйте інший запит або рубрику</h3>
+                  <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
+                    {query ? `За запитом «${query}» поки немає публікацій. Перевірте написання або очистьте пошук.` : "У цій рубриці ще немає публікацій. Загляньте трохи згодом."}
+                  </p>
+                  <button
+                    onClick={() => { setQuery(""); setCategory(""); setTag(""); }}
+                    className="mt-5 rounded-full border border-slate-300 px-4 py-2 text-xs font-semibold text-slate-700 hover:border-slate-900 cursor-pointer"
+                  >
+                    Показати всі новини
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid gap-6 grid-cols-2">
+                    {visibleArticles.map((article) => (
+                      <ArticleCard
+                        key={article.id}
+                        article={article}
+                        bookmarked={bookmarked.has(article.id)}
+                        onBookmark={() => toggleBookmark(article.id)}
+                      />
+                    ))}
+                  </div>
+                  {visibleCount < sortedCatalogArticles.length && (
+                    <div className="mt-6 text-center">
+                      <button
+                        disabled={loadingMore}
+                        onClick={loadMore}
+                        className="rounded-full border border-slate-300 bg-white px-6 py-3 text-xs font-bold text-slate-700 transition hover:border-slate-900 disabled:opacity-50 cursor-pointer"
+                      >
+                        {loadingMore ? "Завантажуємо…" : "Показати більше публікацій"}{" "}
+                        <span className="ml-2 font-mono text-slate-400">{Math.max(sortedCatalogArticles.length - visibleCount, 0)}+</span>
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
             </section>
           </div>
 
-          <aside className="grid gap-5 md:grid-cols-2 xl:sticky xl:top-6 xl:grid-cols-1"><Trending items={popular} bookmarked={bookmarked} onBookmark={toggleBookmark} /><CommunityPoll /><Timeline items={flashNews} onSelect={setSelectedFlash} /><section className="rounded-2xl border border-emerald-900/10 bg-emerald-50/70 p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-800">ByteNews / Open feed</p><h2 className="mt-2 text-base font-bold tracking-tight text-slate-900">Новини для ваших інструментів</h2><p className="mt-2 text-sm leading-6 text-slate-600">Публічний JSON-фід доступний для інтеграції з іншими сервісами.</p><code className="mt-4 block overflow-x-auto rounded-xl bg-slate-950 px-3 py-3 font-mono text-[10px] text-emerald-200">GET /api/v1/public/feed</code></section></aside>
+          {/* Права колонка: 3) Віджети */}
+          <aside className="col-span-4 flex flex-col gap-[20px]">
+            {/* Віджет 1: Хроніка подій */}
+            <ChronicleWidget items={flashNews} onSelect={setSelectedFlash} />
+
+            {/* Віджет 2: Опитування тижня */}
+            <CommunityPoll />
+
+            {/* Віджет 3: Кабінет репортера */}
+            <ReporterCabinetWidget />
+          </aside>
         </div>
+
       </div>
-      <FlashNewsModal item={selectedFlash} onClose={() => setSelectedFlash(null)} />
+
+      <FlashNewsModal item={selectedFlash} onClose={() => setSelectedFlash(null)} relativeTime={relativeTime} />
     </main>
   );
 }

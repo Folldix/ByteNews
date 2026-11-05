@@ -7,7 +7,6 @@ import { Header } from "../../../components/Header";
 import { Footer } from "../../../components/Footer";
 import { AuthModal } from "../../../components/auth/AuthModal";
 import { BookmarksDrawer } from "../../../components/community/BookmarksDrawer";
-import { CommunityPoll } from "../../../components/community/CommunityPoll";
 import { CommentsSection } from "../../../components/community/CommentsSection";
 import { ReactionsBar } from "../../../components/community/reactions-bar";
 import { FontSizeControl } from "../../../components/community/font-size-control";
@@ -130,11 +129,11 @@ export default function ArticlePage() {
       <Header />
       <AuthModal />
       <BookmarksDrawer />
-      <main className="mx-auto w-full max-w-[1296px] flex-1 px-4 py-7 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-[1296px] flex-1 px-4 py-7 sm:py-10">
         <a href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-emerald-800"><ArrowLeft className="size-4"/>До стрічки</a>
         {loading ? <div className="mt-8 h-[70vh] animate-pulse rounded-3xl bg-slate-200"/> : error && !article ? <div role="alert" className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center text-rose-800">{error}</div> : article && <>
-          <div className="mt-5 grid items-start gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-            <article className={`min-w-0 ${zenMode ? "mx-auto max-w-3xl xl:col-span-2" : ""}`}>
+          <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 items-start gap-6">
+            <article className={`min-w-0 ${zenMode ? "mx-auto w-full max-w-4xl lg:col-span-12" : "lg:col-span-8"}`}>
               <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-9">
                 <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-wider text-emerald-700"><span>{article.category}</span><span className="text-slate-300">/</span><span>{article.read_time_min} хв читання</span>{article.is_photo_reportage && <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-800">Фоторепортаж</span>}</div>
                 <h1 className="mt-4 text-3xl font-extrabold leading-tight tracking-[-.04em] text-slate-950 sm:text-5xl">{article.title}</h1>
@@ -148,7 +147,7 @@ export default function ArticlePage() {
               <div className="mt-7"><ReactionsBar key={article.id} initialCounts={article.reaction_counts} initialSelected={article.my_reaction} onReact={handleReaction}/></div>
               <CommentsSection articleId={article.id}/>
             </article>
-            {!zenMode && <aside className="grid gap-5 xl:sticky xl:top-24"><CommunityPoll/><section className="rounded-2xl border border-slate-200 bg-white p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">Автор</p><h2 className="mt-2 text-base font-bold text-slate-900">{article.author}</h2><p className="mt-1 text-sm text-slate-500">{article.author_role ?? "Автор ByteNews"}</p><div className="mt-4 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.views_count.toLocaleString("uk-UA")}</p><p className="text-[10px] text-slate-400">переглядів</p></div><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.comments_count}</p><p className="text-[10px] text-slate-400">коментарів</p></div></div></section></aside>}
+            {!zenMode && <aside className="lg:col-span-4 grid gap-5 lg:sticky lg:top-24"><section className="rounded-2xl border border-slate-200 bg-white p-5"><p className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-400">Автор</p><h2 className="mt-2 text-base font-bold text-slate-900">{article.author}</h2><p className="mt-1 text-sm text-slate-500">{article.author_role ?? "Автор ByteNews"}</p><div className="mt-4 grid grid-cols-2 gap-3 text-center"><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.views_count.toLocaleString("uk-UA")}</p><p className="text-[10px] text-slate-400">переглядів</p></div><div className="rounded-xl bg-slate-50 p-3"><p className="font-mono text-lg font-bold">{article.comments_count}</p><p className="text-[10px] text-slate-400">коментарів</p></div></div></section></aside>}
           </div>
           {error && <p role="alert" className="fixed bottom-20 right-4 z-40 rounded-xl bg-rose-700 px-4 py-3 text-xs text-white shadow-lg">{error}</p>}
         </>}

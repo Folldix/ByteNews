@@ -5,6 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 import { BookmarksProvider } from "../context/BookmarksContext";
 import { FeedProvider } from "../context/FeedContext";
 import { Background } from "../components/Background";
+import { GridOverlay } from "../components/layout/GridOverlay";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin", "latin-ext"],
@@ -30,6 +31,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ByteNews — IT & Tech Digest",
   description: "Спеціалізований вебпортал технічних новин та інженерної аналітики",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
@@ -42,9 +50,16 @@ export default function RootLayout({
       lang="uk"
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
-      <body className="font-sans bg-[#f8fafc] text-[#0f172a] antialiased min-h-screen flex flex-col relative selection:bg-[#059669]/10 selection:text-[#059669]">
+      <body className="font-sans bg-[#f8fafc] text-[#0f172a] antialiased min-h-screen min-w-[1328px] flex flex-col relative selection:bg-[#059669]/10 selection:text-[#059669]">
         <Background />
-        <AuthProvider><FeedProvider><BookmarksProvider>{children}</BookmarksProvider></FeedProvider></AuthProvider>
+        <AuthProvider>
+          <FeedProvider>
+            <BookmarksProvider>
+              {children}
+              <GridOverlay />
+            </BookmarksProvider>
+          </FeedProvider>
+        </AuthProvider>
       </body>
     </html>
   );
