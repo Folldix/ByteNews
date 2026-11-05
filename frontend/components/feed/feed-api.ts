@@ -346,7 +346,9 @@ export const FALLBACK_ARTICLES: Article[] = [
 ];
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
-  const response = await fetch(`${apiBase}/api/v1${path}`, { signal, cache: "no-store" });
+  const timeoutSignal = AbortSignal.timeout(1500);
+  const combinedSignal = signal ? AbortSignal.any([signal, timeoutSignal]) : timeoutSignal;
+  const response = await fetch(`${apiBase}/api/v1${path}`, { signal: combinedSignal, cache: "no-store" });
   if (!response.ok) throw new Error(`API request failed (${response.status})`);
   return response.json() as Promise<T>;
 }
