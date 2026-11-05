@@ -86,24 +86,24 @@ export const DEMO_AUTHOR_PROFILE: UserProfile = {
   ],
 };
 
-/** Еталонний профіль читача */
+/** Еталонний профіль читача (шаблонний/демо користувач) */
 export const DEMO_READER_PROFILE: UserProfile = {
   id: "demo-reader-id",
   email: "reader@bytenews.ua",
-  full_name: "Євген Наришкін",
-  handle: "jenia_dev",
+  full_name: "Олексій Мельник",
+  handle: "tech_reader",
   role: "reader",
-  role_title: "Розробник & Читач ByteNews",
-  bio: "Цікавлюся архітектурою високонавантажених систем, мікросервісами, новинами штучного інтелекту та кібербезпеки.",
-  avatar_initials: "ЄН",
+  role_title: "Читач спільноти",
+  bio: "Тут я скоро розкажу про себе...",
+  avatar_initials: "ОМ",
   avatar_url: "/avatars/Avatar_6.png",
-  location: "Київ, Україна",
-  joined_date: "січня 2025",
+  location: "Україна",
+  joined_date: "листопада 2026",
   articles_count: 0,
   total_views: 0,
-  bookmarks_count: 3,
-  comments_count: 19,
-  read_articles_count: 42,
+  bookmarks_count: 0,
+  comments_count: 0,
+  read_articles_count: 0,
   articles: [],
 };
 
@@ -132,15 +132,33 @@ export async function apiLogin(
   } catch {
     // Якщо бекенд не запущений (мережева помилка / демо-режим):
     // Якщо введено email автора alex@bytenews.ua — віддаємо профіль автора.
-    // За замовчуванням (тестовий вхід або звичайний email) — віддаємо профіль читача,
-    // щоб користувач бачив інтерфейс читача та міг стати автором через кнопку "Стати автором".
     const isAlexAuthor = email?.toLowerCase().includes("alex");
-    const demoProfile: UserProfile = isAlexAuthor
-      ? { ...DEMO_AUTHOR_PROFILE, email: email || DEMO_AUTHOR_PROFILE.email }
-      : {
-          ...DEMO_READER_PROFILE,
-          email: email || DEMO_READER_PROFILE.email,
-        };
+    if (isAlexAuthor) {
+      return {
+        user: { ...DEMO_AUTHOR_PROFILE, email: email || DEMO_AUTHOR_PROFILE.email },
+        access_token: "demo-access-token",
+        refresh_token: "demo-refresh-token",
+        token_type: "bearer",
+      };
+    }
+
+    // Для звичайного входу беремо ім'я з частини пошти до @ та встановлюємо шаблонний біо
+    const emailPrefix = (email ? email.split("@")[0] : "reader").replace(/[^a-zA-Z0-9_]/g, "_");
+    const capitalized = emailPrefix ? (emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)) : "Читач";
+    const demoProfile: UserProfile = {
+      ...DEMO_READER_PROFILE,
+      id: "demo-reader-id",
+      email: email || "reader@bytenews.ua",
+      full_name: capitalized,
+      handle: emailPrefix.toLowerCase(),
+      avatar_initials: capitalized.slice(0, 2).toUpperCase() || "BN",
+      bio: "Тут я скоро розкажу про себе...",
+      role: "reader",
+      role_title: "Читач спільноти",
+      location: "Україна",
+      joined_date: "листопада 2026",
+    };
+
     return {
       user: demoProfile,
       access_token: "demo-access-token",
@@ -166,19 +184,29 @@ export async function apiRegister(
       body: JSON.stringify({ full_name: name, email, password }),
     });
   } catch {
-    // Демо-fallback для читача при недоступному бекенді
+    // Демо-fallback для читача при недоступному бекенді:
+    // Ім'я - вказане або перша частина пошти, опис - шаблонний
+    const emailPrefix = (email ? email.split("@")[0] : "user").replace(/[^a-zA-Z0-9_]/g, "_");
+    const cleanName = name.trim() || (emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1));
+    const handle = emailPrefix.toLowerCase();
     const demoReader: UserProfile = {
-      ...DEMO_AUTHOR_PROFILE,
+      ...DEMO_READER_PROFILE,
       id: "demo-reader-id",
-      full_name: name,
-      email,
+      full_name: cleanName,
+      handle: handle,
+      email: email || null,
       role: "reader",
       role_title: "Читач спільноти",
-      avatar_initials: name.slice(0, 2).toUpperCase(),
+      bio: "Тут я скоро розкажу про себе...",
+      avatar_initials: cleanName.slice(0, 2).toUpperCase() || "BN",
       avatar_url: "/avatars/Avatar_6.png",
+      location: "Україна",
+      joined_date: "листопада 2026",
       articles_count: 0,
       total_views: 0,
       bookmarks_count: 0,
+      comments_count: 0,
+      read_articles_count: 0,
       articles: [],
     };
     return {
