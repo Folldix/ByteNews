@@ -45,6 +45,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [activeView, setActiveView] = useState<View>("feed");
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  const handleSetActiveView = useCallback((view: View) => {
+    setActiveView(view);
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
   // Додаток завжди запускається в стані Гостя (user = null) за макетом
   useEffect(() => {
     try {
@@ -211,7 +218,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         logout,
         openAuthModal,
         closeAuthModal,
-        setActiveView,
+        setActiveView: handleSetActiveView,
       }}
     >
       {children}

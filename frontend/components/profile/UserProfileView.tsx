@@ -42,6 +42,12 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!isReporter && (activeTab === "articles" || activeTab === "analytics" || activeTab === "drafts")) {
       setActiveTab("bookmarks");
     }

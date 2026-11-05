@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { FeedHome } from "../components/feed/feed-home";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
@@ -14,6 +15,12 @@ export default function HomePage() {
 
 function HomeShell() {
   const { activeView } = useAuth();
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+  }, [activeView]);
 
   return (
     <div className="flex min-h-screen flex-col">
