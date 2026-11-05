@@ -31,6 +31,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "ByteNews — IT & Tech Digest",
   description: "Спеціалізований вебпортал технічних новин та інженерної аналітики",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
