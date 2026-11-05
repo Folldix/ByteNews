@@ -23,6 +23,7 @@
 5. [Інструкція із запуску проєкту](#інструкція-із-запуску-проєкту)
    - [Варіант 1: Швидкий запуск фронтенду (демо-режим)](#варіант-1-швидкий-запуск-фронтенду-демо-режим)
    - [Варіант 2: Повноцінний запуск Full-Stack (Docker + FastAPI + Next.js)](#варіант-2-повноцінний-запуск-full-stack-docker--fastapi--nextjs)
+   - [Тестові облікові записи для входу (Credentials)](#тестові-облікові-записи-для-входу-credentials)
 
 ---
 
@@ -314,11 +315,12 @@ frontend/
 
 ### Варіант 2: Повноцінний запуск Full-Stack (Docker + FastAPI + Next.js)
 
-#### 1. Запуск бази даних PostgreSQL
-Ви можете запустити контейнер PostgreSQL за допомогою Docker:
+#### 1. Запуск бази даних PostgreSQL через Docker Compose
+У корені репозиторію виконайте команду:
 ```bash
-docker run --name bytenews-postgres -e POSTGRES_DB=bytenews -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
+docker compose up -d
 ```
+*Контейнер `bytenews-db-1` підніме PostgreSQL 16 на порту `5432` з базою `bytenews` (користувач/пароль: `bytenews`/`bytenews`).*
 
 #### 2. Запуск бекенду (FastAPI)
 1. Перейдіть до каталогу `backend`:
@@ -337,16 +339,13 @@ docker run --name bytenews-postgres -e POSTGRES_DB=bytenews -e POSTGRES_USER=pos
    ```bash
    pip install -r requirements.txt
    ```
-4. Налаштуйте змінні оточення (створіть файл `.env` на основі `.env.example`):
-   ```env
-   DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/bytenews
-   SECRET_KEY=super-secret-key-change-in-production
-   ALGORITHM=HS256
-   ACCESS_TOKEN_EXPIRE_MINUTES=60
-   ```
-5. Застосуйте міграції бази даних:
+4. Застосуйте міграції бази даних (створення всіх 15 таблиць):
    ```bash
    alembic upgrade head
+   ```
+5. Наповніть базу даних тестовими статтями, опитуванням, flash-новинами та авторами:
+   ```bash
+   python -m app.db.seed_demo_content
    ```
 6. Запустіть сервер FastAPI:
    ```bash
@@ -359,7 +358,7 @@ docker run --name bytenews-postgres -e POSTGRES_DB=bytenews -e POSTGRES_USER=pos
    ```bash
    cd frontend
    ```
-2. Створіть файл `.env.local` з адресою бекенду:
+2. Створіть файл `.env.local` з адресою підключення до бекенду:
    ```env
    NEXT_PUBLIC_API_URL=http://localhost:8000
    ```
@@ -367,4 +366,19 @@ docker run --name bytenews-postgres -e POSTGRES_DB=bytenews -e POSTGRES_USER=pos
    ```bash
    npm run dev
    ```
-4. Відкрийте платформу за адресою `http://localhost:3000`. Тепер усі запити (реєстрація, авторизація, публікація статей у CMS, коментарі та опитування) надходитимуть до вашого локального бекенду.
+4. Відкрийте платформу за адресою `http://localhost:3000`. Тепер усі запити (реєстрація, вхід з JWT токенами, публікація новин у CMS, збереження закладок, коментування, голосування в опитуванні) надсилаються до реального бекенду та записуються в PostgreSQL.
+
+---
+
+### Тестові облікові записи для входу (Credentials)
+
+Після виконання скрипта `python -m app.db.seed_demo_content` у базі даних створені та готові до використання такі акаунти:
+
+| Роль | Email (Логін) | Пароль | Повне ім'я | Нікнейм (`@handle`) | Опис та можливості |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Автор / Репортер** (`reporter`) | `alex@bytenews.ua` | `password123` | Олександр Коваленко | `@alex_kovalenko` | Доступ до кабінету автора, публікації статей, перегляду аналітики та чернеток у CMS |
+| **Читач спільноти** (`reader`) | `reader@bytenews.ua` | `password123` | Олексій Мельник | `@tech_reader` | Коментування, голосування в опитуванні, закладки, можливість підвищення до автора |
+| **Новий користувач** | *будь-який при реєстрації* | *ваш пароль* | *автоматично з email* | `@нікнейм` | Автоматичне збереження в БД PostgreSQL з дефолтним шаблонним описом профілю |
+
+> [!TIP]
+> Вхід під цими акаунтами працює як у повноцінному **Full-Stack режимі** (з перевіркою пароля bcrypt та збереженням JWT-сесії в БД), так і в **автономному демо-режимі** без підключення бекенду!
