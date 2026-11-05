@@ -1,35 +1,297 @@
-# ByteNews
+# ByteNews — Сучасний технологічний медіа-портал
 
-ByteNews is a Ukrainian technology news and engineering analysis platform for
-developers, DevOps engineers and IT professionals.
+**ByteNews** — це високопродуктивна платформа для публікації та споживання технологічних новин, аналітичних статей, хроніки подій у реальному часі та інтерактивних матеріалів для IT-спільноти. Проєкт побудований на сучасній модульній архітектурі, орієнтованій на швидкість, типобезпеку та бездоганний користувацький досвід (UX).
 
-## Stack
+---
 
-- **Frontend:** Next.js 15 App Router, React 19, TypeScript, Tailwind CSS 4
-- **Backend:** Python 3.12, FastAPI, SQLAlchemy 2.x, Alembic
-- **Database:** PostgreSQL 16
+## Зміст
 
-## Local development
+1. [Технологічний стек](#технологічний-стек)
+2. [Дизайн-система та сітка інтерфейсу](#дизайн-система-та-сітка-інтерфейсу)
+3. [Архітектура фронтенду (`frontend/`)](#архітектура-фронтенду-frontend)
+   - [Каталог блоків та компонентів](#каталог-блоків-та-компонентів)
+   - [Автономний демо-режим (Offline Fallback)](#автономний-демо-режим-offline-fallback)
+4. [Архітектура бекенду (`backend/`)](#архітектура-бекенду-backend)
+   - [Модульна структура](#модульна-структура)
+   - [Довідник REST API ендпоінтів](#довідник-rest-api-ендпоінтів)
+   - [Схема бази даних PostgreSQL (15 таблиць)](#схема-бази-даних-postgresql-15-таблиць)
+5. [Інструкція із запуску проєкту](#інструкція-із-запуску-проєкту)
+   - [Варіант 1: Швидкий запуск фронтенду (демо-режим)](#варіант-1-швидкий-запуск-фронтенду-демо-режим)
+   - [Варіант 2: Повноцінний запуск Full-Stack (Docker + FastAPI + Next.js)](#варіант-2-повноцінний-запуск-full-stack-docker--fastapi--nextjs)
 
-Start PostgreSQL and the API as described in [backend/README.md](backend/README.md).
-Then start the frontend:
+---
 
-```powershell
-Copy-Item frontend/.env.local.example frontend/.env.local
-Set-Location frontend
-npm ci
-npm run dev
+## Технологічний стек
+
+### Frontend
+- **Фреймворк:** [Next.js 15](https://nextjs.org/) (App Router, React Server Components та Client Components)
+- **Бібліотека UI:** [React 19](https://react.dev/)
+- **Мова програмування:** [TypeScript](https://www.typescriptlang.org/) (сувора типізація)
+- **Стилізація:** [Tailwind CSS v4](https://tailwindcss.com/)
+- **Іконки:** [Lucide React](https://lucide.dev/)
+- **Шрифти:** Inter / Geist Sans (основний інтерфейс) та JetBrains Mono (моноширинні бейджі, таймкоди, блоки коду)
+
+### Backend
+- **Фреймворк:** [FastAPI](https://fastapi.tiangolo.com/) (Python 3.12, асинхронні роутери)
+- **ORM & База даних:** [SQLAlchemy 2.x](https://www.sqlalchemy.org/) (асинхронний драйвер `asyncpg`) + PostgreSQL 16
+- **Міграції:** [Alembic](https://alembic.sqlalchemy.org/)
+- **Валідація та схеми:** [Pydantic v2](https://docs.pydantic.dev/)
+- **Безпека:** JWT (JSON Web Tokens), bcrypt для хешування паролів, безпечні HTTP-заголовки
+
+---
+
+## Дизайн-система та сітка інтерфейсу
+
+### Сітка та розмітка
+- **Максимальна ширина контейнера:** `max-w-[1296px]` із центруванням `mx-auto` та горизонтальними відступами `px-4 sm:px-6 lg:px-8`.
+- **12-колонкова система:** Базові секції організовані у співвідношенні `8 колонок` (основний контент або Hero) до `4 колонок` (бічна панель віджетів або блок «Найбільше читають»).
+- **Вертикальні та горизонтальні відступи:** Системний проміжок між колонками `gap-6` (24px) та внутрішні компактні відступи між пов'язаними картками `gap-[10px]`.
+
+### Візуальний стиль
+- **Світла тема «Clean Tech»:** Білий фон карток (`bg-white`), легкі розмиття фону (`backdrop-blur-md`), тонкі контурні рамки (`border border-slate-200/80` або `border-[#e2e8f0]`).
+- **Тіні та радіуси:** Контейнери з плавними заокругленнями `rounded-2xl` та `rounded-xl`, багаторівневі м'які тіні `shadow-sm` з підйомом на ховері до `hover:shadow-md`.
+- **Типографіка:** Чітка ієрархія заголовків із відстеженням щільності (`tracking-tight`), моноширинні метадані з центруванням базової лінії (`inline-flex items-center justify-center leading-none font-mono text-[10px]`).
+
+### Кольорові токени категорій
+Кожна рубрика має закріплену фірмову пару кольорів для пігулок і міток:
+- **ШІ (AI):** Смарагдовий (`bg-[#ecfdf5]`, `border-[#a7f3d0]`, `text-[#047857]`)
+- **Залізо (Hardware):** Синій / Індиго (`bg-[#eff6ff]`, `border-[#bfdbfe]`, `text-[#1d4ed8]`)
+- **Розробка (Dev):** Фіолетовий (`bg-[#faf5ff]`, `border-[#e9d5ff]`, `text-[#7e22ce]`)
+- **Кібербезпека (Cybersecurity):** Рубіновий (`bg-[#fff1f2]`, `border-[#fecdd3]`, `text-[#be123c]`)
+- **Стартапи (Startups):** Бурштиновий (`bg-[#fffbeb]`, `border-[#fde68a]`, `text-[#b45309]`)
+
+---
+
+## Архітектура фронтенду (`frontend/`)
+
+### Каталог блоків та компонентів
+
+```
+frontend/
+├── app/
+│   ├── articles/[slug]/page.tsx      # Повнорозмірна сторінка статті
+│   ├── globals.css                   # Глобальні стилі Tailwind v4
+│   ├── layout.tsx                    # Кореневий лейаут (Header, Footer, Провайдери)
+│   └── page.tsx                      # Головна сторінка (рендер FeedHome)
+├── components/
+│   ├── auth/
+│   │   └── AuthModal.tsx             # Модальне вікно входу та реєстрації
+│   ├── cms/
+│   │   └── ArticleEditor.tsx         # Блочний редактор статей для авторів
+│   ├── community/
+│   │   ├── api.ts                    # API-клієнт для коментарів, опитувань, реакцій
+│   │   ├── CommentsThread.tsx        # Дерево коментарів з відповідями
+│   │   ├── CommunityPoll.tsx         # Інтерактивне щотижневе опитування
+│   │   ├── ReactionsBar.tsx          # Панель емодзі-реакцій зі збереженням
+│   │   └── ShareToolbar.tsx          # Кнопки шерингу статті та копіювання лінка
+│   ├── feed/
+│   │   ├── ArticleCard.tsx           # Картка статті у каталозі стрічки
+│   │   ├── feed-api.ts               # Запити статей, тегів, flash-news, пошук
+│   │   ├── feed-home.tsx             # Головний координатор усіх блоків домашньої сторінки
+│   │   └── types.ts                  # Моделі даних стрічки, фільтрів, пагінації
+│   ├── layout/
+│   │   └── GridOverlay.tsx           # Допоміжна сітка вирівнювання колонок
+│   ├── Footer.tsx                    # Підвал сайту з інтерактивними рубриками та контактами
+│   ├── Header.tsx                    # Верхня панель (пошук, фільтри рубрик, профіль, бейдж закладок)
+│   └── profile/
+│       └── UserProfileView.tsx       # Особистий кабінет користувача / автора
+├── context/
+│   ├── AuthContext.tsx               # Глобальний контекст авторизації та ролей (запуск у стані гостя)
+│   ├── BookmarksContext.tsx          # Контекст збережених у закладки публікацій (0 за замовчуванням)
+│   └── FeedContext.tsx               # Контекст фільтрів рубрик, пошукового рядка та сортування
+└── lib/
+    ├── api.ts                        # Базовий HTTP-клієнт із прозорим Fallback-шаром
+    └── utils.ts                      # Утиліти форматування дат, класів та чисел
 ```
 
-The app runs at `http://localhost:3000`; the API runs at
-`http://localhost:8000`. Frontend requests use `NEXT_PUBLIC_API_BASE_URL`.
+#### Деталізація секцій головної сторінки (`feed-home.tsx`):
+1. **Верхня секція (Hero + Найбільше читають):**
+   - **Hero (8 колонок):** Велика картка головної публікації з акцентним зображенням, назвою рубрики, автором, розрахунком часу читання, датою та лінком на повний текст.
+   - **Найбільше читають (4 колонки):** Блок із трьох компактних карток найбільш переглянутих статей за 24 години з числовими бейджами рангу (`#1`, `#2`, `#3`), рубриками, мітками часу та точним лічильником переглядів.
+2. **Ряд швидких тем (`# Теми:`) (12 колонок):**
+   - Горизонтальний ряд інтерактивних тегів на всю ширину сторінки (`#ШІ`, `#OpenAI`, `#NVIDIA`, `#Rust`, `#Кібербезпека`, `#Apple`, `#Python`, `#DevOps` тощо) для миттєвої фільтрації каталогу.
+3. **Каталог публікацій (8 колонок):**
+   - Основна сітка статей у вигляді карток `ArticleCard` з авторами, тегами, датами та можливістю додавання в закладки одним кліком. Підтримує фільтрацію за темами, сортування та пагінацію.
+4. **Бічна колонка віджетів (4 колонки):**
+   - **Timeline («Хроніка подій»):** Стрічка важливих та блискавичних новин (Flash News) із пульсуючим бейджем `В реальному часі`, плавною ховер-анімацією маркерів подій та викликом повнорозмірного вікна детального перегляду `FlashNewsModal`.
+   - **CommunityPoll («Опитування тижня»):** Інтерактивне голосування ком'юніті з миттєвим перерахунком відсотків та анімованими шкалами вибору.
+   - **ReporterCabinetWidget («Бажаєте писати для ByteNews?»):** Банер-заклик для авторів із переходом до форми подання заявки або кабінету публікацій.
+5. **Верхня навігація (`Header.tsx`):**
+   - Пошуковий рядок, горизонтальний фільтр рубрик, кнопка входу / профіль користувача, виклик щоденного дайджесту.
+   - Кнопка «Закладки» з динамічним круглим бейджем кількості збережених статей (за замовчуванням 0, бейдж з'являється автоматично при додаванні матеріалів).
+6. **Інтерактивний підвал (`Footer.tsx`):**
+   - Рубрикатор підвалу повністю синхронізований зі стрічкою: вибір рубрики активує відповідний фільтр каталогу, повертає користувача до стрічки та плавно скролить угору.
 
-## Main route composition
+#### Сторінка статті (`app/articles/[slug]/page.tsx`):
+- **ZenModeToggle:** Перемикання режиму фокусованого читання для максимальної концентрації без зайвих інтерфейсних елементів.
+- **TableOfContents:** Автоматично генерований зміст статті з відстеженням скролу.
+- **BlockRenderer:** Модульний рендерер контентних блоків (абзаци, заголовки H2/H3, цитати, кодові блоки з підсвічуванням синтаксису, зображення).
+- **ReactionsBar:** Інтерактивний вибір реакцій (👍 Корисно, 🔥 Вогонь, 💡 Інсайт, ⚡ Дискусійно) із миттєвим оновленням лічильника.
+- **CommentsThread:** Багаторівневе дерево коментарів з підтримкою відповідей, статусом автора та швидким коментуванням.
 
-The home route composes the shared Header, auth modal, feed, profile view and
-Footer. Header search and category controls share state with the feed, while
-the profile view remains reachable through the auth context.
+---
 
-Database tables for identity, CMS, discovery and community are defined from
-one SQLAlchemy metadata registry. Apply schema changes with Alembic from the
-`backend` directory; the initial revision is `0001_initial`.
+### Автономний демо-режим (Offline Fallback)
+Усі клієнтські модулі (`lib/api.ts`, `components/feed/feed-api.ts`, `components/community/api.ts`) оснащені технологією **прозорого офлайн-фолбеку**:
+- Якщо бекенд не запущений або повертає мережеву помилку, клієнт автоматично підключає локальні збагачені демо-дані.
+- За замовчуванням авторизований повноцінний профіль автора: **Олександр Коваленко** (Провідний IT-репортер & Head of AI) з опублікованими статтями та статистикою переглядів.
+- Доступне повне тестування перегляду новин, фільтрації, коментування, голосування в опитуванні та збереження закладок у браузері без обов'язкового розгортання бази даних.
+
+---
+
+## Архітектура бекенду (`backend/`)
+
+### Модульна структура
+Бекенд побудований за принципами чистої модульної архітектури FastAPI:
+- `app/core/`: Конфігурація середовища (`config.py`), налаштування безпеки JWT та хешування (`security.py`), асинхронна сесія БД (`database.py`).
+- `app/auth/`: Ендпоінти реєстрації, автентифікації, оновлення токенів та виходу.
+- `app/users/`: Профілі користувачів, отримання поточного облікового запису, запит на підвищення ролі.
+- `app/cms/`: Повний життєвий цикл статей (створення, блочне редагування, зміна статусів, завантаження обкладинок та медіа).
+- `app/feed/`: Публічна видача публікацій, рубрик, тегів, повнотекстовий пошук та стрічка коротких повідомлень (Flash News).
+- `app/community/`: Коментарі, дерево відповідей, реакції на публікації, опитування тижня, збережені закладки.
+- `app/models/`: Декларативні сутності SQLAlchemy.
+
+---
+
+### Довідник REST API ендпоінтів
+
+| Метод | Ендпоінт | Опис | Авторизація |
+| :--- | :--- | :--- | :--- |
+| **Auth** | | | |
+| `POST` | `/api/v1/auth/register` | Реєстрація нового користувача | Публічний |
+| `POST` | `/api/v1/auth/login` | Вхід за email/паролем, видача JWT | Публічний |
+| `POST` | `/api/v1/auth/refresh` | Оновлення access-токена за refresh-токеном | Публічний |
+| `POST` | `/api/v1/auth/logout` | Вихід із системи, відкликання токена | Bearer Token |
+| **Users** | | | |
+| `GET` | `/api/v1/users/me` | Отримання профілю поточного користувача | Bearer Token |
+| `GET` | `/api/v1/users/{handle}` | Публічний профіль автора/користувача | Публічний |
+| `PATCH` | `/api/v1/users/upgrade-role` | Подання заявки / підвищення ролі до автора | Bearer Token |
+| **Feed** | | | |
+| `GET` | `/api/v1/categories` | Список активних рубрик та категорій | Публічний |
+| `GET` | `/api/v1/tags` | Список популярних тегів | Публічний |
+| `GET` | `/api/v1/articles` | Стрічка публікацій з пагінацією та фільтрами | Публічний |
+| `GET` | `/api/v1/articles/search` | Повнотекстовий пошук за заголовком і змістом | Публічний |
+| `GET` | `/api/v1/flash-news` | Стрічка коротких оперативних новин хроніки | Публічний |
+| `GET` | `/api/v1/public/feed` | Зведений агрегований фід для головної сторінки | Публічний |
+| **CMS** | | | |
+| `POST` | `/api/v1/articles` | Створення нової статті з блоками | Автор / Редактор |
+| `GET` | `/api/v1/articles/mine` | Список статей поточного автора | Автор / Редактор |
+| `GET` | `/api/v1/articles/{id}/edit` | Завантаження статті з блоками для редагування | Автор / Редактор |
+| `PUT` | `/api/v1/articles/{id}` | Оновлення контенту, тегів та статусу статті | Автор / Редактор |
+| `DELETE` | `/api/v1/articles/{id}` | Видалення публікації | Автор / Редактор |
+| `POST` | `/api/v1/media/upload` | Завантаження зображень та обкладинок | Автор / Редактор |
+| **Community** | | | |
+| `GET` | `/api/v1/articles/{slug}` | Отримання повної статті за слагом | Публічний |
+| `GET` | `/api/v1/articles/{id}/comments` | Отримання дерева коментарів до статті | Публічний |
+| `POST` | `/api/v1/articles/{id}/comments` | Додавання нового коментаря або відповіді | Bearer Token |
+| `GET` | `/api/v1/articles/{id}/reactions` | Лічильники реакцій на статтю | Публічний |
+| `PUT` | `/api/v1/articles/{id}/react` | Встановлення або зміна реакції | Bearer Token |
+| `GET` | `/api/v1/polls/active` | Отримання поточного активного опитування | Публічний |
+| `POST` | `/api/v1/polls/{id}/vote` | Голосування в опитуванні | Публічний / Token |
+| `GET` | `/api/v1/bookmarks` | Список збережених статей користувача | Bearer Token |
+| `PUT` | `/api/v1/articles/{id}/bookmark` | Додавання статті до закладок | Bearer Token |
+| `DELETE` | `/api/v1/articles/{id}/bookmark` | Видалення статті із закладок | Bearer Token |
+
+---
+
+### Схема бази даних PostgreSQL (15 таблиць)
+
+1. **`users`** — Облікові записи (id, email, password_hash, full_name, handle, role, avatar_url, bio, is_active, created_at).
+2. **`refresh_tokens`** — Сесії користувачів (id, user_id, token_hash, expires_at, is_revoked).
+3. **`categories`** — Рубрики новин (id, name, slug, color_token, icon, description, sort_order).
+4. **`tags`** — Тематичні мітки (id, name, slug, count_articles).
+5. **`articles`** — Публікації (id, slug, title, subtitle, cover_image, author_id, category_id, status, views_count, reading_time_minutes, published_at, created_at, updated_at).
+6. **`article_blocks`** — Модульні блоки тексту статті (id, article_id, block_type, content, sort_order, meta_data).
+7. **`article_tags`** — Проміжна таблиця зв'язку багато-до-багатьох між статтями та тегами (article_id, tag_id).
+8. **`rss_sources`** — Зовнішні джерела автоматичного агрегування (id, name, url, category_id, is_active, last_parsed_at).
+9. **`flash_news`** — Короткі оперативні новини хроніки (id, title, content, is_important, source_url, created_at).
+10. **`comments`** — Коментарі читачів (id, article_id, user_id, parent_id, content, is_deleted, created_at).
+11. **`reactions`** — Емодзі-відгуки на статті (id, article_id, user_id, reaction_type, created_at).
+12. **`bookmarks`** — Збережені матеріали користувачів (id, user_id, article_id, created_at).
+13. **`polls`** — Щотижневі опитування (id, question, is_active, created_at, closed_at).
+14. **`poll_options`** — Варіанти відповідей в опитуванні (id, poll_id, text, votes_count, sort_order).
+15. **`poll_votes`** — Фіксація голосів користувачів або анонімних сесій (id, poll_id, option_id, user_id, ip_hash, voted_at).
+
+---
+
+## Інструкція із запуску проєкту
+
+### Варіант 1: Швидкий запуск фронтенду (демо-режим)
+Найпростіший спосіб переглянути інтерфейс та перевірити роботу платформи без встановлення Python та PostgreSQL.
+
+1. Перейдіть до каталогу фронтенду:
+   ```bash
+   cd frontend
+   ```
+2. Встановіть залежності:
+   ```bash
+   npm install
+   ```
+3. Запустіть сервер розробки:
+   ```bash
+   npm run dev
+   ```
+4. Відкрийте браузер за адресою:
+   ```
+   http://localhost:3000
+   ```
+*Інтерфейс автоматично підключить вбудовані демо-дані та профіль автора.*
+
+---
+
+### Варіант 2: Повноцінний запуск Full-Stack (Docker + FastAPI + Next.js)
+
+#### 1. Запуск бази даних PostgreSQL
+Ви можете запустити контейнер PostgreSQL за допомогою Docker:
+```bash
+docker run --name bytenews-postgres -e POSTGRES_DB=bytenews -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
+```
+
+#### 2. Запуск бекенду (FastAPI)
+1. Перейдіть до каталогу `backend`:
+   ```bash
+   cd backend
+   ```
+2. Створіть та активуйте віртуальне середовище Python:
+   ```bash
+   python -m venv venv
+   # Для Windows:
+   venv\Scripts\activate
+   # Для Linux / macOS:
+   source venv/bin/activate
+   ```
+3. Встановіть залежності:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Налаштуйте змінні оточення (створіть файл `.env` на основі `.env.example`):
+   ```env
+   DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost:5432/bytenews
+   SECRET_KEY=super-secret-key-change-in-production
+   ALGORITHM=HS256
+   ACCESS_TOKEN_EXPIRE_MINUTES=60
+   ```
+5. Застосуйте міграції бази даних:
+   ```bash
+   alembic upgrade head
+   ```
+6. Запустіть сервер FastAPI:
+   ```bash
+   uvicorn app.main:app --reload --port 8000
+   ```
+   *Інтерактивна документація Swagger API буде доступна за адресою: `http://localhost:8000/docs`.*
+
+#### 3. Запуск фронтенду (Next.js)
+1. У новому терміналі перейдіть до каталогу `frontend`:
+   ```bash
+   cd frontend
+   ```
+2. Створіть файл `.env.local` з адресою бекенду:
+   ```env
+   NEXT_PUBLIC_API_URL=http://localhost:8000
+   ```
+3. Запустіть клієнт Next.js:
+   ```bash
+   npm run dev
+   ```
+4. Відкрийте платформу за адресою `http://localhost:3000`. Тепер усі запити (реєстрація, авторизація, публікація статей у CMS, коментарі та опитування) надходитимуть до вашого локального бекенду.
