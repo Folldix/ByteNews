@@ -130,7 +130,7 @@ export default function ArticlePage() {
       <Header />
       <AuthModal />
       <BookmarksDrawer />
-      <main className="mx-auto w-full max-w-[1296px] flex-1 px-4 py-7 sm:px-6 sm:py-10">
+      <main className="mx-auto w-full max-w-[1296px] flex-1 px-4 py-7 sm:py-10">
         <a href="/" className="inline-flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-emerald-800"><ArrowLeft className="size-4"/>До стрічки</a>
         {loading ? <div className="mt-8 h-[70vh] animate-pulse rounded-3xl bg-slate-200"/> : error && !article ? <div role="alert" className="mt-8 rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center text-rose-800">{error}</div> : article && <>
           <div className="mt-5 grid grid-cols-1 lg:grid-cols-12 items-start gap-6">
