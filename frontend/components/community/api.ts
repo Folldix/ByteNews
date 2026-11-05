@@ -36,17 +36,16 @@ export type Poll = {
 export type SavedArticle = { article: Article; bookmarked_at: string };
 
 export const DEFAULT_DEMO_POLL: Poll = {
-  id: "poll-backend-2026",
-  question: "Який стек або мову ви найчастіше обираєте для нових бекенд-проєктів у 2026 році?",
+  id: "poll-ai-agents-2026",
+  question: "Яку архітектуру ШІ-агентів ви вважаєте найбільш перспективною для production у 2026 році?",
   closes_at: null,
-  total_votes: 1420,
+  total_votes: 771,
   selected_option_id: null,
   options: [
-    { id: "opt-python", option_text: "Python (FastAPI / Asyncio)", votes_count: 497, percentage: 35 },
-    { id: "opt-go", option_text: "Go (Golang)", votes_count: 383, percentage: 27 },
-    { id: "opt-rust", option_text: "Rust (Axum / Actix)", votes_count: 241, percentage: 17 },
-    { id: "opt-csharp", option_text: "C# / .NET 9", votes_count: 199, percentage: 14 },
-    { id: "opt-ts", option_text: "TypeScript / Node.js / Bun", votes_count: 100, percentage: 7 },
+    { id: "opt-swarm", option_text: "Мультиагентні мережі (Swarm)", votes_count: 216, percentage: 28 },
+    { id: "opt-hybrid", option_text: "Гібридні моделі (Extended Thinking)", votes_count: 318, percentage: 41 },
+    { id: "opt-react", option_text: "ReAct з автономними кроками", votes_count: 142, percentage: 18 },
+    { id: "opt-local-rag", option_text: "Локальні моделі з RAG", votes_count: 95, percentage: 12 },
   ],
 };
 
@@ -164,64 +163,72 @@ export const setReaction = (articleId: string, kind: ReactionKind | null) => req
 });
 
 export const getActivePoll = async (): Promise<Poll | null> => {
+  let poll: Poll | null = null;
   try {
     const res = await request<Poll | null>("/polls/active");
-    if (res) return res;
+    if (res) poll = res;
   } catch {
     // Демо-режим при недоступності бекенду
+    poll = DEFAULT_DEMO_POLL;
   }
 
-  let selectedId: string | null = null;
-  try {
-    selectedId = localStorage.getItem(`bytenews_poll_vote:${DEFAULT_DEMO_POLL.id}`);
-  } catch {}
+  if (!poll) return null;
+
+  // Перевіряємо локально збережений голос для цього опитування (якщо користувач гість)
+  let selectedId = poll.selected_option_id;
+  if (!selectedId) {
+    try {
+      selectedId = localStorage.getItem(`bytenews_poll_vote:${poll.id}`);
+    } catch {}
+  }
 
   if (selectedId) {
-    const updatedOptions = DEFAULT_DEMO_POLL.options.map((opt) => {
-      const isSelected = opt.id === selectedId;
-      const count = isSelected ? opt.votes_count + 1 : opt.votes_count;
-      return { ...opt, votes_count: count };
-    });
-    const newTotal = DEFAULT_DEMO_POLL.total_votes + 1;
-    const finalOptions = updatedOptions.map((opt) => ({
-      ...opt,
-      percentage: Math.round((opt.votes_count / newTotal) * 100),
-    }));
     return {
-      ...DEFAULT_DEMO_POLL,
-      total_votes: newTotal,
+      ...poll,
       selected_option_id: selectedId,
-      options: finalOptions,
     };
   }
 
-  return DEFAULT_DEMO_POLL;
+  return poll;
 };
 
-export const votePoll = async (pollId: string, optionId: string): Promise<Poll> => {
+export const votePoll = async (
+  pollId: string,
+  optionId: string,
+  currentPoll?: Poll | null
+): Promise<Poll> => {
   try {
-    return await request<Poll>(`/polls/${pollId}/vote`, {
+    const res = await request<Poll>(`/polls/${pollId}/vote`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ option_id: optionId }),
     });
+    const finalSelectedId = res.selected_option_id || optionId;
+    try {
+      localStorage.setItem(`bytenews_poll_vote:${pollId}`, finalSelectedId);
+    } catch {}
+    return {
+      ...res,
+      selected_option_id: finalSelectedId,
+    };
   } catch {
     try {
       localStorage.setItem(`bytenews_poll_vote:${pollId}`, optionId);
     } catch {}
 
-    const updatedOptions = DEFAULT_DEMO_POLL.options.map((opt) => {
+    const basePoll = currentPoll && currentPoll.id === pollId ? currentPoll : DEFAULT_DEMO_POLL;
+    const updatedOptions = basePoll.options.map((opt) => {
       const isSelected = opt.id === optionId;
       const count = isSelected ? opt.votes_count + 1 : opt.votes_count;
       return { ...opt, votes_count: count };
     });
-    const newTotal = DEFAULT_DEMO_POLL.total_votes + 1;
+    const newTotal = basePoll.total_votes + 1;
     const finalOptions = updatedOptions.map((opt) => ({
       ...opt,
       percentage: Math.round((opt.votes_count / newTotal) * 100),
     }));
     return {
-      ...DEFAULT_DEMO_POLL,
+      ...basePoll,
       total_votes: newTotal,
       selected_option_id: optionId,
       options: finalOptions,

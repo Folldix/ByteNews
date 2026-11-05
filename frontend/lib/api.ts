@@ -223,45 +223,25 @@ export async function apiRegister(
 /** Отримання профілю поточного користувача */
 export async function apiFetchMe(token: string): Promise<UserProfile> {
   if (token === "demo-access-token") {
-    return DEMO_AUTHOR_PROFILE;
+    throw new Error("Demo token");
   }
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE_URL}/users/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
-    });
-  } catch {
-    return DEMO_AUTHOR_PROFILE;
-  }
+  const res = await fetch(`${API_BASE_URL}/users/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+    cache: "no-store",
+  });
   if (!res.ok) throw await readApiError(res);
   return res.json() as Promise<UserProfile>;
 }
 
 export async function apiRefresh(refreshToken: string): Promise<TokenPair> {
   if (refreshToken === "demo-refresh-token") {
-    return {
-      user: DEMO_AUTHOR_PROFILE,
-      access_token: "demo-access-token",
-      refresh_token: "demo-refresh-token",
-      token_type: "bearer",
-    };
+    throw new Error("Demo refresh token");
   }
-  let res: Response;
-  try {
-    res = await fetch(`${API_BASE_URL}/auth/refresh`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
-    });
-  } catch {
-    return {
-      user: DEMO_AUTHOR_PROFILE,
-      access_token: "demo-access-token",
-      refresh_token: "demo-refresh-token",
-      token_type: "bearer",
-    };
-  }
+  const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh_token: refreshToken }),
+  });
   if (!res.ok) throw await readApiError(res);
   return res.json() as Promise<TokenPair>;
 }

@@ -403,7 +403,7 @@ async def vote_poll(
     poll_id: UUID,
     payload: PollVoteCreate,
     db: AsyncSession = Depends(get_db),
-    user: User = Depends(get_current_user),
+    user: User | None = Depends(get_optional_user),
 ) -> PollResult:
     now = datetime.now(timezone.utc)
     poll = await db.scalar(
@@ -422,12 +422,13 @@ async def vote_poll(
     )
     if option is None:
         raise HTTPException(status_code=404, detail="Poll option not found")
-    already_voted = await db.scalar(
-        select(PollVote.id).where(PollVote.poll_id == poll_id, PollVote.user_id == user.id)
-    )
-    if already_voted is not None:
-        raise HTTPException(status_code=409, detail="You have already voted in this poll")
-    db.add(PollVote(poll_id=poll_id, option_id=option.id, user_id=user.id))
+    if user is not None:
+        already_voted = await db.scalar(
+            select(PollVote.id).where(PollVote.poll_id == poll_id, PollVote.user_id == user.id)
+        )
+        if already_voted is not None:
+            raise HTTPException(status_code=409, detail="You have already voted in this poll")
+        db.add(PollVote(poll_id=poll_id, option_id=option.id, user_id=user.id))
     await db.execute(
         update(PollOption).where(PollOption.id == option.id).values(votes_count=PollOption.votes_count + 1)
     )
@@ -436,4 +437,7 @@ async def vote_poll(
     except IntegrityError as exc:
         await db.rollback()
         raise HTTPException(status_code=409, detail="You have already voted in this poll") from exc
-    return await _poll_result(db, poll, user.id)
+    res = await _poll_result(db, poll, user.id if user else None)
+    if user is None:
+        res.selected_option_id = payload.option_id
+    return res

@@ -25,9 +25,12 @@ export function CommunityPoll() {
     if (!poll || busy || poll.selected_option_id) return;
     setBusy(true);
     try {
-      const updated = await votePoll(poll.id, optionId);
+      const updated = await votePoll(poll.id, optionId, poll);
       setPoll(updated);
     } catch {
+      try {
+        localStorage.setItem(`bytenews_poll_vote:${poll.id}`, optionId);
+      } catch {}
       const updatedOptions = poll.options.map((opt) => ({
         ...opt,
         votes_count: opt.id === optionId ? opt.votes_count + 1 : opt.votes_count,

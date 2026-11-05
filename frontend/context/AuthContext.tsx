@@ -9,6 +9,7 @@ import {
   apiLogout,
   apiUpgradeRole,
   apiUpdateProfile,
+  apiFetchMe,
 } from "../lib/api";
 
 type View = "feed" | "profile" | "bookmarks";
@@ -52,22 +53,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  // Додаток завжди запускається в стані Гостя (user = null) за макетом
-  useEffect(() => {
-    try {
-      localStorage.removeItem("bytenews_access_token");
-      localStorage.removeItem("bytenews_refresh_token");
-      localStorage.removeItem("bytenews_user");
-      sessionStorage.removeItem("bytenews_access_token");
-      sessionStorage.removeItem("bytenews_refresh_token");
-      sessionStorage.removeItem("bytenews_user");
-    } catch {
-      // Storage can be disabled in some environments
-    }
-    setUser(null);
-  }, []);
-
-  const storePair = (pair: Awaited<ReturnType<typeof apiLogin>>, rememberMe: boolean) => {
+  const storePair = useCallback((pair: Awaited<ReturnType<typeof apiLogin>>, rememberMe: boolean) => {
     setUser(pair.user);
     try {
       const storage = rememberMe ? localStorage : sessionStorage;
@@ -79,7 +65,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       storage.setItem("bytenews_refresh_token", pair.refresh_token);
       storage.setItem("bytenews_user", JSON.stringify(pair.user));
     } catch { /* Keep the current session in memory when browser storage is unavailable. */ }
-  };
+  }, []);
+
+  const logout = useCallback(() => {
+    const refreshToken = readStoredToken("bytenews_refresh_token");
+    if (refreshToken && refreshToken !== "demo-refresh-token") {
+      void apiLogout(refreshToken);
+    }
+    setUser(null);
+    setActiveView("feed");
+    try {
+      localStorage.removeItem("bytenews_access_token");
+      localStorage.removeItem("bytenews_refresh_token");
+      localStorage.removeItem("bytenews_user");
+      sessionStorage.removeItem("bytenews_access_token");
+      sessionStorage.removeItem("bytenews_refresh_token");
+      sessionStorage.removeItem("bytenews_user");
+    } catch { /* Nothing else to clear when storage is unavailable. */ }
+  }, []);
+
+  // Відновлення сесії користувача при завантаженні/оновленні сторінки
+  useEffect(() => {
+    try {
+      const rawUser = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+      const token = localStorage.getItem("bytenews_access_token") || sessionStorage.getItem("bytenews_access_token");
+      const refreshToken = localStorage.getItem("bytenews_refresh_token") || sessionStorage.getItem("bytenews_refresh_token");
+      const isPersistent = !!localStorage.getItem("bytenews_user");
+
+      if (rawUser) {
+        try {
+          const parsed = JSON.parse(rawUser);
+          setUser(parsed);
+        } catch {
+          setUser(null);
+        }
+
+        // Якщо маємо дійсний JWT токен бекенду — звіряємо актуальність даних у фоні
+        if (token && token !== "demo-access-token") {
+          apiFetchMe(token)
+            .then((freshUser) => {
+              if (freshUser) {
+                setUser(freshUser);
+                const storage = isPersistent ? localStorage : sessionStorage;
+                storage.setItem("bytenews_user", JSON.stringify(freshUser));
+              }
+            })
+            .catch(async () => {
+              // Якщо короткоживучий access-токен (15 хв) закінчився — оновлюємо сесію
+              if (refreshToken && refreshToken !== "demo-refresh-token") {
+                try {
+                  const pair = await apiRefresh(refreshToken);
+                  storePair(pair, isPersistent);
+                } catch {
+                  // Refresh-токен відкликано або недійсний
+                  logout();
+                }
+              }
+            });
+        }
+      } else {
+        setUser(null);
+      }
+    } catch {
+      setUser(null);
+    }
+  }, [logout, storePair]);
 
   const login = async (email: string, password: string, rememberMe: boolean) => {
     const pair = await apiLogin(email, password);
@@ -91,21 +141,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const pair = await apiRegister(name, email, password);
     storePair(pair, true);
     setIsAuthModalOpen(false);
-  };
-
-  const logout = () => {
-    const refreshToken = readStoredToken("bytenews_refresh_token");
-    if (refreshToken) void apiLogout(refreshToken);
-    setUser(null);
-    setActiveView("feed");
-    try {
-      localStorage.removeItem("bytenews_access_token");
-      localStorage.removeItem("bytenews_refresh_token");
-      localStorage.removeItem("bytenews_user");
-      sessionStorage.removeItem("bytenews_access_token");
-      sessionStorage.removeItem("bytenews_refresh_token");
-      sessionStorage.removeItem("bytenews_user");
-    } catch { /* Nothing else to clear when storage is unavailable. */ }
   };
 
   const upgradeToReporter = async (profile: { handle: string; role_title: string; topics: string[] }) => {
