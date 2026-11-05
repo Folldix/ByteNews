@@ -1,60 +1,145 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useAuth } from "../../context/AuthContext";
-import { getActivePoll, votePoll } from "./api";
+import { Check } from "lucide-react";
+import { getActivePoll, votePoll, DEFAULT_DEMO_POLL } from "./api";
 import type { Poll } from "./api";
 
 export function CommunityPoll() {
-  const { user, openAuthModal } = useAuth();
-  const [poll, setPoll] = useState<Poll | null>(null);
-  const [selected, setSelected] = useState("");
+  const [poll, setPoll] = useState<Poll | null>(DEFAULT_DEMO_POLL);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     let active = true;
-    getActivePoll().then((result) => {
-      if (!active) return;
-      setPoll(result);
-      setSelected(result?.selected_option_id ?? "");
-    }).catch(() => undefined);
-    return () => { active = false; };
+    getActivePoll()
+      .then((result) => {
+        if (!active) return;
+        setPoll(result);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
   }, []);
 
-  async function submitVote() {
-    if (!poll || !selected || busy) return;
-    if (!user) {
-      openAuthModal();
-      setMessage("Увійдіть, щоб проголосувати.");
-      return;
-    }
+  async function handleVote(optionId: string) {
+    if (!poll || busy || poll.selected_option_id) return;
     setBusy(true);
-    setMessage("");
     try {
-      const result = await votePoll(poll.id, selected);
-      setPoll(result);
-      setSelected(result.selected_option_id ?? selected);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Не вдалося зафіксувати голос.");
+      const updated = await votePoll(poll.id, optionId);
+      setPoll(updated);
+    } catch {
+      const updatedOptions = poll.options.map((opt) => ({
+        ...opt,
+        votes_count: opt.id === optionId ? opt.votes_count + 1 : opt.votes_count,
+      }));
+      const newTotal = poll.total_votes + 1;
+      setPoll({
+        ...poll,
+        total_votes: newTotal,
+        selected_option_id: optionId,
+        options: updatedOptions.map((opt) => ({
+          ...opt,
+          percentage: Math.round((opt.votes_count / newTotal) * 100),
+        })),
+      });
     } finally {
       setBusy(false);
     }
   }
 
   if (!poll) return null;
-  const showResults = !!poll.selected_option_id;
+  const isVoted = !!poll.selected_option_id;
+
   return (
-    <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_8px_30px_-24px_rgba(15,23,42,.25)]">
-      <p className="font-mono text-[10px] font-bold uppercase tracking-[.17em] text-emerald-700">Спільнота / опитування</p>
-      <h2 className="mt-2 text-base font-bold leading-6 text-slate-900">{poll.question}</h2>
-      <div className="mt-4 space-y-2.5">{poll.options.map((option) => <label key={option.id} className={`relative block overflow-hidden rounded-xl border px-3 py-3 text-sm ${selected === option.id ? "border-emerald-300" : "border-slate-200"} ${showResults ? "cursor-default" : "cursor-pointer hover:border-slate-300"}`}>
-        {showResults && <span className="absolute inset-y-0 left-0 bg-emerald-50 transition-[width] duration-500" style={{ width: `${option.percentage}%` }} />}
-        <span className="relative flex items-center justify-between gap-3"><span className="flex items-center gap-2"><input type="radio" name={`poll-${poll.id}`} checked={selected === option.id} disabled={showResults} onChange={() => setSelected(option.id)} className="accent-emerald-600" />{option.option_text}</span>{showResults && <span className="font-mono text-xs font-bold text-slate-600">{option.percentage}%</span>}</span>
-      </label>)}</div>
-      {message && <p role="status" className="mt-3 text-xs text-rose-700">{message}</p>}
-      {!showResults && <button type="button" disabled={!selected || busy} onClick={() => void submitVote()} className="mt-4 w-full rounded-full bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50">{busy ? "Голосуємо…" : "Проголосувати"}</button>}
-      {showResults && <p className="mt-3 font-mono text-[10px] text-slate-400">{poll.total_votes.toLocaleString("uk-UA")} голосів · ваш вибір враховано</p>}
+    <section className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0] rounded-[16px] p-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.04)] flex flex-col gap-[12px]">
+      {/* Шапка опитування */}
+      <div className="border-b border-[#e2e8f0] pt-[4px] pb-[12px] flex items-center justify-between">
+        <div className="flex items-center gap-[8px]">
+          <svg viewBox="0 0 16 16" fill="none" className="size-[16px] text-[#10b981] shrink-0" aria-hidden="true">
+            <path d="M2 13V8M6 13V3M10 13V6M14 13V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          <span className="font-mono font-bold text-[12px] text-[#1e293b] tracking-[0.6px] uppercase">
+            Опитування тижня
+          </span>
+        </div>
+        <span className="font-mono font-normal text-[11px] text-[#64748b]">
+          {poll.total_votes} голосів
+        </span>
+      </div>
+
+      {/* Питання */}
+      <h3 className="font-sans font-bold text-[13px] leading-[1.35] text-[#0f172a] tracking-[0.2px]">
+        {poll.question}
+      </h3>
+
+      {/* Список варіантів */}
+      <div className="flex flex-col gap-[8px]">
+        {poll.options.map((option) => {
+          if (isVoted) {
+            const isSelected = option.id === poll.selected_option_id;
+            if (isSelected) {
+              return (
+                <div
+                  key={option.id}
+                  className="relative overflow-hidden rounded-[12px] border border-[#10b981] bg-[#ecfdf5]/80 px-[12px] py-[9px] flex items-center justify-between gap-2"
+                >
+                  <div
+                    className="absolute inset-y-0 left-0 bg-[#10b981]/20 transition-all duration-500"
+                    style={{ width: `${option.percentage}%` }}
+                  />
+                  <div className="relative flex items-center gap-[10px] min-w-0">
+                    <div className="size-[16px] rounded-full bg-[#10b981] text-white grid place-items-center shrink-0">
+                      <Check className="size-2.5 stroke-[3]" />
+                    </div>
+                    <span className="font-sans font-bold text-[13px] text-[#1e293b] truncate">
+                      {option.option_text}
+                    </span>
+                  </div>
+                  <span className="relative font-mono font-bold text-[12px] text-[#047857] shrink-0">
+                    {option.percentage}%
+                  </span>
+                </div>
+              );
+            }
+            return (
+              <div
+                key={option.id}
+                className="relative overflow-hidden rounded-[12px] border border-[#e2e8f0] bg-white/50 px-[12px] py-[9px] flex items-center justify-between gap-2"
+              >
+                <div
+                  className="absolute inset-y-0 left-0 bg-[#94a3b8]/15 transition-all duration-500"
+                  style={{ width: `${option.percentage}%` }}
+                />
+                <div className="relative flex items-center gap-[10px] min-w-0">
+                  <div className="size-[16px] rounded-full border border-[#cbd5e1] shrink-0" />
+                  <span className="font-sans font-normal text-[13px] text-[#334155] truncate">
+                    {option.option_text}
+                  </span>
+                </div>
+                <span className="relative font-mono font-bold text-[12px] text-[#64748b] shrink-0">
+                  {option.percentage}%
+                </span>
+              </div>
+            );
+          }
+
+          return (
+            <button
+              key={option.id}
+              type="button"
+              disabled={busy}
+              onClick={() => handleVote(option.id)}
+              className="w-full bg-white/80 hover:bg-[#f8fafc] border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-[12px] px-[12px] py-[9px] flex items-center gap-[10px] text-left transition cursor-pointer"
+            >
+              <div className="size-[16px] rounded-full border border-[#cbd5e1] bg-white shrink-0" />
+              <span className="font-sans font-bold text-[13px] text-[#1e293b]">
+                {option.option_text}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </section>
   );
 }

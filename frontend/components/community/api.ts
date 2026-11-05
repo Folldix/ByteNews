@@ -35,6 +35,21 @@ export type Poll = {
 };
 export type SavedArticle = { article: Article; bookmarked_at: string };
 
+export const DEFAULT_DEMO_POLL: Poll = {
+  id: "poll-backend-2026",
+  question: "Який стек або мову ви найчастіше обираєте для нових бекенд-проєктів у 2026 році?",
+  closes_at: null,
+  total_votes: 1420,
+  selected_option_id: null,
+  options: [
+    { id: "opt-python", option_text: "Python (FastAPI / Asyncio)", votes_count: 497, percentage: 35 },
+    { id: "opt-go", option_text: "Go (Golang)", votes_count: 383, percentage: 27 },
+    { id: "opt-rust", option_text: "Rust (Axum / Actix)", votes_count: 241, percentage: 17 },
+    { id: "opt-csharp", option_text: "C# / .NET 9", votes_count: 199, percentage: 14 },
+    { id: "opt-ts", option_text: "TypeScript / Node.js / Bun", votes_count: 100, percentage: 7 },
+  ],
+};
+
 function authHeaders(): HeadersInit {
   try {
     const token = localStorage.getItem("bytenews_access_token") || sessionStorage.getItem("bytenews_access_token");
@@ -148,11 +163,71 @@ export const setReaction = (articleId: string, kind: ReactionKind | null) => req
   method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind }),
 });
 
-export const getActivePoll = () => request<Poll | null>("/polls/active").catch(() => null);
+export const getActivePoll = async (): Promise<Poll | null> => {
+  try {
+    const res = await request<Poll | null>("/polls/active");
+    if (res) return res;
+  } catch {
+    // Демо-режим при недоступності бекенду
+  }
 
-export const votePoll = (pollId: string, optionId: string) => request<Poll>(`/polls/${pollId}/vote`, {
-  method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ option_id: optionId }),
-});
+  let selectedId: string | null = null;
+  try {
+    selectedId = localStorage.getItem(`bytenews_poll_vote:${DEFAULT_DEMO_POLL.id}`);
+  } catch {}
+
+  if (selectedId) {
+    const updatedOptions = DEFAULT_DEMO_POLL.options.map((opt) => {
+      const isSelected = opt.id === selectedId;
+      const count = isSelected ? opt.votes_count + 1 : opt.votes_count;
+      return { ...opt, votes_count: count };
+    });
+    const newTotal = DEFAULT_DEMO_POLL.total_votes + 1;
+    const finalOptions = updatedOptions.map((opt) => ({
+      ...opt,
+      percentage: Math.round((opt.votes_count / newTotal) * 100),
+    }));
+    return {
+      ...DEFAULT_DEMO_POLL,
+      total_votes: newTotal,
+      selected_option_id: selectedId,
+      options: finalOptions,
+    };
+  }
+
+  return DEFAULT_DEMO_POLL;
+};
+
+export const votePoll = async (pollId: string, optionId: string): Promise<Poll> => {
+  try {
+    return await request<Poll>(`/polls/${pollId}/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ option_id: optionId }),
+    });
+  } catch {
+    try {
+      localStorage.setItem(`bytenews_poll_vote:${pollId}`, optionId);
+    } catch {}
+
+    const updatedOptions = DEFAULT_DEMO_POLL.options.map((opt) => {
+      const isSelected = opt.id === optionId;
+      const count = isSelected ? opt.votes_count + 1 : opt.votes_count;
+      return { ...opt, votes_count: count };
+    });
+    const newTotal = DEFAULT_DEMO_POLL.total_votes + 1;
+    const finalOptions = updatedOptions.map((opt) => ({
+      ...opt,
+      percentage: Math.round((opt.votes_count / newTotal) * 100),
+    }));
+    return {
+      ...DEFAULT_DEMO_POLL,
+      total_votes: newTotal,
+      selected_option_id: optionId,
+      options: finalOptions,
+    };
+  }
+};
 
 export const getBookmarks = () => request<{ items: SavedArticle[]; total: number }>("/bookmarks");
 
