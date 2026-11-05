@@ -7,17 +7,7 @@ import { useAuth } from "../context/AuthContext";
 import { useFeedFilters } from "../context/FeedContext";
 import { useBookmarks } from "../context/BookmarksContext";
 import { DigestModal } from "./community/DigestModal";
-
-// Список рубрик новинного порталу
-const CATEGORIES = [
-  { name: "Всі новини", slug: "" },
-  { name: "Штучний Інтелект", slug: "ai" },
-  { name: "Розробка", slug: "development" },
-  { name: "Кібербезпека", slug: "cybersecurity" },
-  { name: "GameDev & 3D", slug: "gamedev-3d" },
-  { name: "Залізо & Чіпи", slug: "hardware-chips" },
-  { name: "Стартапи & Ринок", slug: "startups-market" },
-];
+import { CATEGORIES } from "../lib/constants";
 
 export function Header() {
   const router = useRouter();

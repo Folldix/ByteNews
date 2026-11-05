@@ -5,15 +5,9 @@ import { useRouter, usePathname } from "next/navigation";
 import { DigestModal } from "./community/DigestModal";
 import { useFeedFilters } from "../context/FeedContext";
 import { useAuth } from "../context/AuthContext";
+import { CATEGORIES } from "../lib/constants";
 
-const FOOTER_CATEGORIES = [
-  { name: "Штучний Інтелект", slug: "ai" },
-  { name: "Розробка", slug: "development" },
-  { name: "Кібербезпека", slug: "cybersecurity" },
-  { name: "GameDev & 3D", slug: "gamedev-3d" },
-  { name: "Залізо & Чіпи", slug: "hardware-chips" },
-  { name: "Стартапи & Ринок", slug: "startups-market" },
-];
+const FOOTER_CATEGORIES = CATEGORIES.filter((c) => c.slug !== "");
 
 export function Footer() {
   const [digestOpen, setDigestOpen] = useState(false);
