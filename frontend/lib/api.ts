@@ -31,6 +31,8 @@ export interface UserProfile {
   articles_count: number;
   total_views: number;
   bookmarks_count: number;
+  comments_count?: number;
+  read_articles_count?: number;
   articles: UserArticle[];
 }
 
@@ -52,6 +54,8 @@ export const DEMO_AUTHOR_PROFILE: UserProfile = {
   articles_count: 2,
   total_views: 7230,
   bookmarks_count: 2,
+  comments_count: 14,
+  read_articles_count: 42,
   articles: [
     {
       id: "art-1",
@@ -80,6 +84,27 @@ export const DEMO_AUTHOR_PROFILE: UserProfile = {
       status: "published",
     },
   ],
+};
+
+/** Еталонний профіль читача */
+export const DEMO_READER_PROFILE: UserProfile = {
+  id: "demo-reader-id",
+  email: "reader@bytenews.ua",
+  full_name: "Євген Наришкін",
+  handle: "jenia_dev",
+  role: "reader",
+  role_title: "Розробник & Читач ByteNews",
+  bio: "Цікавлюся архітектурою високонавантажених систем, мікросервісами, новинами штучного інтелекту та кібербезпеки.",
+  avatar_initials: "ЄН",
+  avatar_url: "/avatars/Avatar_6.png",
+  location: "Київ, Україна",
+  joined_date: "січня 2025",
+  articles_count: 0,
+  total_views: 0,
+  bookmarks_count: 3,
+  comments_count: 19,
+  read_articles_count: 42,
+  articles: [],
 };
 
 async function readApiError(response: Response): Promise<Error> {
@@ -230,6 +255,24 @@ export async function apiUpgradeRole(
       reporter_topics: profile.topics,
       role: "reporter",
     };
+  }
+  if (!res.ok) throw await readApiError(res);
+  return res.json() as Promise<UserProfile>;
+}
+
+export async function apiUpdateProfile(
+  token: string,
+  profile: Partial<UserProfile>,
+): Promise<UserProfile> {
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}/users/me`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify(profile),
+    });
+  } catch {
+    return profile as UserProfile;
   }
   if (!res.ok) throw await readApiError(res);
   return res.json() as Promise<UserProfile>;
