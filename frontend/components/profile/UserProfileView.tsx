@@ -154,7 +154,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
             viewBox="0 0 18 10"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="shrink-0 stroke-[#475569] group-hover:stroke-[#0f172a] transition-all duration-150 ease-out group-hover:-translate-x-[2px]"
+            className="shrink-0 stroke-[#475569] group-hover:stroke-[#0f172a] transition-colors duration-150 ease-out"
           >
             <path
               d="M17 5H1M1 5L5 1M1 5L5 9"
@@ -163,7 +163,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               strokeLinejoin="round"
             />
           </svg>
-          <span className="transition-colors duration-150 ease-out">
+          <span className="transition-transform duration-150 ease-out group-hover:translate-x-[2px]">
             Назад до головної стрічки
           </span>
         </button>
