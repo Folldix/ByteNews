@@ -19,18 +19,18 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
   const authorAvatar = article.author_avatar || "/images/avatar-1.png";
 
   return (
-    <article className="group relative overflow-hidden backdrop-blur-[10px] bg-white/82 hover:bg-white/95 border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-[16px] p-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.04)] hover:shadow-[0px_16px_32px_-4px_rgba(15,23,42,0.1)] flex flex-col justify-between gap-[14px] transition-all duration-300">
+    <article className="group relative overflow-hidden backdrop-blur-[10px] bg-white/82 hover:bg-white/95 border border-[#e2e8f0] hover:border-[#cbd5e1] rounded-[16px] p-3.5 sm:p-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.04)] hover:shadow-[0px_16px_32px_-4px_rgba(15,23,42,0.1)] flex flex-col justify-between gap-[12px] sm:gap-[14px] transition-all duration-300 min-h-[360px] sm:min-h-[416px]">
       {/* Верхня 4px смужка */}
       <div className={`absolute inset-x-0 top-0 h-[4px] ${design.strip}`} />
 
       <div>
         {/* Шапка картки */}
-        <div className="flex items-center justify-between w-full mb-[14px]">
-          <div className="flex items-center gap-[8px]">
-            <span className={`px-[10px] py-[2px] rounded-full border font-mono font-bold text-[11px] leading-[1.5] ${design.badge}`}>
+        <div className="flex items-center justify-between w-full mb-3 sm:mb-[14px] gap-2">
+          <div className="flex items-center gap-[6px] sm:gap-[8px] min-w-0 flex-wrap">
+            <span className={`px-[8px] sm:px-[10px] py-[2px] rounded-full border font-mono font-bold text-[10px] sm:text-[11px] leading-[1.4] sm:leading-[1.5] shrink-0 ${design.badge}`}>
               {article.category ?? "Технології"}
             </span>
-            <span className="bg-[#f1f5f9] rounded-full px-[10px] py-[4px] inline-flex items-center gap-[4px] font-mono font-normal text-[11px] leading-[1.5] text-[#475569]">
+            <span className="bg-[#f1f5f9] rounded-full px-[8px] sm:px-[10px] py-[2px] sm:py-[4px] inline-flex items-center gap-[4px] font-mono font-normal text-[10px] sm:text-[11px] leading-[1.4] sm:leading-[1.5] text-[#475569] shrink-0">
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                 <path d="M6.5 3.16667V6.5H9.83333M6.5 12.5C3.18629 12.5 0.5 9.81371 0.5 6.5C0.5 3.18629 3.18629 0.5 6.5 0.5C9.81371 0.5 12.5 3.18629 12.5 6.5C12.5 9.81371 9.81371 12.5 6.5 12.5Z" stroke="#94A3B8" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
@@ -42,29 +42,29 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
         </div>
 
         {/* Обкладинка + Заголовок */}
-        <a href={`/articles/${article.slug}`} className="flex flex-col gap-[24px] items-start w-full cursor-pointer">
-          <div className="w-full h-[180px] rounded-[16px] border border-[#e2e8f0] overflow-hidden relative shrink-0">
+        <a href={`/articles/${article.slug}`} className="flex flex-col gap-3 sm:gap-4 items-start w-full cursor-pointer">
+          <div className="w-full h-[150px] xs:h-[165px] sm:h-[180px] rounded-[12px] sm:rounded-[16px] border border-[#e2e8f0] overflow-hidden relative shrink-0">
             <ArticleCover article={article} />
           </div>
-          <h3 className="font-sans font-extrabold text-[16px] leading-[1.25] tracking-[-0.32px] text-[#0f172a] group-hover:text-[#047857] transition-colors text-left w-full">
+          <h3 className="font-sans font-extrabold text-[15px] sm:text-[16px] leading-[1.3] sm:leading-[1.25] tracking-[-0.32px] text-[#0f172a] group-hover:text-[#047857] transition-colors text-left w-full break-words [overflow-wrap:anywhere]">
             {article.title}
           </h3>
         </a>
 
         {/* Опис (lead) */}
         {article.lead && (
-          <p className="mt-[12px] font-sans font-normal text-[13px] leading-[1.45] text-[#475569] line-clamp-3">
+          <p className="mt-[10px] sm:mt-[12px] font-sans font-normal text-[12px] sm:text-[13px] leading-[1.5] text-[#475569] line-clamp-3 break-words">
             {article.lead}
           </p>
         )}
 
         {/* Ряд тегів */}
         {article.tags.length > 0 && (
-          <div className="py-[10px] flex flex-wrap gap-[6px] items-center w-full">
+          <div className="py-[8px] sm:py-[10px] flex flex-wrap gap-[6px] items-center w-full">
             {article.tags.slice(0, 3).map((tag) => (
               <span
                 key={tag}
-                className="bg-[#f1f5f9] border border-[#e2e8f0] rounded-[6px] px-[8px] py-[2px] font-mono font-extrabold text-[11px] leading-[1.25] tracking-[-0.22px] text-[#475569] hover:border-[#10b981] hover:text-[#059669] transition cursor-pointer"
+                className="bg-[#f1f5f9] border border-[#e2e8f0] rounded-[6px] px-[7px] sm:px-[8px] py-[2px] font-mono font-extrabold text-[10px] sm:text-[11px] leading-[1.25] tracking-[-0.22px] text-[#475569] hover:border-[#10b981] hover:text-[#059669] transition cursor-pointer"
               >
                 {tag.startsWith("#") ? tag : `#${tag}`}
               </span>
@@ -74,12 +74,12 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
       </div>
 
       {/* Підвал картки */}
-      <div className="border-t border-[#e2e8f0] pt-[14px] flex items-center justify-between w-full mt-auto">
+      <div className="border-t border-[#e2e8f0] pt-[12px] sm:pt-[14px] flex items-center justify-between gap-2 w-full mt-auto">
         {/* Ліворуч: блок автора */}
         <button
           type="button"
           onClick={() => setActiveView("profile")}
-          className="group/author flex items-center gap-[8px] text-left cursor-pointer focus:outline-hidden"
+          className="group/author flex items-center gap-[6px] sm:gap-[8px] text-left cursor-pointer focus:outline-hidden min-w-0 shrink"
           aria-label={`Переглянути профіль автора ${article.author ?? "Олексій Коваленко"}`}
         >
           <div className="size-[24px] rounded-full shrink-0 overflow-hidden border border-[#cbd5e1]">
@@ -98,13 +98,13 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
               className="size-full object-cover"
             />
           </div>
-          <span className="font-sans font-medium text-[11px] leading-[1.25] tracking-[-0.22px] text-[#334155] group-hover/author:underline">
+          <span className="font-sans font-medium text-[11px] leading-[1.25] tracking-[-0.22px] text-[#334155] group-hover/author:underline truncate max-w-[90px] xs:max-w-[120px] sm:max-w-[150px]">
             {article.author ?? "Олексій Коваленко"}
           </span>
         </button>
 
         {/* Праворуч: Статистика */}
-        <div className="flex items-center gap-[16px] text-[#475569]">
+        <div className="flex items-center gap-[10px] sm:gap-[14px] md:gap-[16px] text-[#475569] shrink-0">
           {/* Перегляди */}
           <div className="flex items-center gap-[4px]">
             <svg width="19" height="12" viewBox="0 0 20.6943 13.9999" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 text-[#94a3b8]">

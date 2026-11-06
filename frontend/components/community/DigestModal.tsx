@@ -68,7 +68,7 @@ export function DigestModal({ isOpen, onClose }: DigestModalProps) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0f172a]/50 backdrop-blur-[20px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#0f172a]/50 backdrop-blur-[20px] overflow-y-auto"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
@@ -78,10 +78,10 @@ export function DigestModal({ isOpen, onClose }: DigestModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="digest-modal-title"
-        className="w-full max-w-[512px] bg-white border border-[#e2e8f0] rounded-[24px] shadow-[0px_20px_40px_-8px_rgba(15,23,42,0.2)] pb-[30px] pt-[10px] px-[10px] flex flex-col gap-[14px]"
+        className="w-full max-w-[512px] bg-white border border-[#e2e8f0] rounded-[20px] sm:rounded-[24px] shadow-[0px_20px_40px_-8px_rgba(15,23,42,0.2)] pb-4 sm:pb-6 pt-2 px-2 sm:px-3 flex flex-col gap-2.5 sm:gap-3.5 max-h-[90dvh] my-auto overflow-hidden"
       >
         {/* Спільна шапка модального вікна */}
-        <div className="border-b border-[#f1f5f9] px-[24px] py-[20px] flex items-center justify-between w-full">
+        <div className="border-b border-[#f1f5f9] px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between w-full shrink-0">
           <div className="flex items-center gap-[10px]">
             <div className="size-[36px] rounded-[10px] bg-[#ecfdf5] grid place-items-center text-[#059669] shrink-0">
               <Mail className="size-5 text-[#059669]" />
@@ -111,9 +111,9 @@ export function DigestModal({ isOpen, onClose }: DigestModalProps) {
 
         {!isSuccess ? (
           /* Стан 1: Форма вибору рубрик і пошти */
-          <form onSubmit={handleSubmit} className="flex flex-col gap-[14px] w-full">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-3.5 w-full flex-1 overflow-y-auto overscroll-contain">
             {/* Блок вибору рубрик */}
-            <div className="px-[24px] flex flex-col gap-[10px] w-full">
+            <div className="px-3 sm:px-6 flex flex-col gap-2 sm:gap-2.5 w-full">
               <p className="font-mono font-bold text-[11px] text-[#334155]">
                 Оберіть рубрики для розсилки
               </p>
@@ -163,7 +163,7 @@ export function DigestModal({ isOpen, onClose }: DigestModalProps) {
             </div>
 
             {/* Блок електронної пошти та кнопки сабміту */}
-            <div className="px-[24px] pt-[6px] flex flex-col gap-[20px] w-full">
+            <div className="px-3 sm:px-6 pt-1 flex flex-col gap-3.5 sm:gap-4 w-full">
               <div className="flex flex-col gap-[10px] w-full">
                 <label
                   htmlFor="digest-email-input"
@@ -198,7 +198,7 @@ export function DigestModal({ isOpen, onClose }: DigestModalProps) {
           </form>
         ) : (
           /* Стан 2: Підтвердження успішної підписки */
-          <div className="px-[24px] py-[28px] flex flex-col items-center justify-center gap-[20px] w-full text-center">
+          <div className="px-4 py-6 sm:px-6 sm:py-7 flex flex-col items-center justify-center gap-4 sm:gap-5 w-full text-center flex-1 overflow-y-auto">
             <div className="size-[64px] rounded-full bg-[#ecfdf5] grid place-items-center">
               <div className="size-[32px] rounded-full border-2 border-[#059669] text-[#059669] grid place-items-center">
                 <Check className="size-4 stroke-[3]" />

@@ -34,15 +34,15 @@ export function HeroArticleCard({
   }
 
   return (
-    <article className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0]/90 rounded-[24px] p-4 sm:p-6 lg:p-[32px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0px_18px_36px_-6px_rgba(15,23,42,0.08)] hover:border-[#cbd5e1] transition-all duration-200 ease-out flex flex-col gap-4 sm:gap-[24px] h-full">
+    <article className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0]/90 rounded-[20px] sm:rounded-[24px] p-3.5 sm:p-6 lg:p-[32px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] hover:shadow-[0px_18px_36px_-6px_rgba(15,23,42,0.08)] hover:border-[#cbd5e1] transition-all duration-200 ease-out flex flex-col gap-3.5 sm:gap-[24px] h-full overflow-hidden">
       {/* Верхній рядок із бейджами та закладкою */}
-      <div className="bg-white flex items-center justify-between gap-2 p-[10px] rounded-[16px] w-full shrink-0">
-        <div className="flex flex-wrap gap-[8px] items-center">
-          <span className="bg-[#d1fae5] border border-[#6ee7b7] text-[#065f46] font-mono font-bold text-[11px] sm:text-[12px] leading-[1.5] px-[10px] sm:px-[12px] py-[4px] rounded-full inline-flex items-center gap-[6px] sm:gap-[8px]">
+      <div className="bg-white flex items-center justify-between gap-2 p-[8px] sm:p-[10px] rounded-[14px] sm:rounded-[16px] w-full shrink-0">
+        <div className="flex flex-wrap gap-[6px] sm:gap-[8px] items-center min-w-0">
+          <span className="bg-[#d1fae5] border border-[#6ee7b7] text-[#065f46] font-mono font-bold text-[10px] sm:text-[12px] leading-[1.4] sm:leading-[1.5] px-[8px] sm:px-[12px] py-[3px] sm:py-[4px] rounded-full inline-flex items-center gap-[4px] sm:gap-[8px] shrink-0">
             <Sparkles className="size-[12px] text-[#065f46] shrink-0" />
             <span>{hero.category ?? "Штучний Інтелект"}</span>
           </span>
-          <span className="bg-[#f1f5f9] text-[#475569] font-mono font-normal text-[11px] sm:text-[12px] leading-[1.5] px-[10px] py-[4px] rounded-full inline-flex items-center gap-[6px] sm:gap-[8px]">
+          <span className="bg-[#f1f5f9] text-[#475569] font-mono font-normal text-[10px] sm:text-[12px] leading-[1.4] sm:leading-[1.5] px-[8px] sm:px-[10px] py-[3px] sm:py-[4px] rounded-full inline-flex items-center gap-[4px] sm:gap-[8px] shrink-0">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-[12px] text-[#475569] shrink-0" aria-hidden="true">
               <circle cx="12" cy="12" r="10" />
               <polyline points="12 6 12 12 16 14" />
@@ -54,29 +54,29 @@ export function HeroArticleCard({
       </div>
 
       {/* Обкладинка + Заголовок */}
-      <a href={`/articles/${hero.slug}`} className="cursor-pointer flex flex-col gap-4 sm:gap-[24px] items-start w-full group">
+      <a href={`/articles/${hero.slug}`} className="cursor-pointer flex flex-col gap-3 sm:gap-[24px] items-start w-full group">
         <ArticleCover article={hero} large />
-        <h3 className="font-extrabold text-[#0f172a] text-[20px] sm:text-[26px] lg:text-[30px] leading-[1.25] tracking-[-0.6px] text-left w-full group-hover:text-[#059669] transition-colors">
+        <h3 className="font-extrabold text-[#0f172a] text-[18px] sm:text-[24px] lg:text-[30px] leading-[1.25] tracking-[-0.4px] sm:tracking-[-0.6px] text-left w-full group-hover:text-[#059669] transition-colors break-words [overflow-wrap:anywhere]">
           {hero.title}
         </h3>
       </a>
 
       {/* Опис (lead) */}
       {hero.lead && (
-        <p className="font-normal text-[#475569] text-[14px] sm:text-[15px] leading-[1.6] w-full">
+        <p className="font-normal text-[#475569] text-[13px] sm:text-[15px] leading-[1.6] w-full break-words">
           {hero.lead}
         </p>
       )}
 
       {/* Теги */}
       {hero.tags.length > 0 && (
-        <div className="flex gap-[6px] items-center flex-wrap py-[6px] w-full">
+        <div className="flex gap-[6px] items-center flex-wrap py-[4px] sm:py-[6px] w-full">
           {hero.tags.map((topic) => (
             <button
               key={topic}
               type="button"
               onClick={() => onTagClick(topic)}
-              className="bg-[#f1f5f9] border border-[#e2e8f0] flex items-center justify-center px-[10px] py-[3px] rounded-[8px] font-mono font-extrabold text-[#475569] text-[11px] tracking-[-0.22px] hover:border-emerald-300 hover:text-emerald-800 transition cursor-pointer"
+              className="bg-[#f1f5f9] border border-[#e2e8f0] flex items-center justify-center px-[9px] sm:px-[10px] py-[3px] rounded-[8px] font-mono font-extrabold text-[#475569] text-[10px] sm:text-[11px] tracking-[-0.22px] hover:border-emerald-300 hover:text-emerald-800 transition cursor-pointer active:scale-95"
             >
               #{topic}
             </button>
@@ -85,14 +85,14 @@ export function HeroArticleCard({
       )}
 
       {/* Підвал картки з фіксацією внизу (mt-auto) */}
-      <div className="border-t border-[#e2e8f0] flex flex-wrap items-center justify-between gap-3 pb-[6px] sm:pb-[10px] pt-4 sm:pt-[24px] px-1 sm:px-[10px] w-full mt-auto">
+      <div className="border-t border-[#e2e8f0] flex flex-wrap items-center justify-between gap-3 pb-[4px] sm:pb-[10px] pt-3.5 sm:pt-[24px] px-0.5 sm:px-[10px] w-full mt-auto">
         <button
           type="button"
           onClick={onProfileClick}
-          className="group/author flex gap-[12px] items-center text-left cursor-pointer focus:outline-hidden min-w-0"
+          className="group/author flex gap-[10px] sm:gap-[12px] items-center text-left cursor-pointer focus:outline-hidden min-w-0 max-w-full sm:max-w-none"
           aria-label={`Переглянути профіль автора ${hero.author ?? "Олександр Коваленко"}`}
         >
-          <div className="size-[40px] rounded-full shrink-0 overflow-hidden border border-[#cbd5e1] transition-colors duration-150 ease-out group-hover/author:border-[#10b981]">
+          <div className="size-[36px] sm:size-[40px] rounded-full shrink-0 overflow-hidden border border-[#cbd5e1] transition-colors duration-150 ease-out group-hover/author:border-[#10b981]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={hero.author_avatar || "/images/avatar-kovalenko.png"}
@@ -110,36 +110,36 @@ export function HeroArticleCard({
           </div>
           <div className="flex flex-col items-start justify-center min-w-0">
             <div className="flex items-center">
-              <span className="font-sans font-bold text-[12px] leading-[1.6] text-[#0f172a] transition-colors duration-150 ease-out group-hover/author:text-[#047857] truncate">
+              <span className="font-sans font-bold text-[12px] sm:text-[13px] leading-[1.5] text-[#0f172a] transition-colors duration-150 ease-out group-hover/author:text-[#047857] truncate max-w-[150px] sm:max-w-none">
                 {hero.author ?? "Олександр Коваленко"}
               </span>
               <span className="size-[6px] rounded-full bg-[#10b981] ml-[4px] shrink-0" aria-label="Онлайн" />
             </div>
-            <span className="font-mono font-normal text-[11px] leading-[1.6] text-[#475569] truncate max-w-full">
+            <span className="font-mono font-normal text-[10px] sm:text-[11px] leading-[1.5] text-[#475569] truncate max-w-[190px] sm:max-w-none">
               {hero.author_role ?? "Head of AI Engineering"} • {hero.time_label || relativeTime(hero.published_at)}
             </span>
           </div>
         </button>
 
         <div className="flex gap-[12px] items-center justify-between sm:justify-end w-full sm:w-auto shrink-0">
-          <div className="flex gap-[16px] items-center">
+          <div className="flex gap-[12px] sm:gap-[16px] items-center">
             <div className="flex gap-[4px] items-center text-[#475569]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-[14px] text-[#94a3b8]" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
               </svg>
-              <span className="font-mono font-normal text-[12px] leading-[1.6]">{hero.views_count}</span>
+              <span className="font-mono font-normal text-[11px] sm:text-[12px] leading-[1.6]">{hero.views_count}</span>
             </div>
             <div className="flex gap-[4px] items-center text-[#475569]">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="size-[14px] text-[#94a3b8]" aria-hidden="true">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.502 49.188 49.188 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v5.998Z" />
               </svg>
-              <span className="font-mono font-normal text-[12px] leading-[1.6]">{hero.comments_count ?? 48}</span>
+              <span className="font-mono font-normal text-[11px] sm:text-[12px] leading-[1.6]">{hero.comments_count ?? 48}</span>
             </div>
           </div>
           <a
             href={`/articles/${hero.slug}`}
-            className="bg-[#0f172a] hover:bg-[#059669] text-white font-mono font-normal text-[12px] leading-[1.6] px-[16px] py-[8px] rounded-[12px] inline-flex items-center gap-[6px] transition cursor-pointer"
+            className="bg-[#0f172a] hover:bg-[#059669] text-white font-mono font-bold sm:font-normal text-[11px] sm:text-[12px] leading-[1.5] px-[14px] sm:px-[16px] py-[7px] sm:py-[8px] rounded-[10px] sm:rounded-[12px] inline-flex items-center gap-[6px] transition cursor-pointer active:scale-95 shrink-0"
           >
             <span>Читати</span>
             <svg viewBox="0 0 10 10" fill="none" className="size-[10px] shrink-0" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

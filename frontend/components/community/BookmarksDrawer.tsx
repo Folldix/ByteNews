@@ -33,7 +33,7 @@ export function BookmarksDrawer() {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0f172a]/50 backdrop-blur-[20px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 bg-[#0f172a]/50 backdrop-blur-[20px] overflow-y-auto"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) closeDrawer();
@@ -43,10 +43,10 @@ export function BookmarksDrawer() {
         role="dialog"
         aria-modal="true"
         aria-labelledby="bookmarks-modal-title"
-        className="w-full max-w-[580px] bg-white border border-[#e2e8f0] rounded-[24px] shadow-[0px_20px_40px_-8px_rgba(15,23,42,0.2)] pb-[30px] pt-[10px] px-[10px] flex flex-col gap-[10px]"
+        className="w-full max-w-[580px] bg-white border border-[#e2e8f0] rounded-[20px] sm:rounded-[24px] shadow-[0px_20px_40px_-8px_rgba(15,23,42,0.2)] pb-4 sm:pb-6 pt-2 px-2 sm:px-3 flex flex-col gap-2.5 max-h-[90dvh] my-auto overflow-hidden"
       >
         {/* Шапка модального вікна */}
-        <div className="border-b border-[#f1f5f9] px-[24px] py-[20px] flex items-center justify-between w-full">
+        <div className="border-b border-[#f1f5f9] px-4 py-3 sm:px-6 sm:py-4 flex items-center justify-between w-full shrink-0">
           <div className="flex items-center gap-[10px]">
             <div className="size-[36px] rounded-[10px] bg-[#ecfdf5] grid place-items-center text-[#059669] shrink-0">
               <svg viewBox="0 0 24 24" fill="currentColor" className="size-5" aria-hidden="true">
@@ -77,7 +77,7 @@ export function BookmarksDrawer() {
         </div>
 
         {/* Список збережених статей */}
-        <div className="px-[24px] pt-[6px] flex flex-col gap-[12px] w-full max-h-[65vh] overflow-y-auto">
+        <div className="px-3 sm:px-5 pt-1 flex flex-col gap-2.5 sm:gap-3 w-full flex-1 overflow-y-auto overscroll-contain">
           {items.length === 0 ? (
             <div className="py-12 text-center font-mono text-[13px] text-[#64748b]">
               Список закладок порожній
@@ -86,7 +86,7 @@ export function BookmarksDrawer() {
             items.map(({ article }) => (
               <div
                 key={article.id}
-                className="bg-[#f8fafc] border border-[#e2e8f0] rounded-[16px] px-[16px] py-[16px] flex items-center justify-between gap-4 w-full"
+                className="bg-[#f8fafc] border border-[#e2e8f0] rounded-[14px] sm:rounded-[16px] p-3 sm:p-4 flex items-center justify-between gap-3 sm:gap-4 w-full"
               >
                 {/* Ліва текстова частина */}
                 <div className="flex flex-col gap-[4px] min-w-0 flex-1">
@@ -121,7 +121,7 @@ export function BookmarksDrawer() {
                 </div>
 
                 {/* Права частина з кнопками */}
-                <div className="flex items-center gap-[15px] shrink-0">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <a
                     href={`/articles/${article.slug}`}
                     onClick={closeDrawer}

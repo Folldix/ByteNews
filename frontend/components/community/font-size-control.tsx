@@ -25,7 +25,7 @@ export function FontSizeControl({ value, onChange }: FontSizeControlProps) {
     <div
       role="group"
       aria-label="Розмір шрифту"
-      className="inline-flex items-center gap-1 rounded-full bg-slate-100 p-1"
+      className="inline-flex items-center gap-0.5 sm:gap-1 rounded-full bg-slate-100 p-0.5 sm:p-1"
     >
       {OPTIONS.map((option) => {
         const isActive = option.value === value;
@@ -37,7 +37,7 @@ export function FontSizeControl({ value, onChange }: FontSizeControlProps) {
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}
             className={
-              "rounded-full px-2.5 py-1 font-mono text-xs transition-colors " +
+              "rounded-full px-2 sm:px-2.5 py-1 font-mono text-[11px] sm:text-xs transition-colors cursor-pointer " +
               (isActive
                 ? "bg-white font-bold text-slate-900 shadow-sm"
                 : "text-slate-400 hover:text-slate-700")

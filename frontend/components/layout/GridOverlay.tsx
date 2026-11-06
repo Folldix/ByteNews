@@ -23,8 +23,8 @@ export function GridOverlay() {
 
   return (
     <>
-      {/* Плаваюча кнопка перемикання сітки */}
-      <div className="fixed bottom-4 right-4 z-50">
+      {/* Плаваюча кнопка перемикання сітки (прихована на мобільних і планшетах) */}
+      <div className="hidden lg:block fixed bottom-4 right-4 z-50">
         <button
           type="button"
           onClick={() => setVisible((prev) => !prev)}

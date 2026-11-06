@@ -23,7 +23,7 @@ export function FlashNewsModal({ item, onClose, relativeTime }: FlashNewsModalPr
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 p-3 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-3 sm:p-4 backdrop-blur-sm overflow-y-auto"
       role="presentation"
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose();
@@ -33,7 +33,7 @@ export function FlashNewsModal({ item, onClose, relativeTime }: FlashNewsModalPr
         role="dialog"
         aria-modal="true"
         aria-labelledby="flash-title"
-        className="w-full max-w-lg rounded-3xl border border-white/70 bg-white p-6 shadow-2xl sm:p-8"
+        className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-3xl border border-white/70 bg-white p-5 sm:p-8 shadow-2xl my-auto"
       >
         <div className="flex items-center justify-between gap-4">
           <span className="inline-flex items-center gap-2 font-mono text-[10px] font-bold uppercase tracking-[.18em] text-rose-600">

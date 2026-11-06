@@ -98,11 +98,11 @@ export function ReactionsBar({
   }
 
   return (
-    <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-5">
+    <section className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 sm:p-5">
       <h3 className="mb-3.5 text-[11px] font-bold uppercase leading-none tracking-[0.01em] text-[#475569]">
         ОЦІНІТЬ МАТЕРІАЛ:
       </h3>
-      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-2.5 sm:grid-cols-4">
         {OPTIONS.map((option) => {
           const isActive = option.kind === selected;
           return (
@@ -112,7 +112,7 @@ export function ReactionsBar({
               aria-pressed={isActive}
               onClick={() => handleClick(option.kind)}
               className={
-                "flex h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border px-3 text-[11px] leading-none transition-colors " +
+                "flex h-10 sm:h-11 items-center justify-center gap-1.5 sm:gap-2 rounded-xl border px-2 sm:px-3 text-[10.5px] sm:text-[11px] leading-none transition-colors min-w-0 cursor-pointer " +
                 (isActive
                   ? option.activeClass
                   : "border-[#E2E8F0] bg-white font-medium text-[#334155] hover:bg-slate-50")
@@ -125,7 +125,7 @@ export function ReactionsBar({
                 aria-hidden="true"
                 style={{ width: option.iconWidth, height: option.iconHeight }}
               />
-              <span>
+              <span className="truncate">
                 {option.label} ({counts[option.kind]})
               </span>
             </button>

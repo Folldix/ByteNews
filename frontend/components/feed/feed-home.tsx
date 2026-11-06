@@ -179,9 +179,9 @@ export function FeedHome() {
         </section>
 
         {/* 2. Середня секція: # Теми на всю ширину (1296px) */}
-        <section aria-label="Популярні теми" className="w-full pt-[10px] pb-[24px] sm:pb-[30px] flex flex-wrap items-center gap-[8px]">
-          <span className="font-mono font-bold text-[16px] text-[#10b981] tracking-[0.8px]">#</span>
-          <span className="font-mono font-bold text-[14px] text-[#94a3b8] tracking-[0.7px] mr-1">Теми:</span>
+        <section aria-label="Популярні теми" className="w-full pt-[10px] pb-[20px] sm:pb-[30px] flex flex-wrap items-center gap-[6px] sm:gap-[8px]">
+          <span className="font-mono font-bold text-[15px] sm:text-[16px] text-[#10b981] tracking-[0.8px]">#</span>
+          <span className="font-mono font-bold text-[13px] sm:text-[14px] text-[#94a3b8] tracking-[0.7px] mr-1">Теми:</span>
           {topicsList.map((topic) => {
             const isSelected = tag === topic.slug;
             return (
@@ -193,7 +193,7 @@ export function FeedHome() {
                   if (!isSelected) setCategory("");
                 }}
                 aria-pressed={isSelected}
-                className={`backdrop-blur-[5px] rounded-[12px] px-[12px] py-[6px] font-mono font-medium text-[12px] tracking-[0.6px] transition cursor-pointer ${
+                className={`backdrop-blur-[5px] rounded-[12px] px-[10px] sm:px-[12px] py-[5px] sm:py-[6px] font-mono font-medium text-[11px] sm:text-[12px] tracking-[0.6px] transition cursor-pointer active:scale-95 ${
                   isSelected
                     ? "bg-[#0f172a] border border-[#0f172a] text-white shadow-[0px_1px_1.5px_0px_rgba(15,23,42,0.15)]"
                     : "bg-white/80 border border-[#e2e8f0] text-[#475569] hover:bg-[#f1f5f9]/80 hover:border-[#cbd5e1] hover:text-[#0f172a]"
@@ -211,7 +211,7 @@ export function FeedHome() {
           <div className="col-span-1 lg:col-span-8 min-w-0">
             <section aria-labelledby="articles-heading">
               {/* Шапка секції Всі новини та Перемикач */}
-              <div className="flex flex-wrap items-end justify-between border-b border-[#e2e8f0] pb-[16px] mb-[24px] gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between border-b border-[#e2e8f0] pb-[16px] mb-[24px] gap-4">
                 {/* Ліва частина */}
                 <div className="flex flex-col gap-[4px]">
                   <div className="flex items-center gap-[8px]">
@@ -228,11 +228,11 @@ export function FeedHome() {
                 </div>
 
                 {/* Права частина: Перемикач Новин */}
-                <div className="bg-[#e2e8f0]/60 p-[4px] rounded-[12px] inline-flex items-center gap-[4px] max-w-full overflow-x-auto no-scrollbar">
+                <div className="bg-[#e2e8f0]/60 p-[4px] rounded-[12px] w-full sm:w-auto grid grid-cols-3 sm:inline-flex items-center gap-[4px]">
                   <button
                     type="button"
                     onClick={() => setSortBy("fresh")}
-                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
+                    className={`px-[8px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.6px] sm:tracking-[0.7px] leading-[1.35] transition-all cursor-pointer text-center justify-center flex items-center ${
                       sortBy === "fresh"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -243,7 +243,7 @@ export function FeedHome() {
                   <button
                     type="button"
                     onClick={() => setSortBy("popular")}
-                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
+                    className={`px-[8px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.6px] sm:tracking-[0.7px] leading-[1.35] transition-all cursor-pointer text-center justify-center flex items-center ${
                       sortBy === "popular"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -254,7 +254,7 @@ export function FeedHome() {
                   <button
                     type="button"
                     onClick={() => setSortBy("discussed")}
-                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
+                    className={`px-[8px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.6px] sm:tracking-[0.7px] leading-[1.35] transition-all cursor-pointer text-center justify-center flex items-center truncate ${
                       sortBy === "discussed"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -320,15 +320,21 @@ export function FeedHome() {
           </div>
 
           {/* Права колонка: 3) Віджети */}
-          <aside className="col-span-1 lg:col-span-4 flex flex-col gap-[20px] min-w-0">
+          <aside className="col-span-1 lg:col-span-4 grid grid-cols-1 md:grid-cols-2 lg:flex lg:flex-col gap-5 min-w-0">
             {/* Віджет 1: Хроніка подій */}
-            <ChronicleWidget items={flashNews} onSelect={setSelectedFlash} />
+            <div className="min-w-0">
+              <ChronicleWidget items={flashNews} onSelect={setSelectedFlash} />
+            </div>
 
             {/* Віджет 2: Опитування тижня */}
-            <CommunityPoll />
+            <div className="min-w-0">
+              <CommunityPoll />
+            </div>
 
             {/* Віджет 3: Кабінет репортера */}
-            <ReporterCabinetWidget />
+            <div className="md:col-span-2 lg:col-span-1 min-w-0">
+              <ReporterCabinetWidget />
+            </div>
           </aside>
         </div>
 
