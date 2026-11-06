@@ -27,7 +27,7 @@ function HomeShell() {
       <Header />
       <AuthModal />
       {activeView !== "feed" ? (
-        <main className="mx-auto w-[1296px] flex-1 py-8">
+        <main className="mx-auto w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 flex-1 py-6 sm:py-8">
           <UserProfileView initialTab={activeView === "bookmarks" ? "bookmarks" : "articles"} />
         </main>
       ) : (

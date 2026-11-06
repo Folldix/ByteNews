@@ -50,7 +50,7 @@ export default function RootLayout({
       lang="uk"
       className={`${plusJakartaSans.variable} ${jetbrainsMono.variable} ${inter.variable}`}
     >
-      <body className="font-sans bg-[#f8fafc] text-[#0f172a] antialiased min-h-screen min-w-[1328px] flex flex-col relative selection:bg-[#059669]/10 selection:text-[#059669]">
+      <body className="font-sans bg-[#f8fafc] text-[#0f172a] antialiased min-h-screen w-full overflow-x-hidden flex flex-col relative selection:bg-[#059669]/10 selection:text-[#059669]">
         <Background />
         <AuthProvider>
           <FeedProvider>

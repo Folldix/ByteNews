@@ -130,14 +130,14 @@ export function FeedHome() {
 
   return (
     <main className="min-h-screen text-slate-900">
-      <div className="w-[1296px] mx-auto pb-16 pt-6">
+      <div className="w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 mx-auto pb-12 sm:pb-16 pt-4 sm:pt-6">
 
         {/* 1. Верхня секція: Головна новина (8 колонок) + Найбільше читають (4 колонки) */}
         <section aria-labelledby="hero-heading" className="mb-6">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <span className="size-[8px] rounded-full bg-[#10b981]" />
-              <h2 id="hero-heading" className="font-mono font-bold text-[12px] leading-[1.5] text-[#0f172a] tracking-[0.6px] uppercase">
+              <span className="size-[8px] rounded-full bg-[#10b981] shrink-0" />
+              <h2 id="hero-heading" className="font-mono font-bold text-[11px] sm:text-[12px] leading-[1.5] text-[#0f172a] tracking-[0.6px] uppercase">
                 ГОЛОВНА НОВИНА & ТРЕНДИ ДНЯ
               </h2>
             </div>
@@ -146,15 +146,15 @@ export function FeedHome() {
                 <polyline points="15 1 9.5 6.5 6 3 1 8" />
                 <polyline points="11 1 15 1 15 5" />
               </svg>
-              <span className="font-mono font-bold text-[12px] leading-[1.5] text-[#64748b] tracking-[0.6px] uppercase">
+              <span className="font-mono font-bold text-[11px] sm:text-[12px] leading-[1.5] text-[#64748b] tracking-[0.6px] uppercase">
                 ТОП-ОГЛЯД
               </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-6 items-stretch">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             {/* Ліва колонка: Головна новина (Hero) */}
-            <div className="col-span-8 flex flex-col">
+            <div className="col-span-1 lg:col-span-8 flex flex-col min-w-0">
               <HeroArticleCard
                 hero={hero}
                 loading={loading}
@@ -167,7 +167,7 @@ export function FeedHome() {
             </div>
 
             {/* Права колонка: 1) Найбільше читають (3 картки) */}
-            <div className="col-span-4 flex flex-col">
+            <div className="col-span-1 lg:col-span-4 flex flex-col min-w-0">
               <PopularNewsWidget
                 items={popular.length ? popular : FALLBACK_POPULAR}
                 bookmarked={bookmarked}
@@ -179,7 +179,7 @@ export function FeedHome() {
         </section>
 
         {/* 2. Середня секція: # Теми на всю ширину (1296px) */}
-        <section aria-label="Популярні теми" className="w-full pt-[10px] pb-[30px] flex flex-wrap items-center gap-[8px]">
+        <section aria-label="Популярні теми" className="w-full pt-[10px] pb-[24px] sm:pb-[30px] flex flex-wrap items-center gap-[8px]">
           <span className="font-mono font-bold text-[16px] text-[#10b981] tracking-[0.8px]">#</span>
           <span className="font-mono font-bold text-[14px] text-[#94a3b8] tracking-[0.7px] mr-1">Теми:</span>
           {topicsList.map((topic) => {
@@ -206,19 +206,19 @@ export function FeedHome() {
         </section>
 
         {/* 3. Нижня секція: Каталог публікацій (8 колонок) + Віджети (4 колонки) */}
-        <div className="grid grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Ліва колонка: Каталог публікацій */}
-          <div className="col-span-8 min-w-0">
+          <div className="col-span-1 lg:col-span-8 min-w-0">
             <section aria-labelledby="articles-heading">
               {/* Шапка секції Всі новини та Перемикач */}
               <div className="flex flex-wrap items-end justify-between border-b border-[#e2e8f0] pb-[16px] mb-[24px] gap-4">
                 {/* Ліва частина */}
                 <div className="flex flex-col gap-[4px]">
                   <div className="flex items-center gap-[8px]">
-                    <h2 id="articles-heading" className="text-[24px] font-extrabold text-[#0f172a] leading-normal">
+                    <h2 id="articles-heading" className="text-[20px] sm:text-[24px] font-extrabold text-[#0f172a] leading-normal">
                       {query ? `Результати пошуку` : (activeCategory ?? "Всі новини")}
                     </h2>
-                    <span className="bg-[#e2e8f0]/70 rounded-full px-[10px] py-[2px] text-[14px] font-medium text-[#334155] min-w-[37px] text-center">
+                    <span className="bg-[#e2e8f0]/70 rounded-full px-[10px] py-[2px] text-[13px] sm:text-[14px] font-medium text-[#334155] min-w-[37px] text-center">
                       {sortedCatalogArticles.length}
                     </span>
                   </div>
@@ -228,11 +228,11 @@ export function FeedHome() {
                 </div>
 
                 {/* Права частина: Перемикач Новин */}
-                <div className="bg-[#e2e8f0]/60 p-[4px] rounded-[12px] inline-flex items-center gap-[4px]">
+                <div className="bg-[#e2e8f0]/60 p-[4px] rounded-[12px] inline-flex items-center gap-[4px] max-w-full overflow-x-auto no-scrollbar">
                   <button
                     type="button"
                     onClick={() => setSortBy("fresh")}
-                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
                       sortBy === "fresh"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -243,7 +243,7 @@ export function FeedHome() {
                   <button
                     type="button"
                     onClick={() => setSortBy("popular")}
-                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
                       sortBy === "popular"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -254,7 +254,7 @@ export function FeedHome() {
                   <button
                     type="button"
                     onClick={() => setSortBy("discussed")}
-                    className={`px-[12px] py-[6px] font-mono text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer ${
+                    className={`px-[10px] sm:px-[12px] py-[6px] font-mono text-[12px] sm:text-[14px] tracking-[0.7px] leading-[1.35] transition-all cursor-pointer shrink-0 ${
                       sortBy === "discussed"
                         ? "bg-white rounded-[8px] shadow-[0px_1px_3px_0px_rgba(0,0,0,0.08)] font-bold text-[#475569]"
                         : "font-normal text-[#475569] hover:text-[#0f172a]"
@@ -272,7 +272,7 @@ export function FeedHome() {
               )}
 
               {loading ? (
-                <div className="grid gap-6 grid-cols-2">
+                <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
                   <div className="h-72 animate-pulse rounded-2xl bg-slate-200" />
                   <div className="h-72 animate-pulse rounded-2xl bg-slate-200" />
                 </div>
@@ -292,7 +292,7 @@ export function FeedHome() {
                 </div>
               ) : (
                 <>
-                  <div className="grid gap-6 grid-cols-2">
+                  <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
                     {visibleArticles.map((article) => (
                       <ArticleCard
                         key={article.id}
@@ -320,7 +320,7 @@ export function FeedHome() {
           </div>
 
           {/* Права колонка: 3) Віджети */}
-          <aside className="col-span-4 flex flex-col gap-[20px]">
+          <aside className="col-span-1 lg:col-span-4 flex flex-col gap-[20px] min-w-0">
             {/* Віджет 1: Хроніка подій */}
             <ChronicleWidget items={flashNews} onSelect={setSelectedFlash} />
 

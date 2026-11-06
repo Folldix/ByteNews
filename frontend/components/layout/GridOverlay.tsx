@@ -51,8 +51,8 @@ export function GridOverlay() {
       {/* Напівпрозорий оверлей 12 колонок */}
       {visible && (
         <div className="fixed inset-0 z-40 pointer-events-none overflow-hidden">
-          <div className="w-[1296px] mx-auto h-full">
-            <div className="grid grid-cols-12 gap-6 h-full">
+          <div className="w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 mx-auto h-full">
+            <div className="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-12 gap-4 sm:gap-6 h-full">
               {Array.from({ length: 12 }).map((_, index) => (
                 <div
                   key={index}

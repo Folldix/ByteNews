@@ -31,9 +31,9 @@ export function Footer() {
   return (
     <>
       <footer className="w-full bg-white/90 backdrop-blur-[15px] border-t border-[#e2e8f0] mt-auto">
-        <div className="w-[1296px] mx-auto">
+        <div className="w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 mx-auto">
           {/* Верхній блок: 4 інформаційні колонки */}
-          <div className="pt-[20px] pb-[24px] grid grid-cols-4 gap-[30px]">
+          <div className="pt-[24px] pb-[24px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-[30px]">
             {/* Колонка 1: Логотип бренду та опис */}
             <div>
               <a href="/" className="inline-flex items-center gap-[10px]">
@@ -172,12 +172,12 @@ export function Footer() {
           </div>
 
           {/* Нижня частина: Копірайт та посилання */}
-          <div className="h-[43px] border-t border-[#e2e8f0] flex flex-row items-center justify-between text-[11px]">
-            <div className="font-mono text-[#64748b] leading-none">
+          <div className="min-h-[43px] py-3 sm:py-0 border-t border-[#e2e8f0] flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px]">
+            <div className="font-mono text-[#64748b] leading-none text-center sm:text-left">
               © 2026 ByteNews Media. Усі права захищено.
             </div>
 
-            <div className="flex items-center gap-[12px] text-[#64748b] leading-none">
+            <div className="flex flex-wrap items-center justify-center gap-[10px] sm:gap-[12px] text-[#64748b] leading-none">
               <a href="#editorial" className="hover:text-[#0f172a] transition-colors">
                 Редакційна політика
               </a>

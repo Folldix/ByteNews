@@ -327,7 +327,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
 
           {/* Кнопки дій справа */}
           <div className="flex flex-col items-start md:items-end gap-2.5 shrink-0 self-start md:self-auto w-full md:w-auto">
-            <div className="flex flex-row md:flex-col items-center md:items-end gap-2 w-full md:w-auto">
+            <div className="flex flex-wrap flex-row md:flex-col items-center md:items-end gap-2 w-full md:w-auto">
               {isReporter ? (
                 <button
                   type="button"
@@ -562,7 +562,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                         className="fixed inset-0 z-20 cursor-default"
                         onClick={() => setIsSortDropdownOpen(false)}
                       />
-                      <div className="absolute right-0 mt-1.5 w-60 rounded-[14px] bg-white border border-[#e2e8f0] shadow-lg py-1.5 z-30 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
+                      <div className="absolute left-0 sm:left-auto sm:right-0 mt-1.5 w-60 rounded-[14px] bg-white border border-[#e2e8f0] shadow-lg py-1.5 z-30 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
                         <div className="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
                           Критерій сортування
                         </div>

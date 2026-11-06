@@ -31,9 +31,9 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-md border-b border-[#e2e8f0]">
-        <div className="w-[1296px] mx-auto">
+        <div className="w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 mx-auto">
           {/* Верхня навігаційна панель */}
-          <div className="flex items-center gap-[10px] py-[10px] min-h-[67px]">
+          <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-2.5 py-[10px] min-h-[67px]">
             {/* Логотип бренду */}
             <button
               type="button"
@@ -49,10 +49,10 @@ export function Header() {
                 </svg>
               </div>
               <div className="flex flex-col gap-[2px]">
-                <span className="font-sans font-extrabold text-[20px] leading-[22px] text-[#0f172a]">
+                <span className="font-sans font-extrabold text-[18px] sm:text-[20px] leading-[22px] text-[#0f172a]">
                   Byte<span className="text-[#059669]">News</span>
                 </span>
-                <span className="font-mono font-extrabold text-[10px] leading-[12px] text-[#0f172a] uppercase">
+                <span className="font-mono font-extrabold text-[9px] sm:text-[10px] leading-[12px] text-[#0f172a] uppercase">
                   IT & TECH DIGEST
                 </span>
               </div>
@@ -65,7 +65,7 @@ export function Header() {
                 setQuery(searchText.trim());
                 navigateToHomeIfElsewhere();
               }}
-              className="flex min-w-0 flex-1 h-[40px] bg-white border border-solid border-[#e2e8f0] focus-within:border-[#10b981] focus-within:shadow-[0px_2px_2.5px_0px_rgba(0,0,0,0.25)] rounded-[12px] pl-[22px] pr-[16px] py-[11px] items-center gap-[7px] transition-all"
+              className="order-last md:order-none w-full md:w-auto basis-full md:basis-auto flex min-w-0 flex-1 h-[40px] bg-white border border-solid border-[#e2e8f0] focus-within:border-[#10b981] focus-within:shadow-[0px_2px_2.5px_0px_rgba(0,0,0,0.25)] rounded-[12px] pl-[16px] sm:pl-[22px] pr-[14px] sm:pr-[16px] py-[11px] items-center gap-[7px] transition-all"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="size-[18px] shrink-0">
                 <path d="M13 13L19 19M8 15C4.13401 15 1 11.866 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8C15 11.866 11.866 15 8 15Z" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -83,17 +83,18 @@ export function Header() {
             {/* Панель дій користувача (Гість або Авторизований) */}
             {!isAuthenticated ? (
               /* Стан гостя: тільки Дайджест та Увійти */
-              <div className="flex items-center gap-[10px]">
+              <div className="flex items-center gap-2 sm:gap-[10px]">
                 {/* Кнопка Дайджест */}
                 <button
                   type="button"
                   onClick={() => setDigestOpen(true)}
-                  className="h-[34px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
+                  aria-label="Дайджест"
+                  className="h-[36px] px-[10px] sm:px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
                 >
-                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                     <path d="M2 2L8.10764 6.61227L8.10967 6.61396C8.78785 7.11129 9.12714 7.3601 9.49876 7.45622C9.82723 7.54117 10.1725 7.54117 10.501 7.45622C10.8729 7.36001 11.2132 7.11047 11.8926 6.61227C11.8926 6.61227 15.8101 3.60594 18 2M1 11.8002V4.2002C1 3.08009 1 2.51962 1.21799 2.0918C1.40974 1.71547 1.71547 1.40974 2.0918 1.21799C2.51962 1 3.08009 1 4.2002 1H15.8002C16.9203 1 17.4796 1 17.9074 1.21799C18.2837 1.40974 18.5905 1.71547 18.7822 2.0918C19 2.5192 19 3.079 19 4.19691V11.8036C19 12.9215 19 13.4805 18.7822 13.9079C18.5905 14.2842 18.2837 14.5905 17.9074 14.7822C17.48 15 16.921 15 15.8031 15H4.19691C3.079 15 2.5192 15 2.0918 14.7822C1.71547 14.5905 1.40974 14.2842 1.21799 13.9079C1 13.4801 1 12.9203 1 11.8002Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="#1E293B" />
                   </svg>
-                  <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
+                  <span className="hidden xs:inline sm:inline font-sans font-semibold text-[12px] text-[#1e293b]">
                     Дайджест
                   </span>
                 </button>
@@ -103,9 +104,9 @@ export function Header() {
                   type="button"
                   onClick={openAuthModal}
                   title="Увійти в акаунт"
-                  className="h-[32px] px-[12px] bg-white/90 border border-[#e2e8f0] rounded-[12px] flex items-center gap-[7px] hover:bg-slate-100 transition cursor-pointer"
+                  className="h-[36px] px-[12px] bg-white/90 border border-[#e2e8f0] rounded-[12px] flex items-center gap-[7px] hover:bg-slate-100 transition cursor-pointer"
                 >
-                  <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                     <path d="M17 19C17 16.2386 13.4183 14 9 14C4.58172 14 1 16.2386 1 19M9 11C6.23858 11 4 8.76142 4 6C4 3.23858 6.23858 1 9 1C11.7614 1 14 3.23858 14 6C14 8.76142 11.7614 11 9 11Z" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                   <span className="font-bold text-[12px] text-[#0f172a]">
@@ -115,7 +116,7 @@ export function Header() {
               </div>
             ) : (
               /* Стан авторизованого користувача: Стрічка (якщо профіль), Закладки, Дайджест, Профіль */
-              <div className="flex items-center gap-[10px]">
+              <div className="flex items-center gap-1.5 sm:gap-[10px]">
                 {/* Кнопка стрічки (лише на сторінці профілю) */}
                 {activeView === "profile" && (
                   <button
@@ -124,10 +125,11 @@ export function Header() {
                       setActiveView("feed");
                       navigateToHomeIfElsewhere();
                     }}
-                    className="h-[36px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
+                    aria-label="Стрічка"
+                    className="h-[36px] px-[10px] sm:px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
                   >
-                    <LayoutGrid className="w-[18px] h-[18px] text-[#059669]" />
-                    <span className="font-sans font-semibold text-[12px] text-[#334155]">
+                    <LayoutGrid className="w-[18px] h-[18px] text-[#059669] shrink-0" />
+                    <span className="hidden sm:inline font-sans font-semibold text-[12px] text-[#334155]">
                       Стрічка
                     </span>
                   </button>
@@ -137,12 +139,13 @@ export function Header() {
                 <button
                   type="button"
                   onClick={openDrawer}
-                  className="h-[34px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
+                  aria-label="Закладки"
+                  className="h-[36px] px-[10px] sm:px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
                 >
-                  <svg width="14" height="18.263" viewBox="0 0 14 18.263" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="14" height="18.263" viewBox="0 0 14 18.263" fill="none" overflow="visible" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                     <path d="M1 4.2002V13.6854C1 15.0464 1 15.7268 1.20412 16.1433C1.58245 16.9151 2.41158 17.3588 3.26367 17.2454C3.72341 17.1842 4.28964 16.8067 5.4221 16.0518L5.42482 16.0499C5.87369 15.7507 6.09815 15.6011 6.33295 15.5181C6.76421 15.3656 7.23476 15.3656 7.66602 15.5181C7.90129 15.6012 8.12664 15.7515 8.57732 16.0519C9.70978 16.8069 10.2767 17.1841 10.7364 17.2452C11.5885 17.3586 12.4176 16.9151 12.7959 16.1433C13 15.7269 13 15.0462 13 13.6854V4.19691C13 3.079 13 2.5192 12.7822 2.0918C12.5905 1.71547 12.2837 1.40974 11.9074 1.21799C11.4796 1 10.9203 1 9.8002 1H4.2002C3.08009 1 2.51962 1 2.0918 1.21799C1.71547 1.40974 1.40974 1.71547 1.21799 2.0918C1 2.51962 1 3.08009 1 4.2002Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="#1E293B" />
                   </svg>
-                  <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
+                  <span className="hidden sm:inline font-sans font-semibold text-[12px] text-[#1e293b]">
                     Закладки
                   </span>
                   {count > 0 && (
@@ -156,12 +159,13 @@ export function Header() {
                 <button
                   type="button"
                   onClick={() => setDigestOpen(true)}
-                  className="h-[34px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
+                  aria-label="Дайджест"
+                  className="h-[36px] px-[10px] sm:px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[6px] hover:bg-slate-50 transition cursor-pointer"
                 >
-                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                     <path d="M2 2L8.10764 6.61227L8.10967 6.61396C8.78785 7.11129 9.12714 7.3601 9.49876 7.45622C9.82723 7.54117 10.1725 7.54117 10.501 7.45622C10.8729 7.36001 11.2132 7.11047 11.8926 6.61227C11.8926 6.61227 15.8101 3.60594 18 2M1 11.8002V4.2002C1 3.08009 1 2.51962 1.21799 2.0918C1.40974 1.71547 1.71547 1.40974 2.0918 1.21799C2.51962 1 3.08009 1 4.2002 1H15.8002C16.9203 1 17.4796 1 17.9074 1.21799C18.2837 1.40974 18.5905 1.71547 18.7822 2.0918C19 2.5192 19 3.079 19 4.19691V11.8036C19 12.9215 19 13.4805 18.7822 13.9079C18.5905 14.2842 18.2837 14.5905 17.9074 14.7822C17.48 15 16.921 15 15.8031 15H4.19691C3.079 15 2.5192 15 2.0918 14.7822C1.71547 14.5905 1.40974 14.2842 1.21799 13.9079C1 13.4801 1 12.9203 1 11.8002Z" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" stroke="#1E293B" />
                   </svg>
-                  <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
+                  <span className="hidden sm:inline font-sans font-semibold text-[12px] text-[#1e293b]">
                     Дайджест
                   </span>
                 </button>
@@ -174,7 +178,7 @@ export function Header() {
                     navigateToHomeIfElsewhere();
                   }}
                   title="Перейти в особистий кабінет"
-                  className="h-[46px] px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[8px] hover:bg-slate-50 transition cursor-pointer text-left"
+                  className="h-[42px] sm:h-[46px] px-[8px] sm:px-[12px] bg-white border border-[#e2e8f0] rounded-[14px] flex items-center gap-[8px] hover:bg-slate-50 transition cursor-pointer text-left"
                 >
                   <div className="relative">
                     <div className="w-[28px] h-[28px] rounded-[8px] overflow-hidden bg-[#111315] border border-white/60 shadow-xs flex items-center justify-center shrink-0">
@@ -187,7 +191,7 @@ export function Header() {
                     {/* Зелена цяточка статусу */}
                     <span className="absolute -bottom-0.5 -right-0.5 w-[8px] h-[8px] rounded-full bg-[#10b981] border border-white" />
                   </div>
-                  <div className="flex flex-col leading-tight">
+                  <div className="hidden xs:flex sm:flex flex-col leading-tight">
                     <span className="font-sans font-semibold text-[12px] text-[#1e293b]">
                       {user.full_name.split(" ")[0]}
                     </span>
@@ -202,7 +206,7 @@ export function Header() {
 
           {/* Ряд фільтрів за рубриками (приховується на сторінці профілю) */}
           {activeView !== "profile" && (
-            <div className="border-t border-[#e2e8f0] py-[8px] flex items-center gap-[4px] overflow-x-auto">
+            <div className="border-t border-[#e2e8f0] py-[8px] flex items-center gap-[4px] overflow-x-auto no-scrollbar">
               {CATEGORIES.map((item) => {
                 const isActive = category === item.slug;
                 return (
