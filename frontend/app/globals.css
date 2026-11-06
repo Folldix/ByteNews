@@ -32,3 +32,22 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
 }
+
+/* The main site uses a desktop canvas; keep the writing workspace viewport-sized. */
+body:has(.cms-editor-root, .article-reader-root) {
+  min-width: 0;
+}
+
+.cms-editor-root header > div,
+.cms-editor-root footer > div,
+.article-reader-root header > div,
+.article-reader-root footer > div {
+  width: 100%;
+  max-width: 1296px;
+  padding-inline: 1rem;
+}
+
+.wrap-long-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
