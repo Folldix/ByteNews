@@ -250,7 +250,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
       </div>
 
       {/* 2. Головна картка профілю */}
-      <div className="relative overflow-hidden rounded-[24px] bg-white/90 backdrop-blur-md border border-[#e2e8f0] p-6 sm:p-7 shadow-sm">
+      <div className="relative overflow-hidden rounded-[20px] sm:rounded-[24px] bg-white/90 backdrop-blur-md border border-[#e2e8f0] p-4 sm:p-7 shadow-sm">
         {/* Фонове декоративне світіння */}
         <div
           className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -z-0 transition-colors duration-500 ${
@@ -261,9 +261,9 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
         <div className="relative z-10 flex flex-col md:flex-row md:items-start justify-between gap-6">
           
           {/* Аватар та текстова інформація */}
-          <div className="flex flex-col sm:flex-row items-start gap-5">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
             <div className="relative shrink-0">
-              <div className="w-[76px] h-[76px] sm:w-[84px] sm:h-[84px] rounded-[22px] overflow-hidden bg-[#111315] border-2 border-white shadow-md flex items-center justify-center">
+              <div className="w-[68px] h-[68px] sm:w-[84px] sm:h-[84px] rounded-[18px] sm:rounded-[22px] overflow-hidden bg-[#111315] border-2 border-white shadow-md flex items-center justify-center">
                 <img
                   src={user.avatar_url || "/avatars/Avatar_1.png"}
                   alt={user.full_name}
@@ -287,7 +287,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
 
             <div className="space-y-1.5 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-mono font-bold text-[22px] sm:text-[24px] tracking-tight text-[#0f172a]">
+                <h1 className="font-mono font-bold text-[20px] sm:text-[24px] tracking-tight text-[#0f172a] break-words">
                   {user.full_name}
                 </h1>
                 <span className="text-xs font-mono text-slate-500">
@@ -326,13 +326,13 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
           </div>
 
           {/* Кнопки дій справа */}
-          <div className="flex flex-col items-start md:items-end gap-2.5 shrink-0 self-start md:self-auto w-full md:w-auto">
-            <div className="flex flex-row md:flex-col items-center md:items-end gap-2 w-full md:w-auto">
+          <div className="flex flex-col items-start md:items-end gap-2 shrink-0 self-start md:self-auto w-full md:w-auto">
+            <div className="flex flex-col sm:flex-row md:flex-col items-stretch sm:items-center md:items-end gap-2 w-full md:w-auto">
               {isReporter ? (
                 <button
                   type="button"
                   onClick={() => setActiveTab("articles")}
-                  className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  className="w-full sm:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
                   <span>+ Написати публікацію</span>
@@ -341,81 +341,83 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 <button
                   type="button"
                   onClick={() => setIsVerificationOpen(true)}
-                  className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  className="w-full sm:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
                   <span>Стати автором</span>
                 </button>
               )}
 
-              <button
-                type="button"
-                onClick={() => setIsEditModalOpen(true)}
-                className="h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
-              >
-                <UserPen className="w-3.5 h-3.5 text-slate-500" />
-                <span>Редагувати профіль</span>
-              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  <UserPen className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Редагувати профіль</span>
+                </button>
 
-              <button
-                type="button"
-                onClick={handleCopyProfileLink}
-                title="Скопіювати посилання на профіль"
-                className="h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-[#10b981]" />
-                    <span className="font-semibold text-[#10b981]">Скопійовано</span>
-                  </>
-                ) : (
-                  <>
-                    <Share2 className="w-3.5 h-3.5 text-[#64748b]" />
-                    <span>Поділитися</span>
-                  </>
-                )}
-              </button>
+                <button
+                  type="button"
+                  onClick={handleCopyProfileLink}
+                  title="Скопіювати посилання на профіль"
+                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-[#10b981]" />
+                      <span className="font-semibold text-[#10b981]">Скопійовано</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 text-[#64748b]" />
+                      <span>Поділитися</span>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
         </div>
 
         {/* 3. Адаптивна статистична панель (4 метрики) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 mt-6 border-t border-[#e2e8f0] font-mono">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-[#e2e8f0] font-mono">
           {isReporter ? (
             <>
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Публікацій (Автор)
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {publishedCount} статей
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Охоплення (перегляди)
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#059669]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#059669] leading-tight">
                   {(user.total_views || 7230).toLocaleString("uk-UA")}
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {bookmarksCount} матеріалів
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Статус акаунта
                 </div>
-                <div className="text-[15px] sm:text-[16px] font-extrabold text-[#059669] flex items-center gap-1.5 mt-1 truncate">
+                <div className="text-[12px] sm:text-[14px] md:text-[16px] font-extrabold text-[#059669] flex items-center gap-1.5 mt-1 leading-tight">
                   <ShieldCheck className="w-4 h-4 text-[#10b981] shrink-0" />
                   <span>Автор + Читач</span>
                 </div>
@@ -423,38 +425,38 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
             </>
           ) : (
             <>
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#059669]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#059669] leading-tight">
                   {bookmarksCount} матеріалів
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Написано коментарів
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {user.comments_count || 19} думок
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Прочитано новин
                 </div>
-                <div className="text-[18px] sm:text-[20px] font-extrabold text-[#0f172a]">
+                <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {user.read_articles_count || 42} статті
                 </div>
               </div>
 
-              <div className="p-4 rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
-                <div className="text-[11px] font-medium text-slate-500 mb-1 truncate">
+              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+                <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Рівень у спільноті
                 </div>
-                <div className="text-[15px] sm:text-[16px] font-extrabold text-sky-700 flex items-center gap-1.5 mt-1 truncate">
+                <div className="text-[12px] sm:text-[14px] md:text-[16px] font-extrabold text-sky-700 flex items-center gap-1.5 mt-1 leading-tight">
                   <UserCheck className="w-4 h-4 text-sky-600 shrink-0" />
                   <span>Учасник форуму</span>
                 </div>
@@ -496,7 +498,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
       <section className="space-y-6">
         
         {/* Лінія вкладок */}
-        <div className="flex items-center gap-2 border-b border-[#e2e8f0] pb-[10px] font-mono text-xs overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 border-b border-[#e2e8f0] pb-[10px] font-mono text-xs overflow-x-auto no-scrollbar scroll-smooth">
           {availableTabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -531,7 +533,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
           {/* ВКЛАДКА 1: Опубліковані статті (тільки для автора) */}
           {isReporter && activeTab === "articles" && (
             <div className="space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-slate-500 pb-2.5 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs font-mono text-slate-500 pb-2.5 border-b border-slate-100">
                 <span>Показано матеріали автора {user.full_name}</span>
 
                 {/* Кнопка вибору критерію сортування */}
@@ -562,7 +564,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                         className="fixed inset-0 z-20 cursor-default"
                         onClick={() => setIsSortDropdownOpen(false)}
                       />
-                      <div className="absolute right-0 mt-1.5 w-60 rounded-[14px] bg-white border border-[#e2e8f0] shadow-lg py-1.5 z-30 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
+                      <div className="absolute right-0 left-auto mt-1.5 w-56 sm:w-60 max-w-[calc(100vw-32px)] rounded-[14px] bg-white border border-[#e2e8f0] shadow-lg py-1.5 z-30 font-mono text-xs animate-in fade-in zoom-in-95 duration-100">
                         <div className="px-3.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 mb-1">
                           Критерій сортування
                         </div>
@@ -681,14 +683,14 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               </div>
 
               {/* Прогрес-бари охоплення тем */}
-              <div className="p-6 rounded-2xl bg-white border border-[#e2e8f0] shadow-xs space-y-4 font-mono">
+              <div className="p-4 sm:p-6 rounded-2xl bg-white border border-[#e2e8f0] shadow-xs space-y-4 font-mono">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-slate-800">
                   Найпопулярніші теми репортера:
                 </h4>
                 
                 <div className="space-y-3.5 text-xs">
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                       <span className="text-slate-700">Штучний Інтелект & LLM моделі</span>
                       <span className="font-bold text-slate-900">54% охоплення</span>
                     </div>
@@ -698,7 +700,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                       <span className="text-slate-700">Архітектура систем та компілятори</span>
                       <span className="font-bold text-slate-900">32% охоплення</span>
                     </div>
@@ -708,7 +710,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1 mb-1.5">
                       <span className="text-slate-700">Кібербезпека та аналіз 0-day</span>
                       <span className="font-bold text-slate-900">14% охоплення</span>
                     </div>
@@ -744,10 +746,10 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               ].map((draft) => (
                 <div
                   key={draft.id}
-                  className="rounded-2xl p-5 border border-[#e2e8f0] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs hover:border-slate-300 transition"
+                  className="rounded-2xl p-4 sm:p-5 border border-[#e2e8f0] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-xs hover:border-slate-300 transition"
                 >
                   <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-[11px] font-mono">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] font-mono">
                       <span className="font-bold text-slate-700">{draft.category}</span>
                       <span>•</span>
                       <span className="text-slate-500">{draft.updated}</span>
@@ -761,10 +763,10 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                     </h4>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
                     <button
                       type="button"
-                      className="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-semibold hover:bg-emerald-600 transition-colors cursor-pointer"
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-semibold hover:bg-emerald-600 transition-colors cursor-pointer text-center"
                     >
                       Продовжити редагування
                     </button>
@@ -850,9 +852,9 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               ].map((comment) => (
                 <div
                   key={comment.id}
-                  className="rounded-2xl p-5 border border-[#e2e8f0] bg-white space-y-2.5 shadow-xs"
+                  className="rounded-2xl p-4 sm:p-5 border border-[#e2e8f0] bg-white space-y-2.5 shadow-xs"
                 >
-                  <div className="flex items-center justify-between text-slate-500 text-[11px]">
+                  <div className="flex flex-wrap items-center justify-between gap-1 text-slate-500 text-[11px]">
                     <span className="text-emerald-700 font-bold">Коментар під статтею:</span>
                     <span>{comment.date}</span>
                   </div>

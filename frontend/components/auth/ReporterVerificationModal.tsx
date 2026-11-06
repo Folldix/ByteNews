@@ -28,8 +28,8 @@ export function ReporterVerificationModal({ onClose }: { onClose: () => void }) 
   }
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="reporter-title" className="w-full max-w-lg rounded-3xl border border-white/70 bg-white p-6 shadow-2xl sm:p-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-3 sm:p-4 backdrop-blur-sm overflow-y-auto" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+      <section role="dialog" aria-modal="true" aria-labelledby="reporter-title" className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-3xl border border-white/70 bg-white p-5 sm:p-8 shadow-2xl my-auto">
         <div className="flex items-start justify-between gap-4">
           <div><p className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-emerald-700">ByteNews / Reporter</p><h2 id="reporter-title" className="mt-2 text-2xl font-extrabold tracking-tight">Стати автором</h2><p className="mt-2 text-sm leading-6 text-slate-600">Підтвердіть публічний нікнейм, підпис і теми, про які плануєте писати.</p></div>
           <button type="button" onClick={onClose} aria-label="Закрити" className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl text-slate-500 hover:bg-slate-200">×</button>

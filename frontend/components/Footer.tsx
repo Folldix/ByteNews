@@ -31,9 +31,9 @@ export function Footer() {
   return (
     <>
       <footer className="w-full bg-white/90 backdrop-blur-[15px] border-t border-[#e2e8f0] mt-auto">
-        <div className="w-[1296px] mx-auto">
+        <div className="w-full max-w-[1296px] px-4 sm:px-6 lg:px-8 mx-auto">
           {/* Верхній блок: 4 інформаційні колонки */}
-          <div className="pt-[20px] pb-[24px] grid grid-cols-4 gap-[30px]">
+          <div className="pt-[24px] pb-[24px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-[30px]">
             {/* Колонка 1: Логотип бренду та опис */}
             <div>
               <a href="/" className="inline-flex items-center gap-[10px]">
@@ -47,7 +47,7 @@ export function Footer() {
                   Byte<span className="text-[#10b981]">News</span>
                 </span>
               </a>
-              <p className="text-[12px] leading-[18px] text-[#475569] max-w-[251px] mt-[10px]">
+              <p className="text-[12px] leading-[18px] text-[#475569] max-w-full sm:max-w-[251px] mt-[10px]">
                 Незалежне українське медіа про інженерію, штучний інтелект, кіберзахист та архітектуру систем. Пишемо для розробників, архітекторів та техлідів.
               </p>
             </div>
@@ -115,7 +115,7 @@ export function Footer() {
               <button
                 type="button"
                 onClick={() => setDigestOpen(true)}
-                className="group w-[246px] h-[31px] px-[12px] py-[6px] bg-white hover:bg-[#ecfdf5] border border-[#e2e8f0] hover:border-[#a7f3d0] rounded-[12px] flex items-center gap-[6px] text-[#1e293b] hover:text-[#065f46] text-[11px] font-bold transition-colors cursor-pointer"
+                className="group w-full sm:w-auto max-w-[260px] min-h-[36px] px-[12px] py-[6px] bg-white hover:bg-[#ecfdf5] border border-[#e2e8f0] hover:border-[#a7f3d0] rounded-[12px] flex items-center justify-center sm:justify-start gap-[6px] text-[#1e293b] hover:text-[#065f46] text-[11px] font-bold transition-colors cursor-pointer active:scale-[0.99]"
               >
                 <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                   <path d="M2 2L8.10764 6.61227L8.10967 6.61396C8.78785 7.11129 9.12714 7.3601 9.49876 7.45622C9.82723 7.54117 10.1725 7.54117 10.501 7.45622C10.8729 7.36001 11.2132 7.11047 11.8926 6.61227C11.8926 6.61227 15.8101 3.60594 18 2M1 11.8002V4.2002C1 3.08009 1 2.51962 1.21799 2.0918C1.40974 1.71547 1.71547 1.40974 2.0918 1.21799C2.51962 1 3.08009 1 4.2002 1H15.8002C16.9203 1 17.4796 1 17.9074 1.21799C18.2837 1.40974 18.5905 1.71547 18.7822 2.0918C19 2.5192 19 3.079 19 4.19691V11.8036C19 12.9215 19 13.4805 18.7822 13.9079C18.5905 14.2842 18.2837 14.5905 17.9074 14.7822C17.48 15 16.921 15 15.8031 15H4.19691C3.079 15 2.5192 15 2.0918 14.7822C1.71547 14.5905 1.40974 14.2842 1.21799 13.9079C1 13.4801 1 12.9203 1 11.8002Z" stroke="#059669" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -172,12 +172,12 @@ export function Footer() {
           </div>
 
           {/* Нижня частина: Копірайт та посилання */}
-          <div className="h-[43px] border-t border-[#e2e8f0] flex flex-row items-center justify-between text-[11px]">
-            <div className="font-mono text-[#64748b] leading-none">
+          <div className="min-h-[43px] py-3 sm:py-0 border-t border-[#e2e8f0] flex flex-col sm:flex-row items-center justify-between gap-2.5 text-[11px]">
+            <div className="font-mono text-[#64748b] leading-none text-center sm:text-left">
               © 2026 ByteNews Media. Усі права захищено.
             </div>
 
-            <div className="flex items-center gap-[12px] text-[#64748b] leading-none">
+            <div className="flex flex-wrap items-center justify-center gap-[10px] sm:gap-[12px] text-[#64748b] leading-none">
               <a href="#editorial" className="hover:text-[#0f172a] transition-colors">
                 Редакційна політика
               </a>

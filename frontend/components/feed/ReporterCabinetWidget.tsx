@@ -18,7 +18,7 @@ export function ReporterCabinetWidget() {
   };
 
   return (
-    <section className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0] rounded-[16px] p-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.04)] flex flex-col gap-[12px] items-start relative overflow-hidden w-full">
+    <section className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0] rounded-[16px] p-4 sm:p-[20px] shadow-[0px_4px_16px_0px_rgba(0,0,0,0.04)] flex flex-col gap-[12px] items-start relative overflow-hidden w-full h-full">
       {/* Декоративне світіння */}
       <div className="absolute right-[-30px] top-[-30px] size-[140px] pointer-events-none">
         <svg width="100%" height="100%" viewBox="0 0 208 208" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -48,16 +48,16 @@ export function ReporterCabinetWidget() {
         />
       </svg>
 
-      <h3 className="font-mono font-bold text-[14px] text-[#0f172a] leading-none">
+      <h3 className="font-mono font-bold text-[13px] sm:text-[14px] text-[#0f172a] leading-snug break-words">
         Бажаєте писати для ByteNews?
       </h3>
-      <p className="font-sans font-normal text-[12px] leading-[1.45] text-[#475569]">
+      <p className="font-sans font-normal text-[12px] leading-[1.5] text-[#475569] break-words">
         Перемкніть профіль у режим репортера, щоб публікувати технічні розслідування, репортажі та аналітику.
       </p>
       <button
         type="button"
         onClick={handleAction}
-        className="w-full py-[16px] px-[10px] rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono font-bold text-[12px] leading-none flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-[0.99]"
+        className="w-full min-h-[42px] sm:min-h-[44px] py-[12px] sm:py-[14px] px-[10px] rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono font-bold text-[12px] leading-none flex items-center justify-center transition-colors shadow-xs cursor-pointer active:scale-[0.99] mt-auto"
       >
         Кабінет репортера
       </button>
