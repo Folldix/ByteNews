@@ -50,6 +50,8 @@ body:has(.cms-editor-root, .article-reader-root) {
 .wrap-long-text {
   overflow-wrap: anywhere;
   word-break: break-word;
+
+}
 /* Приховування смуги прокрутки для горизонтальних списків на мобільних пристроях */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
