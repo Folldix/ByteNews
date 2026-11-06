@@ -176,7 +176,12 @@ def collect_all_sources(session_factory: sessionmaker[Session]) -> None:
                 logger.info("Ingested %d new entries from RSS source %s", inserted, source.id)
             except Exception:
                 db.rollback()
-                logger.exception("RSS ingestion failed for source %s", source.id)
+                logger.exception(
+                    "RSS ingestion failed for source %s (%s): %s",
+                    source.name,
+                    source.id,
+                    source.feed_url,
+                )
 
 
 def create_scheduler(

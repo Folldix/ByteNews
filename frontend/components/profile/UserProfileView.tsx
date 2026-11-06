@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   PenTool,
   Share2,
@@ -29,6 +30,8 @@ import { EditProfileModal } from "./EditProfileModal";
 import { ReporterVerificationModal } from "../auth/ReporterVerificationModal";
 import { ArticleCard } from "../feed/ArticleCard";
 import type { Article } from "../feed/types";
+import { getStoredAccessToken } from "../../lib/api";
+import { listMyArticles, type EditorArticle } from "../cms/cms-api";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
 
@@ -74,6 +77,7 @@ function parseArticleDate(dateStr: string | null | undefined): number {
 }
 
 export function UserProfileView({ initialTab = "articles" }: { initialTab?: ProfileTab }) {
+  const router = useRouter();
   const { user, setActiveView, openAuthModal } = useAuth();
   const { items: bookmarkedItems, toggleBookmark } = useBookmarks();
 
@@ -86,6 +90,9 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [sortOption, setSortOption] = useState<SortOption>("date-desc");
   const [isSortDropdownOpen, setIsSortDropdownOpen] = useState(false);
+  const [cmsArticles, setCmsArticles] = useState<EditorArticle[]>([]);
+  const [cmsLoading, setCmsLoading] = useState(false);
+  const [cmsError, setCmsError] = useState("");
 
   const sortedArticles = React.useMemo(() => {
     if (!user?.articles) return [];
@@ -127,6 +134,24 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
     }
   }, [initialTab, isReporter]);
 
+  useEffect(() => {
+    if (!isReporter) return;
+    const token = getStoredAccessToken();
+    if (!token || token === "demo-access-token") {
+      setCmsArticles([]);
+      setCmsLoading(false);
+      return;
+    }
+    let active = true;
+    setCmsLoading(true);
+    setCmsError("");
+    listMyArticles(token)
+      .then((page) => { if (active) setCmsArticles(page.items); })
+      .catch((reason: unknown) => { if (active) setCmsError(reason instanceof Error ? reason.message : "Не вдалося завантажити публікації."); })
+      .finally(() => { if (active) setCmsLoading(false); });
+    return () => { active = false; };
+  }, [isReporter]);
+
   // Якщо користувач гість, показуємо заглушку з кнопкою входу
   if (!user) {
     return (
@@ -163,7 +188,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
   };
 
   const publishedCount = user.articles?.filter((a) => a.status !== "draft").length || 0;
-  const draftsCount = user.articles?.filter((a) => a.status === "draft").length || 2;
+  const draftsCount = cmsArticles.filter((article) => article.status === "draft").length;
   const bookmarksCount = bookmarkedItems.length;
   const commentsCount = user.comments_count ?? 3;
 
@@ -331,8 +356,8 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               {isReporter ? (
                 <button
                   type="button"
-                  onClick={() => setActiveTab("articles")}
-                  className="w-full sm:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  onClick={() => router.push("/editor")}
+                  className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
                   <span>+ Написати публікацію</span>
@@ -619,12 +644,14 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                   };
                   const isBookmarked = bookmarkedItems.some((b) => b.article.id === article.id);
                   return (
-                    <ArticleCard
-                      key={article.id}
-                      article={feedArticle}
-                      bookmarked={isBookmarked}
-                      onBookmark={() => toggleBookmark(feedArticle)}
-                    />
+                    <div key={article.id} className="space-y-2">
+                      <ArticleCard
+                        article={feedArticle}
+                        bookmarked={isBookmarked}
+                        onBookmark={() => toggleBookmark(feedArticle)}
+                      />
+                      <button type="button" onClick={() => router.push(`/editor/${article.id}`)} className="ml-1 text-xs font-semibold text-emerald-800 hover:underline">Редагувати публікацію →</button>
+                    </div>
                   );
                 })}
               </div>
@@ -726,51 +753,28 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
           {/* ВКЛАДКА 3: Чернетки (тільки для автора) */}
           {isReporter && activeTab === "drafts" && (
             <div className="space-y-4">
-              {[
-                {
-                  id: "draft-1",
-                  title: "Порівняльний аналіз Garbage Collector у Go 1.25 та .NET 9 на мікросервісах",
-                  category: "Розробка",
-                  updated: "Оновлено 2 години тому",
-                  status: "На рецензуванні в техредактора",
-                  statusColor: "bg-amber-100 text-amber-800 border-amber-300",
-                },
-                {
-                  id: "draft-2",
-                  title: "Вразливості в протоколах MCP (Model Context Protocol): як захистити локальні інструменти",
-                  category: "Кібербезпека",
-                  updated: "Оновлено вчора",
-                  status: "Чернетка (30% завершено)",
-                  statusColor: "bg-slate-100 text-slate-700 border-slate-300",
-                },
-              ].map((draft) => (
-                <div
-                  key={draft.id}
-                  className="rounded-2xl p-4 sm:p-5 border border-[#e2e8f0] bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-xs hover:border-slate-300 transition"
-                >
-                  <div className="space-y-1.5">
-                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-[11px] font-mono">
-                      <span className="font-bold text-slate-700">{draft.category}</span>
-                      <span>•</span>
-                      <span className="text-slate-500">{draft.updated}</span>
-                      <span>•</span>
-                      <span className={`px-2 py-0.5 rounded-full border text-[10px] font-semibold ${draft.statusColor}`}>
-                        {draft.status}
-                      </span>
+              {cmsError && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">{cmsError}</div>}
+              {cmsLoading ? <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">Завантажуємо статті автора…</div> : null}
+              {!cmsLoading && cmsArticles.filter((article) => article.status === "draft").length === 0 && (
+                <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-10 text-center">
+                  <FileText className="mx-auto size-8 text-slate-400" />
+                  <h3 className="mt-3 text-base font-bold text-slate-900">Чернеток поки немає</h3>
+                  <p className="mt-1 text-sm text-slate-500">Створіть публікацію та збережіть її, щоб продовжити пізніше.</p>
+                  <button type="button" onClick={() => router.push("/editor")} className="mt-4 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700">Написати статтю</button>
+                </div>
+              )}
+              {!cmsLoading && cmsArticles.filter((article) => article.status === "draft").map((draft) => (
+                <div key={draft.id} className="flex flex-col justify-between gap-4 rounded-2xl border border-[#e2e8f0] bg-white p-5 shadow-xs transition hover:border-slate-300 sm:flex-row sm:items-center">
+                  <div className="min-w-0 space-y-1.5">
+                    <div className="flex flex-wrap items-center gap-2 font-mono text-[10px] text-slate-500">
+                      <span className="rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 font-bold text-amber-800">Чернетка</span>
+                      <span>Оновлено {new Date(draft.updated_at).toLocaleDateString("uk-UA")}</span>
+                      <span>·</span><span>{draft.read_time_min} хв читання</span>
                     </div>
-                    <h4 className="text-sm sm:text-base font-bold text-slate-900 font-sans">
-                      {draft.title}
-                    </h4>
+                    <h4 className="truncate font-sans text-sm font-bold text-slate-900 sm:text-base">{draft.title || "Без назви"}</h4>
+                    <p className="truncate text-xs text-slate-500">{draft.lead || "Додайте лід і продовжте роботу над матеріалом."}</p>
                   </div>
-
-                  <div className="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                    <button
-                      type="button"
-                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-mono font-semibold hover:bg-emerald-600 transition-colors cursor-pointer text-center"
-                    >
-                      Продовжити редагування
-                    </button>
-                  </div>
+                  <button type="button" onClick={() => router.push(`/editor/${draft.id}`)} className="shrink-0 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-mono font-semibold text-white transition-colors hover:bg-emerald-700">Продовжити редагування</button>
                 </div>
               ))}
             </div>
