@@ -43,9 +43,12 @@ app.mount(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
+    # Local Next.js can be opened via localhost or a loopback IP and may
+    # move to another port when the default dev port is occupied.
+    allow_origin_regex=r"https?://(?:localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    allow_headers=["*"],
 )
 app.include_router(create_feed_router(get_db=get_db, article_model=Article, user_model=User))
 app.include_router(auth_router)
