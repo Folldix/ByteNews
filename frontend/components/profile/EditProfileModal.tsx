@@ -99,7 +99,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0f172a]/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-[#0f172a]/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-200 overflow-y-auto"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -109,10 +109,10 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-profile-title"
-        className="w-full max-w-[560px] bg-white border border-[#e2e8f0] rounded-[24px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+        className="w-full max-w-[560px] bg-white border border-[#e2e8f0] rounded-[20px] sm:rounded-[24px] shadow-2xl overflow-hidden flex flex-col max-h-[90dvh] my-auto"
       >
         {/* Шапка модального вікна */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#f1f5f9] bg-slate-50/50">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-[#f1f5f9] bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#ecfdf5] text-[#059669] flex items-center justify-center font-bold">
               <User className="w-4 h-4" />
@@ -141,7 +141,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
         </div>
 
         {/* Тіло форми */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-5 overscroll-contain">
           {error && (
             <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-mono">
               {error}
@@ -153,8 +153,8 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             <label className="block text-xs font-mono font-bold text-slate-700">
               Аватар профілю
             </label>
-            <div className="flex items-center gap-3">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500 shadow-sm shrink-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-slate-900 border-2 border-emerald-500 shadow-sm shrink-0">
                 <img
                   src={showCustomInput && customAvatarInput.trim() ? customAvatarInput.trim() : avatarUrl}
                   alt="Обраний аватар"
@@ -166,7 +166,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                 <div className="text-[11px] font-mono text-slate-500 mb-2">
                   Оберіть один із фірмових аватарів або вкажіть URL:
                 </div>
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                   {PRESET_AVATARS.map((preset, idx) => {
                     const isSelected = !showCustomInput && avatarUrl === preset;
                     return (
@@ -177,7 +177,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                           setShowCustomInput(false);
                           setAvatarUrl(preset);
                         }}
-                        className={`relative w-9 h-9 rounded-xl overflow-hidden border-2 transition cursor-pointer ${
+                        className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl overflow-hidden border-2 transition cursor-pointer ${
                           isSelected
                             ? "border-emerald-600 ring-2 ring-emerald-500/30 scale-105"
                             : "border-slate-200 hover:border-slate-400 opacity-80 hover:opacity-100"
@@ -200,7 +200,7 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
                   <button
                     type="button"
                     onClick={() => setShowCustomInput(!showCustomInput)}
-                    className={`h-9 px-2.5 rounded-xl border text-[11px] font-mono font-medium transition cursor-pointer flex items-center gap-1.5 ${
+                    className={`h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl border text-[10px] sm:text-[11px] font-mono font-medium transition cursor-pointer flex items-center gap-1.5 ${
                       showCustomInput
                         ? "bg-emerald-50 border-emerald-300 text-emerald-800"
                         : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"

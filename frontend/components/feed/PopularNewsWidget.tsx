@@ -35,19 +35,19 @@ export function PopularNewsWidget({
       </div>
 
       {/* Список карток */}
-      <div className="flex flex-col gap-[10px] flex-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-col gap-[10px] flex-1">
         {displayItems.map((item, index) => {
           const idx = String(index + 1).padStart(2, "0");
           const isItemBookmarked = bookmarked.has(item.id);
           return (
             <div
               key={item.id}
-              className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0] rounded-[16px] p-[18px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] flex flex-col justify-between items-center flex-1 w-full transition hover:border-[#cbd5e1] group"
+              className="backdrop-blur-[10px] bg-white/80 border border-[#e2e8f0] rounded-[16px] p-3.5 sm:p-4 lg:p-[18px] shadow-[0px_10px_25px_-4px_rgba(15,23,42,0.04)] flex flex-col justify-between items-stretch flex-1 w-full transition hover:border-[#cbd5e1] group min-h-[140px]"
             >
               {/* Верхній блок: Шапка + Текст заголовка */}
               <div className="w-full flex flex-col mb-auto">
                 {/* Рядок категорії та закладки */}
-                <div className="flex items-center justify-between p-[10px] w-full shrink-0">
+                <div className="flex items-center justify-between pb-2 w-full shrink-0">
                   <div className="flex items-center gap-[6px]">
                     <span className="font-mono font-bold text-[12px] leading-[1.35] text-[#94a3b8] tracking-[0.6px] whitespace-nowrap">
                       {idx}
@@ -85,10 +85,10 @@ export function PopularNewsWidget({
                 </div>
 
                 {/* Заголовок публікації */}
-                <div className="w-full">
+                <div className="w-full mt-1">
                   <a
                     href={`/articles/${item.slug}`}
-                    className="block w-full font-mono font-bold text-[14px] leading-[1.35] tracking-[0.7px] text-[#0f172a] group-hover:text-[#059669] transition-colors"
+                    className="block w-full font-mono font-bold text-[13px] sm:text-[14px] leading-[1.35] tracking-[0.6px] sm:tracking-[0.7px] text-[#0f172a] group-hover:text-[#059669] transition-colors break-words [overflow-wrap:anywhere]"
                   >
                     {item.title}
                   </a>
@@ -96,11 +96,11 @@ export function PopularNewsWidget({
               </div>
 
               {/* Час публікації та статистика */}
-              <div className="border-t border-[#f1f5f9] py-[8px] flex items-center justify-between w-full shrink-0">
+              <div className="border-t border-[#f1f5f9] pt-[10px] pb-[2px] mt-2 flex items-center justify-between w-full shrink-0 gap-2">
                 <p className="font-mono font-normal text-[11px] leading-[1.5] text-[#64748b] tracking-[0.55px] whitespace-nowrap">
                   {item.time_label || relativeTime(item.published_at)}
                 </p>
-                <div className="flex items-center gap-[16px] whitespace-nowrap text-[#475569]">
+                <div className="flex items-center gap-[10px] sm:gap-[16px] whitespace-nowrap text-[#475569]">
                   {/* eye */}
                   <div className="flex items-center gap-[4px] leading-none">
                     <svg width="19" height="12" viewBox="0 0 20.6943 13.9999" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0 text-[#94a3b8]">

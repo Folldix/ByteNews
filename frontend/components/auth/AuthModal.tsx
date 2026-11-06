@@ -72,16 +72,16 @@ export function AuthModal() {
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4"
       onClick={closeAuthModal}
     >
       {/* Картка модального вікна */}
       <div
-        className="w-full max-w-[448px] bg-white rounded-[24px] border border-[#e2e8f0] shadow-2xl overflow-hidden relative"
+        className="w-full max-w-[448px] bg-white rounded-[20px] sm:rounded-[24px] border border-[#e2e8f0] shadow-2xl overflow-hidden relative flex flex-col max-h-[90dvh] my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* 1. Шапка модального вікна */}
-        <div className="px-[24px] py-[20px] bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center justify-between">
+        <div className="px-4 py-3 sm:px-6 sm:py-4 bg-[#f8fafc] border-b border-[#e2e8f0] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-[12px]">
             {/* Квадрат 40x40 з вектором Ключа */}
             <div className="w-[40px] h-[40px] rounded-[12px] bg-[#0f172a] flex items-center justify-center shrink-0">
@@ -116,7 +116,7 @@ export function AuthModal() {
 
         {/* 2. Перемикач режимів: Вхід / Реєстрація */}
         {!isForgotPassword && (
-          <div className="px-[24px] pt-[14px] pb-[4px] bg-white">
+          <div className="px-4 pt-3 pb-1 sm:px-6 sm:pt-3.5 sm:pb-1 bg-white shrink-0">
             <div className="bg-[#f1f5f9] p-[4px] rounded-[14px] flex items-center">
               <button
                 type="button"
@@ -145,7 +145,7 @@ export function AuthModal() {
         )}
 
         {/* 3. Основний вміст */}
-        <div className="px-[24px] py-[20px]">
+        <div className="px-4 py-3.5 sm:px-6 sm:py-5 overflow-y-auto flex-1 overscroll-contain">
           {authError && <p role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs leading-5 text-rose-800">{authError}</p>}
           {isForgotPassword ? (
             /* --- Екран відновлення паролю --- */
@@ -313,11 +313,11 @@ export function AuthModal() {
               </button>
 
               {/* Рядок 3 провайдерів (GitHub, Apple, Telegram по 126x40px) */}
-              <div className="grid grid-cols-3 gap-[8px]">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="github" className="w-[16px] h-[16px] text-[#0f172a]" />
                   <span>GitHub</span>
@@ -326,7 +326,7 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="apple" className="w-[14px] h-[16px] text-[#0f172a]" />
                   <span>Apple</span>
@@ -335,7 +335,7 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setAuthError("Вхід через зовнішні провайдери ще не налаштований. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="telegram" className="w-[18px] h-[18px]" />
                   <span>Telegram</span>
@@ -467,11 +467,11 @@ export function AuthModal() {
               </button>
 
               {/* 3 провайдери */}
-              <div className="grid grid-cols-3 gap-[8px]">
+              <div className="grid grid-cols-3 gap-1.5 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="github" className="w-[16px] h-[16px] text-[#0f172a]" />
                   <span>GitHub</span>
@@ -480,7 +480,7 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="apple" className="w-[14px] h-[16px] text-[#0f172a]" />
                   <span>Apple</span>
@@ -489,7 +489,7 @@ export function AuthModal() {
                 <button
                   type="button"
                   onClick={() => setAuthError("Реєстрація через зовнішні провайдери ще не налаштована. Скористайтеся email.")}
-                  className="h-[40px] bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-[8px] text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
+                  className="h-[38px] sm:h-[40px] px-1 sm:px-2 bg-white hover:bg-slate-50 border border-[#e2e8f0] rounded-[12px] flex items-center justify-center gap-1 sm:gap-2 text-[11px] sm:text-[13px] font-mono font-semibold text-[#0f172a] transition cursor-pointer shadow-xs"
                 >
                   <Icon name="telegram" className="w-[18px] h-[18px]" />
                   <span>Telegram</span>

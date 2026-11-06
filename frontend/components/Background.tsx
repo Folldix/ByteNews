@@ -10,7 +10,7 @@ export function Background() {
       <div className="absolute inset-0 bg-[#f8fafc]" />
 
       {/* 2. Атмосферне сяйво (Ambient Glow) відносно центру сторінки 1296px */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1296px] h-full pointer-events-none">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-[1296px] h-full pointer-events-none">
         {/* Верхня ліва сфера (Emerald #10B981) */}
         <div
           className="absolute top-[-10px] left-[-435px] w-[500px] h-[500px] rounded-full bg-[#10b981] opacity-[0.14] blur-[90px] transform-gpu"
