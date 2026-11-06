@@ -1,4 +1,5 @@
 import { API_BASE_URL } from "../../lib/api";
+import { FALLBACK_ARTICLES } from "../feed/feed-api";
 import type { Article } from "../feed/types";
 import type { ReactionKind, ReactionCounts } from "./types";
 
@@ -49,6 +50,43 @@ export const DEFAULT_DEMO_POLL: Poll = {
   ],
 };
 
+export const DEFAULT_DEMO_COMMENTS: CommentNode[] = [
+  {
+    id: "comm-1",
+    article_id: "art-demo",
+    parent_id: null,
+    text: "Дуже ґрунтовний аналіз! Гібридне мислення дійсно дає помітний буст у завданнях системного проектування.",
+    author_id: "user-demchenko",
+    author_name: "Ігор Демченко",
+    author_avatar_url: "/images/avatar-2.png",
+    created_at: new Date(Date.now() - 45 * 60_000).toISOString(),
+    replies: [
+      {
+        id: "comm-1-1",
+        article_id: "art-demo",
+        parent_id: "comm-1",
+        text: "Погоджуюсь. Особливо вражає швидкість генерації та зменшення галюцинацій у складних типах TypeScript.",
+        author_id: "user-bondar",
+        author_name: "Марина Бондар",
+        author_avatar_url: "/images/avatar-4.png",
+        created_at: new Date(Date.now() - 20 * 60_000).toISOString(),
+        replies: [],
+      },
+    ],
+  },
+  {
+    id: "comm-2",
+    article_id: "art-demo",
+    parent_id: null,
+    text: "Цікаво, як це вплине на вартість API при масштабуванні на велику команду розробників.",
+    author_id: "user-savchuk",
+    author_name: "Віталій Савчук",
+    author_avatar_url: "/images/avatar-3.png",
+    created_at: new Date(Date.now() - 15 * 60_000).toISOString(),
+    replies: [],
+  },
+];
+
 function authHeaders(): HeadersInit {
   try {
     const token = localStorage.getItem("bytenews_access_token") || sessionStorage.getItem("bytenews_access_token");
@@ -75,106 +113,253 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+export const getDemoArticle = (slug: string): ArticleRead => {
+  const decodedSlug = decodeURIComponent(slug);
+  const found = FALLBACK_ARTICLES.find((a) => a.slug === decodedSlug);
+  return {
+    id: found?.id ?? "art-demo",
+    title: found?.title ?? (decodedSlug === "typescript-5-8-deep-dive"
+      ? "Глибокий розбір TypeScript 5.8: як нові перевірки типів прискорюють компіляцію на 40%"
+      : "Anthropic представила Claude 3.7 Sonnet: гібридне мислення та новий еталон кодингу"),
+    slug: decodedSlug,
+    lead: found?.lead ?? (decodedSlug === "typescript-5-8-deep-dive"
+      ? "Огляд оптимізацій типізації, прапорця --isolatedDeclarations та нових можливостей звуження типів у складних генериках."
+      : "Нова модель поєднує миттєві відповіді для повсякденних задач із керованим ланцюжком роздумів для складного архітектурного рефакторингу та змагального програмування."),
+    cover_image_url: found?.cover_image_url ?? (decodedSlug === "typescript-5-8-deep-dive" ? null : "/images/hero-claude.png"),
+    cover_caption: null,
+    is_hero: found?.is_hero ?? true,
+    is_photo_reportage: found?.is_photo_reportage ?? false,
+    read_time_min: found?.read_time_min ?? (decodedSlug === "typescript-5-8-deep-dive" ? 8 : 4),
+    views_count: found?.views_count ?? (decodedSlug === "typescript-5-8-deep-dive" ? 3110 : 4280),
+    likes_count: found?.likes_count ?? 142,
+    comments_count: found?.comments_count ?? (decodedSlug === "typescript-5-8-deep-dive" ? 18 : 48),
+    published_at: found?.time_label ?? "25 хв тому",
+    category: found?.category ?? (decodedSlug === "typescript-5-8-deep-dive" ? "Розробка" : "Штучний Інтелект"),
+    author: found?.author ?? "Олександр Коваленко",
+    author_role: found?.author_role ?? "Head of AI Engineering",
+    author_avatar: found?.author_avatar ?? "/images/avatar-kovalenko.png",
+    tags: found?.tags ?? (decodedSlug === "typescript-5-8-deep-dive" ? ["TypeScript", "React"] : ["AI", "LLM", "Claude", "Кодинг", "Benchmark"]),
+    blocks: [
+      {
+        id: "b-1",
+        block_type: "paragraph",
+        order_index: 0,
+        content_payload: {
+          text: "Сучасний стек інженерії все більше спирається на агентні системи, де моделі нового покоління демонструють високу точність аналізу та надійність генерації коду.",
+        },
+      },
+      {
+        id: "b-2",
+        block_type: "heading",
+        order_index: 1,
+        content_payload: {
+          text: "Гібридне міркування та архітектурні зміни",
+          level: 2,
+        },
+      },
+      {
+        id: "b-3",
+        block_type: "paragraph",
+        order_index: 2,
+        content_payload: {
+          text: "Головна інновація полягає у поєднанні швидкого інференсу для стандартних задач із динамічним розширеним міркуванням для складної системної аналітики.",
+        },
+      },
+      {
+        id: "b-4",
+        block_type: "callout",
+        order_index: 3,
+        content_payload: {
+          text: "Новий підхід дозволяє прискорити ітерації рефакторингу на 35% при одночасному зменшенні помилок компіляції.",
+        },
+      },
+    ],
+    reaction_counts: { useful: 24, fire: 18, insight: 12, controversial: 3 },
+    my_reaction: null,
+    is_bookmarked: false,
+  };
+};
+
 export const getArticle = async (slug: string): Promise<ArticleRead> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return getDemoArticle(slug);
+  }
   try {
     return await request<ArticleRead>(`/articles/${encodeURIComponent(slug)}`);
   } catch (err: unknown) {
-    const decodedSlug = decodeURIComponent(slug);
-    return {
-      id: "art-demo",
-      title: decodedSlug === "typescript-5-8-deep-dive"
-        ? "Глибокий розбір TypeScript 5.8: як нові перевірки типів прискорюють компіляцію на 40%"
-        : "Anthropic представила Claude 3.7 Sonnet: гібридне мислення та новий еталон кодингу",
-      slug: decodedSlug,
-      lead: decodedSlug === "typescript-5-8-deep-dive"
-        ? "Огляд оптимізацій типізації, прапорця --isolatedDeclarations та нових можливостей звуження типів у складних генериках."
-        : "Нова модель поєднує миттєві відповіді для повсякденних задач із керованим ланцюжком роздумів для складного архітектурного рефакторингу та змагального програмування.",
-      cover_image_url: decodedSlug === "typescript-5-8-deep-dive" ? null : "/images/hero-claude.png",
-      cover_caption: null,
-      is_hero: true,
-      is_photo_reportage: false,
-      read_time_min: decodedSlug === "typescript-5-8-deep-dive" ? 8 : 4,
-      views_count: decodedSlug === "typescript-5-8-deep-dive" ? 3110 : 4280,
-      likes_count: 142,
-      comments_count: decodedSlug === "typescript-5-8-deep-dive" ? 18 : 48,
-      published_at: "25 хв тому",
-      category: decodedSlug === "typescript-5-8-deep-dive" ? "Розробка" : "Штучний Інтелект",
-      author: "Олександр Коваленко",
-      author_role: "Head of AI Engineering",
-      tags: decodedSlug === "typescript-5-8-deep-dive" ? ["TypeScript", "React"] : ["AI", "LLM", "Claude", "Кодинг", "Benchmark"],
-      blocks: [
-        {
-          id: "b-1",
-          block_type: "paragraph",
-          order_index: 0,
-          content_payload: {
-            text: "Сучасний стек інженерії все більше спирається на агентні системи, де моделі нового покоління демонструють високу точність аналізу та надійність генерації коду.",
-          },
-        },
-        {
-          id: "b-2",
-          block_type: "heading",
-          order_index: 1,
-          content_payload: {
-            text: "Гібридне міркування та архітектурні зміни",
-            level: 2,
-          },
-        },
-        {
-          id: "b-3",
-          block_type: "paragraph",
-          order_index: 2,
-          content_payload: {
-            text: "Головна інновація полягає у поєднанні швидкого інференсу для стандартних задач із динамічним розширеним міркуванням для складної системної аналітики.",
-          },
-        },
-        {
-          id: "b-4",
-          block_type: "callout",
-          order_index: 3,
-          content_payload: {
-            text: "Новий підхід дозволяє прискорити ітерації рефакторингу на 35% при одночасному зменшенні помилок компіляції.",
-          },
-        },
-      ],
-      reaction_counts: { useful: 24, fire: 18, insight: 12, controversial: 3 },
-      my_reaction: null,
-      is_bookmarked: false,
-    };
+    return getDemoArticle(slug);
   }
 };
 
-export const getComments = (articleId: string) =>
-  request<{ items: CommentNode[]; total: number }>(`/articles/${articleId}/comments`).catch(() => ({ items: [], total: 0 }));
+function getLocalDemoComments(articleId: string): CommentNode[] {
+  try {
+    const raw = typeof window !== "undefined" ? localStorage.getItem(`bytenews_demo_comments:${articleId}`) : null;
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {}
+  return DEFAULT_DEMO_COMMENTS;
+}
 
-export const createComment = (articleId: string, text: string, parentId?: string) => request<CommentNode>(`/articles/${articleId}/comments`, {
-  method: "POST", headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ text, parent_id: parentId ?? null }),
-});
+function saveLocalDemoComments(articleId: string, comments: CommentNode[]) {
+  try {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`bytenews_demo_comments:${articleId}`, JSON.stringify(comments));
+    }
+  } catch {}
+}
 
-export const getReactions = (articleId: string) =>
-  request<{ counts: ReactionCounts; selected: ReactionKind | null }>(`/articles/${articleId}/reactions`).catch(() => ({
-    counts: { useful: 24, fire: 18, insight: 12, controversial: 3 },
-    selected: null,
-  }));
+function addDemoComment(articleId: string, text: string, parentId?: string): CommentNode {
+  const comments = [...getLocalDemoComments(articleId)];
+  const newComment: CommentNode = {
+    id: `comm-${Date.now()}`,
+    article_id: articleId,
+    parent_id: parentId ?? null,
+    text,
+    author_id: "demo-user",
+    author_name: "Олександр Коваленко",
+    author_avatar_url: "/images/avatar-kovalenko.png",
+    created_at: new Date().toISOString(),
+    replies: [],
+  };
 
-export const setReaction = (articleId: string, kind: ReactionKind | null) => request<{ counts: ReactionCounts; selected: ReactionKind | null }>(`/articles/${articleId}/react`, {
-  method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ kind }),
-});
+  if (parentId) {
+    const attachReply = (list: CommentNode[]): boolean => {
+      for (const item of list) {
+        if (item.id === parentId) {
+          item.replies.push(newComment);
+          return true;
+        }
+        if (item.replies.length > 0 && attachReply(item.replies)) return true;
+      }
+      return false;
+    };
+    if (!attachReply(comments)) {
+      comments.push(newComment);
+    }
+  } else {
+    comments.push(newComment);
+  }
+
+  saveLocalDemoComments(articleId, comments);
+  return newComment;
+}
+
+export const getComments = async (articleId: string): Promise<{ items: CommentNode[]; total: number }> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    const items = getLocalDemoComments(articleId);
+    const countTotal = (list: CommentNode[]): number =>
+      list.reduce((acc, c) => acc + 1 + countTotal(c.replies), 0);
+    return { items, total: countTotal(items) };
+  }
+  try {
+    return await request<{ items: CommentNode[]; total: number }>(`/articles/${articleId}/comments`);
+  } catch {
+    const items = getLocalDemoComments(articleId);
+    const countTotal = (list: CommentNode[]): number =>
+      list.reduce((acc, c) => acc + 1 + countTotal(c.replies), 0);
+    return { items, total: countTotal(items) };
+  }
+};
+
+export const createComment = async (articleId: string, text: string, parentId?: string): Promise<CommentNode> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return addDemoComment(articleId, text, parentId);
+  }
+  try {
+    return await request<CommentNode>(`/articles/${articleId}/comments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, parent_id: parentId ?? null }),
+    });
+  } catch {
+    return addDemoComment(articleId, text, parentId);
+  }
+};
+
+export const getReactions = async (articleId: string): Promise<{ counts: ReactionCounts; selected: ReactionKind | null }> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    let selected: ReactionKind | null = null;
+    try {
+      selected = (localStorage.getItem(`bytenews_reaction:${articleId}`) as ReactionKind) || null;
+    } catch {}
+    const baseCounts: ReactionCounts = { useful: 24, fire: 18, insight: 12, controversial: 3 };
+    if (selected && selected in baseCounts) {
+      baseCounts[selected] += 1;
+    }
+    return { counts: baseCounts, selected };
+  }
+  try {
+    return await request<{ counts: ReactionCounts; selected: ReactionKind | null }>(`/articles/${articleId}/reactions`);
+  } catch {
+    let selected: ReactionKind | null = null;
+    try {
+      selected = (localStorage.getItem(`bytenews_reaction:${articleId}`) as ReactionKind) || null;
+    } catch {}
+    const baseCounts: ReactionCounts = { useful: 24, fire: 18, insight: 12, controversial: 3 };
+    if (selected && selected in baseCounts) {
+      baseCounts[selected] += 1;
+    }
+    return { counts: baseCounts, selected };
+  }
+};
+
+export const setReaction = async (
+  articleId: string,
+  kind: ReactionKind | null
+): Promise<{ counts: ReactionCounts; selected: ReactionKind | null }> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    try {
+      if (kind) {
+        localStorage.setItem(`bytenews_reaction:${articleId}`, kind);
+      } else {
+        localStorage.removeItem(`bytenews_reaction:${articleId}`);
+      }
+    } catch {}
+    const baseCounts: ReactionCounts = { useful: 24, fire: 18, insight: 12, controversial: 3 };
+    if (kind && kind in baseCounts) {
+      baseCounts[kind] += 1;
+    }
+    return { counts: baseCounts, selected: kind };
+  }
+  try {
+    return await request<{ counts: ReactionCounts; selected: ReactionKind | null }>(`/articles/${articleId}/react`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ kind }),
+    });
+  } catch {
+    try {
+      if (kind) {
+        localStorage.setItem(`bytenews_reaction:${articleId}`, kind);
+      } else {
+        localStorage.removeItem(`bytenews_reaction:${articleId}`);
+      }
+    } catch {}
+    const baseCounts: ReactionCounts = { useful: 24, fire: 18, insight: 12, controversial: 3 };
+    if (kind && kind in baseCounts) {
+      baseCounts[kind] += 1;
+    }
+    return { counts: baseCounts, selected: kind };
+  }
+};
 
 export const getActivePoll = async (): Promise<Poll | null> => {
   let poll: Poll | null = null;
-  try {
-    const res = await request<Poll | null>("/polls/active");
-    if (res) poll = res;
-  } catch {
-    // Демо-режим при недоступності бекенду
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
     poll = DEFAULT_DEMO_POLL;
+  } else {
+    try {
+      const res = await request<Poll | null>("/polls/active");
+      if (res) poll = res;
+    } catch {
+      poll = DEFAULT_DEMO_POLL;
+    }
   }
 
   if (!poll) return null;
 
-  // Перевіряємо локально збережений голос для цього опитування (якщо користувач гість)
   let selectedId = poll.selected_option_id;
   if (!selectedId) {
     try {
@@ -197,21 +382,7 @@ export const votePoll = async (
   optionId: string,
   currentPoll?: Poll | null
 ): Promise<Poll> => {
-  try {
-    const res = await request<Poll>(`/polls/${pollId}/vote`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ option_id: optionId }),
-    });
-    const finalSelectedId = res.selected_option_id || optionId;
-    try {
-      localStorage.setItem(`bytenews_poll_vote:${pollId}`, finalSelectedId);
-    } catch {}
-    return {
-      ...res,
-      selected_option_id: finalSelectedId,
-    };
-  } catch {
+  const updateDemoPoll = () => {
     try {
       localStorage.setItem(`bytenews_poll_vote:${pollId}`, optionId);
     } catch {}
@@ -233,11 +404,43 @@ export const votePoll = async (
       selected_option_id: optionId,
       options: finalOptions,
     };
+  };
+
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return updateDemoPoll();
+  }
+
+  try {
+    const res = await request<Poll>(`/polls/${pollId}/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ option_id: optionId }),
+    });
+    const finalSelectedId = res.selected_option_id || optionId;
+    try {
+      localStorage.setItem(`bytenews_poll_vote:${pollId}`, finalSelectedId);
+    } catch {}
+    return {
+      ...res,
+      selected_option_id: finalSelectedId,
+    };
+  } catch {
+    return updateDemoPoll();
   }
 };
 
-export const getBookmarks = () => request<{ items: SavedArticle[]; total: number }>("/bookmarks");
+export const getBookmarks = async (): Promise<{ items: SavedArticle[]; total: number }> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return { items: [], total: 0 };
+  }
+  return request<{ items: SavedArticle[]; total: number }>("/bookmarks").catch(() => ({ items: [], total: 0 }));
+};
 
-export const setBookmark = (articleId: string, bookmarked: boolean) => request<{ bookmarked: boolean }>(`/articles/${articleId}/bookmark`, {
-  method: bookmarked ? "PUT" : "DELETE",
-}).catch(() => ({ bookmarked }));
+export const setBookmark = async (articleId: string, bookmarked: boolean): Promise<{ bookmarked: boolean }> => {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return { bookmarked };
+  }
+  return request<{ bookmarked: boolean }>(`/articles/${articleId}/bookmark`, {
+    method: bookmarked ? "PUT" : "DELETE",
+  }).catch(() => ({ bookmarked }));
+};
