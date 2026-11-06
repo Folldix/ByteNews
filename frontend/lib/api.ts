@@ -38,6 +38,14 @@ export interface UserProfile {
 
 export type TokenPair = { user: UserProfile; access_token: string; refresh_token: string; token_type: "bearer" };
 
+export function getStoredAccessToken(): string | null {
+  try {
+    return localStorage.getItem("bytenews_access_token") || sessionStorage.getItem("bytenews_access_token");
+  } catch {
+    return null;
+  }
+}
+
 /** Еталонний профіль автора */
 export const DEMO_AUTHOR_PROFILE: UserProfile = {
   id: "demo-author-id",
