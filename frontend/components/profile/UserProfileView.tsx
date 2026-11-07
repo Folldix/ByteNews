@@ -31,6 +31,7 @@ import { ReporterVerificationModal } from "../auth/ReporterVerificationModal";
 import { ArticleCard } from "../feed/ArticleCard";
 import type { Article } from "../feed/types";
 import { getStoredAccessToken } from "../../lib/api";
+import { editorHref } from "../../lib/routes";
 import { listMyArticles, type EditorArticle } from "../cms/cms-api";
 
 type ProfileTab = "articles" | "analytics" | "drafts" | "bookmarks" | "comments";
@@ -356,7 +357,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               {isReporter ? (
                 <button
                   type="button"
-                  onClick={() => router.push("/editor")}
+                  onClick={() => router.push(editorHref())}
                   className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
                 >
                   <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
@@ -650,7 +651,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                         bookmarked={isBookmarked}
                         onBookmark={() => toggleBookmark(feedArticle)}
                       />
-                      <button type="button" onClick={() => router.push(`/editor/${article.id}`)} className="ml-1 text-xs font-semibold text-emerald-800 hover:underline">Редагувати публікацію →</button>
+                      <button type="button" onClick={() => router.push(editorHref(article.id))} className="ml-1 text-xs font-semibold text-emerald-800 hover:underline">Редагувати публікацію →</button>
                     </div>
                   );
                 })}
@@ -760,7 +761,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                   <FileText className="mx-auto size-8 text-slate-400" />
                   <h3 className="mt-3 text-base font-bold text-slate-900">Чернеток поки немає</h3>
                   <p className="mt-1 text-sm text-slate-500">Створіть публікацію та збережіть її, щоб продовжити пізніше.</p>
-                  <button type="button" onClick={() => router.push("/editor")} className="mt-4 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700">Написати статтю</button>
+                  <button type="button" onClick={() => router.push(editorHref())} className="mt-4 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-bold text-white transition hover:bg-emerald-700">Написати статтю</button>
                 </div>
               )}
               {!cmsLoading && cmsArticles.filter((article) => article.status === "draft").map((draft) => (
@@ -774,7 +775,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                     <h4 className="truncate font-sans text-sm font-bold text-slate-900 sm:text-base">{draft.title || "Без назви"}</h4>
                     <p className="truncate text-xs text-slate-500">{draft.lead || "Додайте лід і продовжте роботу над матеріалом."}</p>
                   </div>
-                  <button type="button" onClick={() => router.push(`/editor/${draft.id}`)} className="shrink-0 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-mono font-semibold text-white transition-colors hover:bg-emerald-700">Продовжити редагування</button>
+                  <button type="button" onClick={() => router.push(editorHref(draft.id))} className="shrink-0 rounded-xl bg-slate-900 px-4 py-2.5 text-xs font-mono font-semibold text-white transition-colors hover:bg-emerald-700">Продовжити редагування</button>
                 </div>
               ))}
             </div>

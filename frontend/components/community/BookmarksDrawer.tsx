@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, Trash2, X } from "lucide-react";
 import { useBookmarks } from "../../context/BookmarksContext";
+import { articleHref } from "../../lib/routes";
 
 export function BookmarksDrawer() {
   const { items, drawerOpen, closeDrawer, toggleBookmark } = useBookmarks();
@@ -123,7 +124,7 @@ export function BookmarksDrawer() {
                 {/* Права частина з кнопками */}
                 <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                   <a
-                    href={`/articles/${article.slug}`}
+                    href={articleHref(article.slug)}
                     onClick={closeDrawer}
                     aria-label={`Читати: ${article.title}`}
                     className="size-[32px] rounded-[10px] bg-white border border-[#cbd5e1] text-[#64748b] hover:border-[#10b981] hover:text-[#059669] grid place-items-center transition cursor-pointer"

@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getCategoryDesign } from "../../lib/constants";
 import { BookmarkButton } from "./BookmarkButton";
 import { ArticleCover } from "./ArticleCover";
+import { articleHref } from "../../lib/routes";
 import type { Article } from "./types";
 
 interface ArticleCardProps {
@@ -42,7 +43,7 @@ export function ArticleCard({ article, bookmarked, onBookmark }: ArticleCardProp
         </div>
 
         {/* Обкладинка + Заголовок */}
-        <a href={`/articles/${article.slug}`} className="flex flex-col gap-3 sm:gap-4 items-start w-full cursor-pointer">
+        <a href={articleHref(article.slug)} className="flex flex-col gap-3 sm:gap-4 items-start w-full cursor-pointer">
           <div className="w-full h-[150px] xs:h-[165px] sm:h-[180px] rounded-[12px] sm:rounded-[16px] border border-[#e2e8f0] overflow-hidden relative shrink-0">
             <ArticleCover article={article} />
           </div>

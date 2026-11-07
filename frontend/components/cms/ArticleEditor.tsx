@@ -7,6 +7,7 @@ import { useAuth } from "../../context/AuthContext";
 import { getStoredAccessToken } from "../../lib/api";
 import { Header } from "../Header";
 import { Footer } from "../Footer";
+import { editorHref } from "../../lib/routes";
 import { AuthModal } from "../auth/AuthModal";
 import {
   createEditorArticle,
@@ -232,7 +233,7 @@ export function ArticleEditor({ articleId }: { articleId?: string }) {
       setSlug(saved.slug);
       setSlugTouched(true);
       setNotice(status === "published" ? "Статтю опубліковано." : "Чернетку збережено.");
-      if (!article) router.replace(`/editor/${saved.id}`);
+      if (!article) router.replace(editorHref(saved.id));
     } catch (reason) {
       setError(readableError(reason));
     } finally {

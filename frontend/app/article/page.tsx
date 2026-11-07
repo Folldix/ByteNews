@@ -1,21 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Bookmark, Check, Copy, Focus, MessageSquare, ArrowLeft } from "lucide-react";
-import { Header } from "../../../components/Header";
-import { Footer } from "../../../components/Footer";
-import { AuthModal } from "../../../components/auth/AuthModal";
-import { BookmarksDrawer } from "../../../components/community/BookmarksDrawer";
-import { CommentsSection } from "../../../components/community/CommentsSection";
-import { ReactionsBar } from "../../../components/community/reactions-bar";
-import { FontSizeControl } from "../../../components/community/font-size-control";
-import { useAuth } from "../../../context/AuthContext";
-import { useBookmarks } from "../../../context/BookmarksContext";
-import { getArticle, setReaction } from "../../../components/community/api";
-import type { ArticleRead } from "../../../components/community/api";
-import type { FontSize } from "../../../components/community/font-size-control";
-import type { ReactionKind } from "../../../components/community/types";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
+import { AuthModal } from "../../components/auth/AuthModal";
+import { BookmarksDrawer } from "../../components/community/BookmarksDrawer";
+import { CommentsSection } from "../../components/community/CommentsSection";
+import { ReactionsBar } from "../../components/community/reactions-bar";
+import { FontSizeControl } from "../../components/community/font-size-control";
+import { useAuth } from "../../context/AuthContext";
+import { useBookmarks } from "../../context/BookmarksContext";
+import { articleHref } from "../../lib/routes";
+import { getArticle, setReaction } from "../../components/community/api";
+import type { ArticleRead } from "../../components/community/api";
+import type { FontSize } from "../../components/community/font-size-control";
+import type { ReactionKind } from "../../components/community/types";
 
 function payloadText(payload: Record<string, unknown>, ...keys: string[]) {
   for (const key of keys) if (typeof payload[key] === "string") return payload[key] as string;
@@ -54,8 +55,12 @@ function ArticleContent({ article, fontSize }: { article: ArticleRead; fontSize:
 }
 
 export default function ArticlePage() {
-  const params = useParams<{ slug: string }>();
-  const slug = Array.isArray(params.slug) ? params.slug[0] : params.slug;
+  // useSearchParams у статичному експорті вимагає Suspense-межі.
+  return <Suspense fallback={null}><ArticleView /></Suspense>;
+}
+
+function ArticleView() {
+  const slug = useSearchParams().get("slug") ?? "";
   const { user, openAuthModal } = useAuth();
   const { isBookmarked, toggleBookmark } = useBookmarks();
   const [article, setArticle] = useState<ArticleRead | null>(null);
@@ -68,6 +73,7 @@ export default function ArticlePage() {
 
   useEffect(() => {
     let active = true;
+    if (!slug) { setError("Не вказано статтю. Поверніться до стрічки."); setLoading(false); return; }
     setLoading(true);
     getArticle(slug).then((result) => { if (active) setArticle(result); })
       .catch((reason) => { if (active) setError(reason instanceof Error ? reason.message : "Не вдалося завантажити статтю."); })
@@ -115,7 +121,10 @@ export default function ArticlePage() {
 
   async function copyLink() {
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      // У Tauri window.location — це tauri://localhost/..., його нікому не надішлеш.
+      // Тому, якщо задано NEXT_PUBLIC_SITE_URL, копіюємо публічну веб-адресу.
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
+      await navigator.clipboard.writeText(siteUrl ? `${siteUrl}${articleHref(slug)}` : window.location.href);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
