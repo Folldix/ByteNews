@@ -1,0 +1,6 @@
+# Caddy сам отримує й оновлює сертифікат Let's Encrypt для домену з API_DOMAIN.
+# Потрібно: DNS A-запис домену -> IP сервера, відкриті порти 80 і 443.
+{$API_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy api:8000
+}
