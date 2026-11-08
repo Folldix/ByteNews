@@ -357,18 +357,18 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 <button
                   type="button"
                   onClick={() => router.push("/editor")}
-                  className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  className="w-full sm:w-auto md:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] whitespace-nowrap shrink-0"
                 >
-                  <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
+                  <PenTool className="w-3.5 h-3.5 text-[#34d399] shrink-0" />
                   <span>+ Написати публікацію</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => setIsVerificationOpen(true)}
-                  className="w-full sm:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  className="w-full sm:w-auto md:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] whitespace-nowrap shrink-0"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#34d399] shrink-0" />
                   <span>Стати автором</span>
                 </button>
               )}
@@ -377,26 +377,26 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="flex-1 sm:flex-initial h-[38px] px-3 sm:px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] whitespace-nowrap"
                 >
-                  <UserPen className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Редагувати профіль</span>
+                  <UserPen className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <span>Редагувати<span className="hidden min-[400px]:inline"> профіль</span></span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleCopyProfileLink}
                   title="Скопіювати посилання на профіль"
-                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="flex-1 sm:flex-initial h-[38px] px-3 sm:px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] whitespace-nowrap"
                 >
                   {copiedLink ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-[#10b981]" />
+                      <Check className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                       <span className="font-semibold text-[#10b981]">Скопійовано</span>
                     </>
                   ) : (
                     <>
-                      <Share2 className="w-3.5 h-3.5 text-[#64748b]" />
+                      <Share2 className="w-3.5 h-3.5 text-[#64748b] shrink-0" />
                       <span>Поділитися</span>
                     </>
                   )}
