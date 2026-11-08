@@ -19,7 +19,6 @@ import {
   Sparkles,
   TrendingUp,
   CheckCircle2,
-  ThumbsUp,
   UserPen,
   ArrowUpDown,
   ChevronDown,
@@ -278,7 +277,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
       <div className="relative overflow-hidden rounded-[20px] sm:rounded-[24px] bg-white/90 backdrop-blur-md border border-[#e2e8f0] p-4 sm:p-7 shadow-sm">
         {/* Фонове декоративне світіння */}
         <div
-          className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -z-0 transition-colors duration-500 ${
+          className={`absolute top-0 right-0 w-80 h-52 rounded-full blur-3xl pointer-events-none z-0 transition-colors duration-500 ${
             isReporter ? "bg-emerald-200/40" : "bg-sky-200/40"
           }`}
         />
@@ -408,19 +407,19 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
         </div>
 
         {/* 3. Адаптивна статистична панель (4 метрики) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-[#e2e8f0] font-mono">
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-[#e2e8f0] font-mono">
           {isReporter ? (
             <>
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
-                  Публікацій (Автор)
+                  Публікацій
                 </div>
                 <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {publishedCount} статей
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Охоплення (перегляди)
                 </div>
@@ -429,7 +428,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
@@ -438,7 +437,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Статус акаунта
                 </div>
@@ -450,7 +449,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
             </>
           ) : (
             <>
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
@@ -459,7 +458,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Написано коментарів
                 </div>
@@ -468,7 +467,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Прочитано новин
                 </div>
@@ -477,7 +476,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Рівень у спільноті
                 </div>
@@ -869,7 +868,23 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                     {comment.commentText}
                   </p>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-1">
-                    <ThumbsUp className="w-3.5 h-3.5 text-emerald-600" />
+                    <svg
+                      width="15"
+                      height="14"
+                      viewBox="0 0 20 18"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="shrink-0 text-emerald-600"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M1 5.95981C1 -0.0402222 8 -0.540222 10 4.15421C12 -0.540222 19 -0.0402222 19 5.95981C19 11.9598 10 16.96 10 16.96C10 16.96 1 11.9598 1 5.95981Z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                     <span>{comment.likes} вподобайок від інших читачів</span>
                   </div>
                 </div>
