@@ -127,12 +127,12 @@ export function Header() {
                   type="button"
                   onClick={openAuthModal}
                   title="Увійти в акаунт"
-                  className="min-h-[36px] sm:min-h-[38px] px-[12px] bg-white/90 border border-[#e2e8f0] rounded-[12px] flex items-center gap-[7px] hover:bg-slate-100 transition cursor-pointer active:scale-95"
+                  className="min-h-[36px] sm:min-h-[38px] px-[12px] bg-white border border-[#e2e8f0] hover:border-[#A7F3D0] rounded-[12px] flex items-center gap-[7px] text-[#0f172a] hover:text-[#059669] hover:bg-[#ECFDF5] hover:shadow-[0px_4px_12px_0px_rgba(16,185,129,0.30)] transition duration-200 cursor-pointer active:scale-95"
                 >
                   <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
-                    <path d="M17 19C17 16.2386 13.4183 14 9 14C4.58172 14 1 16.2386 1 19M9 11C6.23858 11 4 8.76142 4 6C4 3.23858 6.23858 1 9 1C11.7614 1 14 3.23858 14 6C14 8.76142 11.7614 11 9 11Z" stroke="#0F172A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M17 19C17 16.2386 13.4183 14 9 14C4.58172 14 1 16.2386 1 19M9 11C6.23858 11 4 8.76142 4 6C4 3.23858 6.23858 1 9 1C11.7614 1 14 3.23858 14 6C14 8.76142 11.7614 11 9 11Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
-                  <span className="font-bold text-[12px] text-[#0f172a]">
+                  <span className="font-bold text-[12px]">
                     Увійти
                   </span>
                 </button>

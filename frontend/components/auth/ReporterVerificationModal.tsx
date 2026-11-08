@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { Icon } from "../Icon";
 
 const SUGGESTED_TOPICS = ["Штучний Інтелект", "Розробка", "Кібербезпека", "GameDev & 3D", "Залізо & Чіпи", "Стартапи & Ринок"];
 
@@ -32,7 +33,14 @@ export function ReporterVerificationModal({ onClose }: { onClose: () => void }) 
       <section role="dialog" aria-modal="true" aria-labelledby="reporter-title" className="w-full max-w-lg max-h-[90dvh] overflow-y-auto rounded-3xl border border-white/70 bg-white p-5 sm:p-8 shadow-2xl my-auto">
         <div className="flex items-start justify-between gap-4">
           <div><p className="font-mono text-[10px] font-bold uppercase tracking-[.18em] text-emerald-700">ByteNews / Reporter</p><h2 id="reporter-title" className="mt-2 text-2xl font-extrabold tracking-tight">Стати автором</h2><p className="mt-2 text-sm leading-6 text-slate-600">Підтвердіть публічний нікнейм, підпис і теми, про які плануєте писати.</p></div>
-          <button type="button" onClick={onClose} aria-label="Закрити" className="grid size-9 shrink-0 place-items-center rounded-full bg-slate-100 text-xl text-slate-500 hover:bg-slate-200">×</button>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Закрити"
+            className="w-[32px] h-[32px] rounded-[10px] bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0f172a] flex items-center justify-center transition cursor-pointer shrink-0"
+          >
+            <Icon name="close" className="w-[12px] h-[12px]" />
+          </button>
         </div>
         <form onSubmit={submit} className="mt-6 space-y-4">
           <label className="block text-xs font-semibold text-slate-700">Нікнейм

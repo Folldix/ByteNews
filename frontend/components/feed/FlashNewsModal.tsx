@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
+import { Icon } from "../Icon";
 import type { FlashNews } from "./types";
 
 interface FlashNewsModalProps {
@@ -41,11 +42,12 @@ export function FlashNewsModal({ item, onClose, relativeTime }: FlashNewsModalPr
             Оперативна новина
           </span>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Закрити"
-            className="grid size-9 place-items-center rounded-full bg-slate-100 text-lg text-slate-500 hover:bg-slate-200 cursor-pointer"
+            className="w-[32px] h-[32px] rounded-[10px] bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0f172a] flex items-center justify-center transition cursor-pointer shrink-0"
           >
-            ×
+            <Icon name="close" className="w-[12px] h-[12px]" />
           </button>
         </div>
         <p className="mt-5 font-mono text-xs text-slate-400">

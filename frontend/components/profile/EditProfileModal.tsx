@@ -1,7 +1,8 @@
 "use client";
 
 import React, { FormEvent, useEffect, useState } from "react";
-import { Check, Image as ImageIcon, MapPin, User, X } from "lucide-react";
+import { Check, Image as ImageIcon, MapPin, User } from "lucide-react";
+import { Icon } from "../Icon";
 import { useAuth } from "../../context/AuthContext";
 
 const PRESET_AVATARS = [
@@ -134,9 +135,9 @@ export function EditProfileModal({ isOpen, onClose }: EditProfileModalProps) {
             type="button"
             onClick={onClose}
             aria-label="Закрити"
-            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 transition flex items-center justify-center cursor-pointer"
+            className="w-[32px] h-[32px] rounded-[10px] bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#0f172a] flex items-center justify-center transition cursor-pointer shrink-0"
           >
-            <X className="w-4 h-4" />
+            <Icon name="close" className="w-[12px] h-[12px]" />
           </button>
         </div>
 
