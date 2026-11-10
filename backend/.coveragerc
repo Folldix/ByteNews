@@ -1,0 +1,11 @@
+[run]
+source = app
+# SQLAlchemy async runs ORM code inside greenlets; without this, lines
+# executed after an `await db...` are not recorded.
+concurrency = greenlet,thread
+omit =
+    app/db/seed_demo_content.py
+
+[report]
+show_missing = true
+skip_covered = true
