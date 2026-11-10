@@ -1,6 +1,4 @@
-import sys
 from datetime import datetime, timedelta, timezone
-from uuid import uuid4
 from sqlalchemy import select
 from app.db.session import SessionLocal
 from app.models.enums import ArticleStatus, BlockType, UserRole

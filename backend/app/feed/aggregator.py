@@ -114,8 +114,12 @@ def _entry_url(raw_url: str, feed_url: str) -> str | None:
 
 
 def _parse_source(source: RSSSource) -> feedparser.FeedParserDict:
-    request = Request(source.feed_url, headers={"User-Agent": "ByteNews RSS Aggregator/1.0"})
-    with urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:
+    # Only plain web feeds may be fetched: file:, ftp: and custom schemes from
+    # a misconfigured source must never reach urlopen.
+    if urlsplit(source.feed_url).scheme not in {"http", "https"}:
+        raise ValueError(f"Unsupported RSS feed URL scheme: {source.feed_url}")
+    request = Request(source.feed_url, headers={"User-Agent": "ByteNews RSS Aggregator/1.0"})  # noqa: S310 - scheme checked above
+    with urlopen(request, timeout=FETCH_TIMEOUT_SECONDS) as response:  # noqa: S310 - scheme checked above
         payload = response.read(MAX_FEED_BYTES + 1)
     if len(payload) > MAX_FEED_BYTES:
         raise ValueError(f"RSS feed exceeds the {MAX_FEED_BYTES}-byte limit")

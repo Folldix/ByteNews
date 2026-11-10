@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.auth.dependencies import get_current_user, require_reporter
+from app.auth.dependencies import require_reporter
 from app.cms.schemas import (
     ArticleBlockInput,
     ArticleCreate,
@@ -21,7 +21,7 @@ from app.cms.schemas import (
 )
 from app.db.session import get_db
 from app.models.article import Article, ArticleBlock
-from app.models.enums import ArticleStatus, BlockType, UserRole
+from app.models.enums import ArticleStatus, UserRole
 from app.models.feed import ArticleTag, Category, Tag
 from app.models.user import User
 
