@@ -353,7 +353,74 @@ async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function filterFallbackArticles(options: {
+  category?: string;
+  tag?: string;
+  query?: string;
+  sort?: "latest" | "popular";
+  limit?: number;
+  offset?: number;
+}): Page<Article> {
+  if (options.sort === "popular" && !options.category && !options.tag && !options.query) {
+    const limit = options.limit ?? 3;
+    return {
+      items: FALLBACK_POPULAR.slice(0, limit),
+      total: FALLBACK_POPULAR.length,
+      limit,
+      offset: options.offset ?? 0,
+    };
+  }
+
+  let items = [...FALLBACK_ARTICLES];
+
+  if (options.category) {
+    const catLower = options.category.toLowerCase();
+    items = items.filter((a) => {
+      const cat = a.category?.toLowerCase() || "";
+      if (catLower === "ai" && (cat.includes("інтелект") || cat === "ші")) return true;
+      if (catLower === "development" && cat.includes("розроб")) return true;
+      if (catLower === "cybersecurity" && (cat.includes("кібер") || cat.includes("безпек"))) return true;
+      if (catLower === "gamedev-3d" && (cat.includes("game") || cat.includes("3d") || cat.includes("ігр"))) return true;
+      if (catLower === "hardware-chips" && (cat.includes("заліз") || cat.includes("чіп"))) return true;
+      if (catLower === "startups-market" && (cat.includes("стартап") || cat.includes("ринок"))) return true;
+      return cat.includes(catLower);
+    });
+  }
+
+  if (options.tag) {
+    const tagLower = options.tag.toLowerCase();
+    items = items.filter((a) => a.tags.some((t) => t.toLowerCase() === tagLower));
+  }
+
+  if (options.query) {
+    const qLower = options.query.toLowerCase();
+    items = items.filter((a) =>
+      a.title.toLowerCase().includes(qLower) ||
+      (a.lead && a.lead.toLowerCase().includes(qLower)) ||
+      a.tags.some((t) => t.toLowerCase().includes(qLower))
+    );
+  }
+
+  if (options.sort === "popular") {
+    items.sort((a, b) => b.views_count - a.views_count);
+  }
+
+  const offset = options.offset ?? 0;
+  const limit = options.limit ?? 12;
+  const paged = items.slice(offset, offset + limit);
+
+  return {
+    items: paged,
+    total: items.length,
+    limit,
+    offset,
+  };
+}
+
 export async function getCategories(signal?: AbortSignal) {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return { items: FALLBACK_CATEGORIES };
+  }
   try {
     return await getJson<{ items: CatalogItem[] }>("/categories", signal);
   } catch (err: unknown) {
@@ -363,6 +430,9 @@ export async function getCategories(signal?: AbortSignal) {
 }
 
 export async function getTags(signal?: AbortSignal) {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return { items: FALLBACK_TAGS };
+  }
   try {
     return await getJson<{ items: CatalogItem[] }>("/tags", signal);
   } catch (err: unknown) {
@@ -380,6 +450,10 @@ export async function getArticles(options: {
   offset?: number;
   signal?: AbortSignal;
 }): Promise<Page<Article>> {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return filterFallbackArticles(options);
+  }
+
   const params = new URLSearchParams();
   if (options.category) params.set("category", options.category);
   if (options.tag) params.set("tag", options.tag);
@@ -392,65 +466,19 @@ export async function getArticles(options: {
     return await getJson<Page<Article>>(path, options.signal);
   } catch (err: unknown) {
     if (options.signal?.aborted) throw err;
-
-    if (options.sort === "popular" && !options.category && !options.tag && !options.query) {
-      const limit = options.limit ?? 3;
-      return {
-        items: FALLBACK_POPULAR.slice(0, limit),
-        total: FALLBACK_POPULAR.length,
-        limit,
-        offset: options.offset ?? 0,
-      };
-    }
-
-    let items = [...FALLBACK_ARTICLES];
-
-    if (options.category) {
-      const catLower = options.category.toLowerCase();
-      items = items.filter((a) => {
-        const cat = a.category?.toLowerCase() || "";
-        if (catLower === "ai" && (cat.includes("інтелект") || cat === "ші")) return true;
-        if (catLower === "development" && cat.includes("розроб")) return true;
-        if (catLower === "cybersecurity" && (cat.includes("кібер") || cat.includes("безпек"))) return true;
-        if (catLower === "gamedev-3d" && (cat.includes("game") || cat.includes("3d") || cat.includes("ігр"))) return true;
-        if (catLower === "hardware-chips" && (cat.includes("заліз") || cat.includes("чіп"))) return true;
-        if (catLower === "startups-market" && (cat.includes("стартап") || cat.includes("ринок"))) return true;
-        return cat.includes(catLower);
-      });
-    }
-
-    if (options.tag) {
-      const tagLower = options.tag.toLowerCase();
-      items = items.filter((a) => a.tags.some((t) => t.toLowerCase() === tagLower));
-    }
-
-    if (options.query) {
-      const qLower = options.query.toLowerCase();
-      items = items.filter((a) =>
-        a.title.toLowerCase().includes(qLower) ||
-        (a.lead && a.lead.toLowerCase().includes(qLower)) ||
-        a.tags.some((t) => t.toLowerCase().includes(qLower))
-      );
-    }
-
-    if (options.sort === "popular") {
-      items.sort((a, b) => b.views_count - a.views_count);
-    }
-
-    const offset = options.offset ?? 0;
-    const limit = options.limit ?? 12;
-    const paged = items.slice(offset, offset + limit);
-
-    return {
-      items: paged,
-      total: items.length,
-      limit,
-      offset,
-    };
+    return filterFallbackArticles(options);
   }
 }
 
 export async function getFlashNews(signal?: AbortSignal) {
+  if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true") {
+    return {
+      items: FALLBACK_FLASH_NEWS,
+      total: FALLBACK_FLASH_NEWS.length,
+      limit: 8,
+      offset: 0,
+    };
+  }
   try {
     return await getJson<Page<FlashNews>>("/flash-news?limit=8", signal);
   } catch (err: unknown) {

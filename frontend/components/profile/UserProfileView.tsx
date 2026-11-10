@@ -19,7 +19,6 @@ import {
   Sparkles,
   TrendingUp,
   CheckCircle2,
-  ThumbsUp,
   UserPen,
   ArrowUpDown,
   ChevronDown,
@@ -279,7 +278,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
       <div className="relative overflow-hidden rounded-[20px] sm:rounded-[24px] bg-white/90 backdrop-blur-md border border-[#e2e8f0] p-4 sm:p-7 shadow-sm">
         {/* Фонове декоративне світіння */}
         <div
-          className={`absolute top-0 right-0 w-80 h-80 rounded-full blur-3xl pointer-events-none -z-0 transition-colors duration-500 ${
+          className={`absolute top-0 right-0 w-80 h-52 rounded-full blur-3xl pointer-events-none z-0 transition-colors duration-500 ${
             isReporter ? "bg-emerald-200/40" : "bg-sky-200/40"
           }`}
         />
@@ -357,19 +356,19 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
               {isReporter ? (
                 <button
                   type="button"
-                  onClick={() => router.push(editorHref())}
-                  className="flex-1 md:flex-initial h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  onClick={() => router.push("/editor")}
+                  className="w-full sm:w-auto md:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#1e293b] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] whitespace-nowrap shrink-0"
                 >
-                  <PenTool className="w-3.5 h-3.5 text-[#34d399]" />
+                  <PenTool className="w-3.5 h-3.5 text-[#34d399] shrink-0" />
                   <span>+ Написати публікацію</span>
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={() => setIsVerificationOpen(true)}
-                  className="w-full sm:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98]"
+                  className="w-full sm:w-auto md:w-auto h-[38px] px-4 rounded-[12px] bg-[#0f172a] hover:bg-[#059669] text-white font-mono text-[12px] font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md active:scale-[0.98] whitespace-nowrap shrink-0"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#34d399]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#34d399] shrink-0" />
                   <span>Стати автором</span>
                 </button>
               )}
@@ -378,26 +377,26 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(true)}
-                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="flex-1 sm:flex-initial h-[38px] px-3 sm:px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] whitespace-nowrap"
                 >
-                  <UserPen className="w-3.5 h-3.5 text-slate-500" />
-                  <span>Редагувати профіль</span>
+                  <UserPen className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+                  <span>Редагувати<span className="hidden min-[400px]:inline"> профіль</span></span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleCopyProfileLink}
                   title="Скопіювати посилання на профіль"
-                  className="flex-1 sm:flex-initial h-[34px] px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98]"
+                  className="flex-1 sm:flex-initial h-[38px] px-3 sm:px-3.5 rounded-[12px] bg-white border border-[#e2e8f0] hover:bg-slate-50 text-[#1e293b] font-mono text-[12px] font-medium transition-colors flex items-center justify-center gap-1.5 cursor-pointer shadow-xs active:scale-[0.98] whitespace-nowrap"
                 >
                   {copiedLink ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-[#10b981]" />
+                      <Check className="w-3.5 h-3.5 text-[#10b981] shrink-0" />
                       <span className="font-semibold text-[#10b981]">Скопійовано</span>
                     </>
                   ) : (
                     <>
-                      <Share2 className="w-3.5 h-3.5 text-[#64748b]" />
+                      <Share2 className="w-3.5 h-3.5 text-[#64748b] shrink-0" />
                       <span>Поділитися</span>
                     </>
                   )}
@@ -409,19 +408,19 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
         </div>
 
         {/* 3. Адаптивна статистична панель (4 метрики) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-[#e2e8f0] font-mono">
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 pt-5 sm:pt-6 mt-5 sm:mt-6 border-t border-[#e2e8f0] font-mono">
           {isReporter ? (
             <>
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
-                  Публікацій (Автор)
+                  Публікацій
                 </div>
                 <div className="text-[15px] sm:text-[18px] md:text-[20px] font-extrabold text-[#0f172a] leading-tight">
                   {publishedCount} статей
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Охоплення (перегляди)
                 </div>
@@ -430,7 +429,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
@@ -439,7 +438,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Статус акаунта
                 </div>
@@ -451,7 +450,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
             </>
           ) : (
             <>
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Збережено у закладки
                 </div>
@@ -460,7 +459,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Написано коментарів
                 </div>
@@ -469,7 +468,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Прочитано новин
                 </div>
@@ -478,7 +477,7 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                 </div>
               </div>
 
-              <div className="p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-white/70 border border-[#e2e8f0] shadow-xs">
+              <div className="relative z-10 p-3 sm:p-4 rounded-[14px] sm:rounded-[16px] bg-[#FDFEFE] border border-[#e2e8f0] shadow-xs">
                 <div className="text-[10px] sm:text-[11px] font-medium text-slate-500 mb-1 leading-snug line-clamp-1">
                   Рівень у спільноті
                 </div>
@@ -870,7 +869,23 @@ export function UserProfileView({ initialTab = "articles" }: { initialTab?: Prof
                     {comment.commentText}
                   </p>
                   <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-1">
-                    <ThumbsUp className="w-3.5 h-3.5 text-emerald-600" />
+                    <svg
+                      width="15"
+                      height="14"
+                      viewBox="0 0 20 18"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="shrink-0 text-emerald-600"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M1 5.95981C1 -0.0402222 8 -0.540222 10 4.15421C12 -0.540222 19 -0.0402222 19 5.95981C19 11.9598 10 16.96 10 16.96C10 16.96 1 11.9598 1 5.95981Z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
                     <span>{comment.likes} вподобайок від інших читачів</span>
                   </div>
                 </div>

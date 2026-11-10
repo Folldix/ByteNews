@@ -130,6 +130,42 @@ export async function apiLogin(
   email: string,
   password: string,
 ): Promise<TokenPair> {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode) {
+    const isAlexAuthor = email?.toLowerCase().includes("alex");
+    if (isAlexAuthor) {
+      return {
+        user: { ...DEMO_AUTHOR_PROFILE, email: email || DEMO_AUTHOR_PROFILE.email },
+        access_token: "demo-access-token",
+        refresh_token: "demo-refresh-token",
+        token_type: "bearer",
+      };
+    }
+
+    const emailPrefix = (email ? email.split("@")[0] : "reader").replace(/[^a-zA-Z0-9_]/g, "_");
+    const capitalized = emailPrefix ? (emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1)) : "Читач";
+    const demoProfile: UserProfile = {
+      ...DEMO_READER_PROFILE,
+      id: "demo-reader-id",
+      email: email || "reader@bytenews.ua",
+      full_name: capitalized,
+      handle: emailPrefix.toLowerCase(),
+      avatar_initials: capitalized.slice(0, 2).toUpperCase() || "BN",
+      bio: "Тут я скоро розкажу про себе...",
+      role: "reader",
+      role_title: "Читач спільноти",
+      location: "Україна",
+      joined_date: "листопада 2026",
+    };
+
+    return {
+      user: demoProfile,
+      access_token: "demo-access-token",
+      refresh_token: "demo-refresh-token",
+      token_type: "bearer",
+    };
+  }
+
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -184,6 +220,39 @@ export async function apiRegister(
   email: string,
   password: string,
 ): Promise<TokenPair> {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode) {
+    const emailPrefix = (email ? email.split("@")[0] : "user").replace(/[^a-zA-Z0-9_]/g, "_");
+    const cleanName = name.trim() || (emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1));
+    const handle = emailPrefix.toLowerCase();
+    const demoReader: UserProfile = {
+      ...DEMO_READER_PROFILE,
+      id: "demo-reader-id",
+      full_name: cleanName,
+      handle: handle,
+      email: email || null,
+      role: "reader",
+      role_title: "Читач спільноти",
+      bio: "Тут я скоро розкажу про себе...",
+      avatar_initials: cleanName.slice(0, 2).toUpperCase() || "BN",
+      avatar_url: "/avatars/Avatar_6.png",
+      location: "Україна",
+      joined_date: "листопада 2026",
+      articles_count: 0,
+      total_views: 0,
+      bookmarks_count: 0,
+      comments_count: 0,
+      read_articles_count: 0,
+      articles: [],
+    };
+    return {
+      user: demoReader,
+      access_token: "demo-access-token",
+      refresh_token: "demo-refresh-token",
+      token_type: "bearer",
+    };
+  }
+
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/auth/register`, {
@@ -192,8 +261,6 @@ export async function apiRegister(
       body: JSON.stringify({ full_name: name, email, password }),
     });
   } catch {
-    // Демо-fallback для читача при недоступному бекенді:
-    // Ім'я - вказане або перша частина пошти, опис - шаблонний
     const emailPrefix = (email ? email.split("@")[0] : "user").replace(/[^a-zA-Z0-9_]/g, "_");
     const cleanName = name.trim() || (emailPrefix.charAt(0).toUpperCase() + emailPrefix.slice(1));
     const handle = emailPrefix.toLowerCase();
@@ -230,8 +297,17 @@ export async function apiRegister(
 
 /** Отримання профілю поточного користувача */
 export async function apiFetchMe(token: string): Promise<UserProfile> {
-  if (token === "demo-access-token") {
-    throw new Error("Demo token");
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode || token === "demo-access-token") {
+    try {
+      if (typeof window !== "undefined") {
+        const rawUser = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+        if (rawUser) {
+          return JSON.parse(rawUser) as UserProfile;
+        }
+      }
+    } catch {}
+    return DEMO_AUTHOR_PROFILE;
   }
   const res = await fetch(`${API_BASE_URL}/users/me`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -242,8 +318,21 @@ export async function apiFetchMe(token: string): Promise<UserProfile> {
 }
 
 export async function apiRefresh(refreshToken: string): Promise<TokenPair> {
-  if (refreshToken === "demo-refresh-token") {
-    throw new Error("Demo refresh token");
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode || refreshToken === "demo-refresh-token") {
+    let user = DEMO_AUTHOR_PROFILE;
+    try {
+      if (typeof window !== "undefined") {
+        const rawUser = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+        if (rawUser) user = JSON.parse(rawUser);
+      }
+    } catch {}
+    return {
+      user,
+      access_token: "demo-access-token",
+      refresh_token: "demo-refresh-token",
+      token_type: "bearer",
+    };
   }
   const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
     method: "POST",
@@ -255,6 +344,10 @@ export async function apiRefresh(refreshToken: string): Promise<TokenPair> {
 }
 
 export async function apiLogout(refreshToken: string): Promise<void> {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode || refreshToken === "demo-refresh-token") {
+    return;
+  }
   await fetch(`${API_BASE_URL}/auth/logout`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -266,6 +359,23 @@ export async function apiUpgradeRole(
   token: string,
   profile: { handle: string; role_title: string; topics: string[] },
 ): Promise<UserProfile> {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode || token === "demo-access-token") {
+    let currentUser = DEMO_AUTHOR_PROFILE;
+    try {
+      if (typeof window !== "undefined") {
+        const rawUser = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+        if (rawUser) currentUser = JSON.parse(rawUser);
+      }
+    } catch {}
+    return {
+      ...currentUser,
+      handle: profile.handle || currentUser.handle || DEMO_AUTHOR_PROFILE.handle,
+      role_title: profile.role_title || DEMO_AUTHOR_PROFILE.role_title,
+      reporter_topics: profile.topics,
+      role: "reporter",
+    };
+  }
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/users/upgrade-role`, {
@@ -290,6 +400,17 @@ export async function apiUpdateProfile(
   token: string,
   profile: Partial<UserProfile>,
 ): Promise<UserProfile> {
+  const isDemoMode = process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  if (isDemoMode || token === "demo-access-token") {
+    let currentUser = DEMO_AUTHOR_PROFILE;
+    try {
+      if (typeof window !== "undefined") {
+        const rawUser = localStorage.getItem("bytenews_user") || sessionStorage.getItem("bytenews_user");
+        if (rawUser) currentUser = JSON.parse(rawUser);
+      }
+    } catch {}
+    return { ...currentUser, ...profile };
+  }
   let res: Response;
   try {
     res = await fetch(`${API_BASE_URL}/users/me`, {
