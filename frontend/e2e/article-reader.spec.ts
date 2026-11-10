@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 const articleId = "11111111-1111-4111-8111-111111111111";
 const optionA = "22222222-2222-4222-8222-222222222222";
 const optionB = "33333333-3333-4333-8333-333333333333";
+// Статичний експорт (Tauri) не підтримує /articles/[slug], тому slug передається query-параметром.
+const ARTICLE_URL = "/article/?slug=reader-e2e";
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/articles/reader-e2e", (route) => route.fulfill({ json: {
@@ -29,7 +31,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 test("reader toolbar adjusts type and toggles zen mode", async ({ page }) => {
-  await page.goto("/articles/reader-e2e");
+  await page.goto(ARTICLE_URL);
   await expect(page.getByRole("heading", { name: "Перевірка сторінки читання" })).toBeVisible();
   await page.getByRole("button", { name: "Більший шрифт" }).click();
   await expect(page.locator("article").locator(".text-xl").first()).toBeVisible();
@@ -46,7 +48,7 @@ test("reader supports optimistic bookmark and reactions", async ({ page }) => {
   await page.route(`**/api/v1/articles/${articleId}/react`, (route) => route.fulfill({ json: {
     counts: { useful: 1, fire: 0, insight: 0, controversial: 0 }, selected: "useful",
   } }));
-  await page.goto("/articles/reader-e2e");
+  await page.goto(ARTICLE_URL);
   const bookmark = page.getByRole("button", { name: "Додати в закладки" });
   await bookmark.click();
   await expect(page.getByRole("button", { name: "Прибрати із закладок" })).toHaveAttribute("aria-pressed", "true");
@@ -58,11 +60,8 @@ test("reader supports optimistic bookmark and reactions", async ({ page }) => {
   await expect(page.getByRole("button", { name: /Корисно \(1\)/ })).toHaveAttribute("aria-pressed", "true");
 });
 
-test("poll selection submits and renders returned percentages", async ({ page }) => {
-  await page.route("**/api/v1/auth/login", (route) => route.fulfill({ json: {
-    user: { id: "55555555-5555-4555-8555-555555555555", email: "reader@example.test", full_name: "QA Reader", handle: "qa-reader", role: "reader", role_title: null, bio: null, avatar_initials: "QR", articles_count: 0, total_views: 0, bookmarks_count: 0, articles: [] },
-    access_token: "e2e-token", refresh_token: "e2e-refresh", token_type: "bearer",
-  } }));
+test("home poll vote renders returned percentages", async ({ page }) => {
+  // Опитування тижня живе на головній; голосувати можна без входу (анонімний голос).
   await page.route("**/api/v1/polls/*/vote", (route) => route.fulfill({ json: {
     id: "44444444-4444-4444-8444-444444444444", question: "Який стек обираєте?",
     closes_at: null, total_votes: 1, selected_option_id: optionA,
@@ -71,12 +70,11 @@ test("poll selection submits and renders returned percentages", async ({ page })
       { id: optionB, option_text: "Vue", votes_count: 0, percentage: 0 },
     ],
   } }));
-  await page.goto("/articles/reader-e2e");
-  await page.getByText("React", { exact: true }).last().click();
-  await page.getByRole("button", { name: "Проголосувати" }).click();
-  await page.getByPlaceholder("alex@bytenews.ua").fill("reader@example.test");
-  await page.getByPlaceholder("••••••••••••").fill("reader-password");
-  await page.getByRole("button", { name: "Увійти в акаунт" }).click();
-  await page.getByRole("button", { name: "Проголосувати" }).click();
-  await expect(page.getByText("100%")).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByText("Який стек обираєте?")).toBeVisible();
+  // На головній є й тег «React», тому шукаємо кнопку лише всередині віджета опитування.
+  const poll = page.locator("section", { hasText: "ОПИТУВАННЯ ТИЖНЯ" });
+  await poll.getByRole("button", { name: "React", exact: true }).click();
+  await expect(poll.getByText("100%")).toBeVisible();
+  await expect(poll.getByText("1 голосів")).toBeVisible();
 });
