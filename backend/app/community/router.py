@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,10 +28,9 @@ from app.community.schemas import (
     ReactionUpdate,
 )
 from app.db.session import get_db
-from app.models.article import Article, ArticleBlock
+from app.models.article import Article
 from app.models.community import Bookmark, Comment, Poll, PollOption, PollVote, Reaction
 from app.models.enums import ArticleStatus, ReactionKind
-from app.models.feed import Category, Tag
 from app.models.user import User
 from app.schemas.feed import ArticleFeedItem
 

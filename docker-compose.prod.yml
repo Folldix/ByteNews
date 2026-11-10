@@ -1,0 +1,61 @@
+# Продакшен-стек: Postgres + FastAPI + Caddy (HTTPS).
+# Запуск:  docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+# Назовні відкриті лише 80 і 443 (Caddy). База й API недоступні ззовні.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: bytenews
+      POSTGRES_USER: bytenews
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Задайте POSTGRES_PASSWORD у .env.prod}
+    volumes:
+      - bytenews-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bytenews -d bytenews"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env.prod
+    environment:
+      DATABASE_URL: postgresql+psycopg://bytenews:${POSTGRES_PASSWORD}@db:5432/bytenews
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:?Задайте JWT_SECRET_KEY у .env.prod}
+      MEDIA_STORAGE_PATH: /data/uploads
+    volumes:
+      - bytenews-uploads:/data/uploads
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?Задайте API_DOMAIN у .env.prod}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+volumes:
+  bytenews-postgres:
+  bytenews-uploads:
+  caddy-data:
+  caddy-config:
